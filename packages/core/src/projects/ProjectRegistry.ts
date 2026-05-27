@@ -13,6 +13,8 @@ export class ProjectRegistry {
   }
 
   static defaultPath(): string {
+    const override = process.env.RELAY_BATON_PROJECTS_FILE;
+    if (override && override.trim().length > 0) return override;
     return path.join(os.homedir(), ".relay-baton", "projects.json");
   }
 
@@ -27,16 +29,35 @@ export class ProjectRegistry {
 
   read(): ProjectRegistryData {
     if (!fs.existsSync(this.filePath)) return this.ensure();
+    const raw = fs.readFileSync(this.filePath, "utf8");
     let parsed: unknown;
     try {
-      parsed = JSON.parse(fs.readFileSync(this.filePath, "utf8"));
+      parsed = JSON.parse(raw);
     } catch (e: any) {
-      throw new ProjectRegistryError(`invalid project registry JSON at ${this.filePath}: ${e?.message ?? e}`);
+      this.backupCorrupt(raw, `invalid JSON: ${e?.message ?? e}`);
+      const empty: ProjectRegistryData = { activeProjectId: null, projects: [] };
+      this.write(empty);
+      return empty;
     }
     if (!this.isRegistryData(parsed)) {
-      throw new ProjectRegistryError(`invalid project registry shape at ${this.filePath}`);
+      this.backupCorrupt(raw, "invalid shape");
+      const empty: ProjectRegistryData = { activeProjectId: null, projects: [] };
+      this.write(empty);
+      return empty;
     }
     return parsed;
+  }
+
+  private backupCorrupt(raw: string, reason: string): void {
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const backup = `${this.filePath}.corrupt-${stamp}.bak`;
+    try {
+      fs.mkdirSync(path.dirname(backup), { recursive: true });
+      fs.writeFileSync(backup, raw, "utf8");
+      console.error(`[relay-baton] project registry ${reason}; backed up to ${backup}`);
+    } catch (e: any) {
+      console.error(`[relay-baton] project registry ${reason}; backup failed: ${e?.message ?? e}`);
+    }
   }
 
   write(data: ProjectRegistryData): void {

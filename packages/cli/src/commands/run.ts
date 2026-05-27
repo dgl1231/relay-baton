@@ -13,7 +13,7 @@ export interface RunOpts extends ProjectOpts {
 }
 
 export async function runCommand(task: string, opts: RunOpts) {
-  const projectContext = resolveProjectContext(opts);
+  const projectContext = resolveProjectContext(opts, true);
   const repoRoot = projectContext.repoRoot;
   const { config } = ConfigLoader.load(repoRoot);
   const sm = new SessionManager(repoRoot, config);
@@ -62,7 +62,7 @@ export async function runCommand(task: string, opts: RunOpts) {
     activeAgent: "none",
     fallbackReason: r.fallbackReason,
     status: shouldFallback ? "fallback_detected" : (r.exitCode === 0 ? "completed" : "failed"),
-    lastError: r.exitCode === 0 ? null : `codex exited with ${r.exitCode}`,
+    lastError: r.exitCode === 0 || shouldFallback ? null : `codex exited with ${r.exitCode}`,
   });
 
   if (!shouldFallback) {

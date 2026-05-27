@@ -17,7 +17,7 @@ export interface HandoffOpts extends ProjectOpts {
 }
 
 export async function handoffCommand(opts: HandoffOpts) {
-  const projectContext = resolveProjectContext(opts);
+  const projectContext = resolveProjectContext(opts, true);
   const repoRoot = projectContext.repoRoot;
   const { config } = ConfigLoader.load(repoRoot);
   const sm = new SessionManager(repoRoot, config);

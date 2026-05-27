@@ -81,6 +81,7 @@ Detailed release notes live in [`release-notes/`](./release-notes/). They are wr
 
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
+| v0.3.0 | [notes](./release-notes/v0.3.0.md) | [릴리즈 노트](./release-notes/ko/v0.3.0.md) | Side-effect-free `ProjectResolver`, registry recovery with backup on corrupt `projects.json`, `RELAY_BATON_PROJECTS_FILE` override, and `lastError` cleanup on fallback. |
 | v0.2.0 | [notes](./release-notes/v0.2.0.md) | [릴리즈 노트](./release-notes/ko/v0.2.0.md) | Adds multi-project registry, `--project` / `--path`, project CLI commands, improved TUI dashboard, and `.gitattributes`. |
 | v0.1.0 | [notes](./release-notes/v0.1.0.md) | [릴리즈 노트](./release-notes/ko/v0.1.0.md) | Initial MVP for Codex-to-Claude handoff with token diet, fallback detection, quality gates, and auth-safe subprocess execution. |
 
@@ -220,7 +221,7 @@ Resolution priority is `--path` > `--project` > active project > current working
 
 ## 📂 Project registry
 
-Projects are stored at `~/.relay-baton/projects.json` using `os.homedir()` for cross-platform home resolution.
+Projects are stored at `~/.relay-baton/projects.json` using `os.homedir()` for cross-platform home resolution. Set `RELAY_BATON_PROJECTS_FILE` to use a different path (useful for CI, sandboxing, and tests).
 
 ```bash
 relay-baton project add /path/to/relay-baton --name relay-baton --diet caveman --primary codex --fallback claude
@@ -231,7 +232,7 @@ relay-baton project doctor
 relay-baton project remove relay-baton
 ```
 
-`project add` requires the path to exist and be a git repository. Duplicate paths are not added twice.
+`project add` requires the path to exist and be a git repository. Duplicate paths are not added twice. If `projects.json` is unreadable or has the wrong shape, the file is backed up as `projects.json.corrupt-<timestamp>.bak` and reset to an empty registry — commands keep working instead of aborting. Read-only commands (`status`, `budget`, `doctor`) do not write to the registry; only `run` and `handoff` update `lastUsedAt`.
 
 ## 🔄 Codex → Claude handoff flow
 

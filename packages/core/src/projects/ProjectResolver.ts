@@ -25,14 +25,16 @@ export class ProjectResolver {
     if (input.project) {
       const project = this.manager.findProject(input.project);
       if (!project) throw new Error(`project not found: ${input.project}`);
-      this.manager.updateLastUsedAt(project.id);
       return { repoRoot: project.path, source: "project", project };
     }
     const active = this.manager.getActiveProject();
     if (active) {
-      this.manager.updateLastUsedAt(active.id);
       return { repoRoot: active.path, source: "active", project: active };
     }
     return { repoRoot: cwd, source: "cwd" };
+  }
+
+  touch(result: ProjectResolveResult): void {
+    if (result.project) this.manager.updateLastUsedAt(result.project.id);
   }
 }
