@@ -5,8 +5,9 @@ import {
   ClaudeCodeAdapter, PromptBuilder, runAgent, GitService,
 } from "@relay-baton/core";
 import type { DietProfileName } from "@relay-baton/shared";
+import { ProjectOpts, resolveProjectContext } from "./projectOptions";
 
-export interface HandoffOpts {
+export interface HandoffOpts extends ProjectOpts {
   to: string;
   diet?: string;
   force?: boolean;
@@ -16,7 +17,8 @@ export interface HandoffOpts {
 }
 
 export async function handoffCommand(opts: HandoffOpts) {
-  const repoRoot = process.cwd();
+  const projectContext = resolveProjectContext(opts);
+  const repoRoot = projectContext.repoRoot;
   const { config } = ConfigLoader.load(repoRoot);
   const sm = new SessionManager(repoRoot, config);
   if (!sm.getMeta()) sm.init("");
@@ -27,7 +29,7 @@ export async function handoffCommand(opts: HandoffOpts) {
     process.exit(2);
   }
 
-  const profileName = (opts.diet ?? sm.getMeta()?.tokenDietProfile ?? config.tokenDiet.profile) as DietProfileName;
+  const profileName = (opts.diet ?? sm.getMeta()?.tokenDietProfile ?? projectContext.project?.defaultDiet ?? config.tokenDiet.profile) as DietProfileName;
   if (!config.tokenDiet.profiles[profileName]) {
     console.error(`unknown diet profile: ${profileName}`);
     process.exit(2);

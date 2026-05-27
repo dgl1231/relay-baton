@@ -15,8 +15,10 @@ Codex CLI와 Claude Code CLI 사이에서 작업을 이어받게 하는 local ha
 - core / cli / tui 분리
 - CodexAdapter, ClaudeCodeAdapter
 - FallbackDetector, GitService, RepoMapGenerator
+- ProjectManager / ProjectRegistry / ProjectResolver
 - HandoffGenerator + Quality Gates
 - Token Diet modules
+- Project/session dashboard TUI
 - Vitest tests
 
 제외:
@@ -42,6 +44,20 @@ handoff.md는 짧게 유지한다. 큰 정보는 파일로 저장하고 참조�
 - full logs: `.ai-session/commands.log`
 - compact state: `.ai-session/compact-state.md`
 - repo map: `.ai-session/repo-map.md`
+
+## Project 관리
+
+- 여러 repository는 `~/.relay-baton/projects.json`에 등록한다.
+- 기존 명령은 `--path` > `--project` > active project > cwd 순서로 repoRoot를 결정한다.
+- project가 없어도 기존처럼 cwd 기준으로 동작해야 한다.
+- `compress <file>`은 v0.2에서 cwd 기준을 유지한다.
+
+## TUI 방향
+
+- Ink를 유지한다.
+- project/session dashboard 중심으로 구현한다.
+- TUI에서 Codex/Claude 실제 실행은 하지 않는다.
+- 허용되는 실행성 작업은 handoff `--no-run` 생성까지다.
 
 ## Repository 탐색 규칙
 

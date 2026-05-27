@@ -52,7 +52,8 @@ Pass the baton from one coding agent to another — without spilling your token 
 - 🛡️ **Auth-safe by default** — `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` are **blocked from child processes** by default. Explicit opt-in only.
 - ✅ **Quality gates** — Handoff completeness and token budget are verified *before* the fallback agent is launched.
 - 🧰 **One-shot login** — `relay-baton login` walks you through the Codex / Claude CLI auth flows interactively.
-- 🎛️ **Ink TUI** — Session state, agent availability, and budget usage at a glance.
+- 📂 **Project registry** — Register multiple repositories, switch the active project, and run commands with `--project` or `--path`.
+- 🎛️ **Ink TUI** — Project/session dashboard with project switching, diet cycling, budget refresh, and no-run handoff generation.
 - 🚫 **No API calls of its own** — relay-baton never calls the OpenAI / Anthropic API directly. It only spawns the local CLIs.
 
 ## 🚀 Quick Start
@@ -74,6 +75,15 @@ pnpm relay-baton run "Fix the mail attachment upload flow" --diet balanced
 
 > `pnpm relay-baton` is an alias for `node packages/cli/dist/index.js`. For a global binary, link it with `pnpm -F @relay-baton/cli link --global` (optional).
 
+## 📝 Release Notes
+
+Detailed release notes live in [`release-notes/`](./release-notes/). They are written as human-readable changelogs and agent handoff material for Codex, Claude Code, and other coding agents.
+
+| Version | English | 한국어 | One-line summary |
+|---|---|---|---|
+| v0.2.0 | [notes](./release-notes/v0.2.0.md) | [릴리즈 노트](./release-notes/ko/v0.2.0.md) | Adds multi-project registry, `--project` / `--path`, project CLI commands, improved TUI dashboard, and `.gitattributes`. |
+| v0.1.0 | [notes](./release-notes/v0.1.0.md) | [릴리즈 노트](./release-notes/ko/v0.1.0.md) | Initial MVP for Codex-to-Claude handoff with token diet, fallback detection, quality gates, and auth-safe subprocess execution. |
+
 ## 🤖 One-line install via an agent
 
 [`install/install.md`](./install/install.md) is both a human-readable install guide **and an instruction surface that coding agents (Codex, Claude Code) can follow as-is**. Paste it into an agent, or use one of the one-liners below.
@@ -89,6 +99,47 @@ claude --permission-mode acceptEdits -p "Read https://github.com/<your-org>/rela
 ```
 
 If you'd rather install by hand, walk through Steps 1–6 in [`install/install.md`](./install/install.md).
+
+## 🧭 Usage
+
+Basic one-repository flow:
+
+```bash
+pnpm relay-baton init
+pnpm relay-baton doctor
+pnpm relay-baton run "Fix the failing upload flow" --diet balanced
+pnpm relay-baton status
+pnpm relay-baton budget
+```
+
+Generate a handoff without launching the next agent:
+
+```bash
+pnpm relay-baton handoff --to claude --no-run --diet caveman
+```
+
+Register and use a project:
+
+```bash
+pnpm relay-baton project add /path/to/relay-baton --name relay-baton --diet caveman --primary codex --fallback claude
+pnpm relay-baton project list
+pnpm relay-baton project switch relay-baton
+pnpm relay-baton status --project relay-baton
+pnpm relay-baton handoff --to claude --no-run --project relay-baton --diet caveman
+```
+
+Use a direct path without registering a project:
+
+```bash
+pnpm relay-baton status --path /path/to/repo
+pnpm relay-baton budget --path /path/to/repo
+```
+
+Open the TUI dashboard:
+
+```bash
+pnpm relay-baton tui --project relay-baton
+```
 
 ## 📋 Requirements
 
@@ -149,7 +200,38 @@ Under the hood:
 | `relay-baton budget` | Show context budget usage |
 | `relay-baton compress <file>` | Deterministically compress a markdown file (`--write`, `--out`) |
 | `relay-baton status` | Print session status |
-| `relay-baton tui` | Launch the Ink TUI (`q` quit, `r` refresh) |
+| `relay-baton project add <path>` | Register a git repository (`--name`, `--diet`, `--primary`, `--fallback`) |
+| `relay-baton project list` | List registered projects and active marker |
+| `relay-baton project switch <name-or-id>` | Change the active project |
+| `relay-baton project current` | Show the active project, or cwd fallback |
+| `relay-baton project remove <name-or-id>` | Remove a registered project |
+| `relay-baton project doctor` | Check registered project paths and session files |
+| `relay-baton tui` | Launch the Ink project/session dashboard |
+
+Project-aware commands support:
+
+```bash
+relay-baton status --project relay-baton
+relay-baton run "Fix README" --project relay-baton --diet caveman
+relay-baton handoff --to claude --path /path/to/repo --no-run
+```
+
+Resolution priority is `--path` > `--project` > active project > current working directory. `compress <file>` remains cwd-based in v0.2 because it is a file-level utility.
+
+## 📂 Project registry
+
+Projects are stored at `~/.relay-baton/projects.json` using `os.homedir()` for cross-platform home resolution.
+
+```bash
+relay-baton project add /path/to/relay-baton --name relay-baton --diet caveman --primary codex --fallback claude
+relay-baton project list
+relay-baton project switch relay-baton
+relay-baton project current
+relay-baton project doctor
+relay-baton project remove relay-baton
+```
+
+`project add` requires the path to exist and be a git repository. Duplicate paths are not added twice.
 
 ## 🔄 Codex → Claude handoff flow
 
@@ -240,6 +322,18 @@ If no config file exists, defaults are used.
 | `context-budget.json` | Token-diet usage snapshot |
 | `session.json` | Session metadata |
 
+## 🎛️ TUI
+
+`relay-baton tui` opens an Ink dashboard for the active project, or `relay-baton tui --project <name-or-id>` for a specific registered project.
+
+The v0.2 TUI shows:
+
+- Sidebar: active project, registered projects, selected diet, primary/fallback agents, key hints.
+- Main panels: task, session status, active agent, fallback reason, repo path, changed files, compact state preview, token budget, log tail, recent errors.
+- Keys: `q` quit, `r` refresh, `p` switch to the next registered project, `d` cycle diet in memory, `b` reload budget, `h` generate handoff with no agent run.
+
+The TUI never launches Codex or Claude. It only reads session files and can generate a no-run handoff.
+
 ## ✅ Quality gates
 
 **Handoff Quality Gate** — runs before fallback launch
@@ -277,6 +371,11 @@ After any change, run:
 pnpm build
 pnpm test
 pnpm relay-baton doctor
+pnpm relay-baton project add /path/to/relay-baton --name relay-baton --diet caveman
+pnpm relay-baton project list
+pnpm relay-baton project current
+pnpm relay-baton status --project relay-baton
+pnpm relay-baton handoff --to claude --no-run --project relay-baton --diet caveman
 pnpm relay-baton budget
 ```
 
@@ -285,7 +384,18 @@ pnpm relay-baton budget
 - No LLM / tokenizer calls of its own — runs on **character budgets**.
 - No semantic summarization — deterministic compaction only.
 - Agent adapters: **Codex / Claude only**.
-- TUI is read-only (`q` to quit, `r` to refresh).
+- TUI does not run agents; v0.2 allows no-run handoff generation only.
+
+## 🧭 Planned modes
+
+- `handoff`: pass current state to the next agent.
+- `run`: start with the primary agent and fallback on detected limits.
+- `interactive/chat`: choose agent, diet, and action interactively.
+- `review`: inspect git diff and risky changes.
+- `diagnose`: analyze build/test failures.
+- `continue`: bounded autopilot with limited retries until tests pass.
+- `squeeze`: token-diet compression.
+- `project`: manage and switch repositories.
 
 ## 🗺️ Roadmap
 
@@ -293,6 +403,7 @@ pnpm relay-baton budget
 - Per-model tokenizer option
 - Semantic diff for compact state
 - Multi-session management / TUI command palette
+- Fuzzy project switcher
 - Daemon / IDE extension (separate package)
 
 ## 🎯 Design principles

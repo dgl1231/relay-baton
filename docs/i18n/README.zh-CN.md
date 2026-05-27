@@ -49,6 +49,32 @@ pnpm relay-baton doctor
 pnpm relay-baton run "修复邮件附件上传流程" --diet balanced
 ```
 
+## 📝 发布说明
+
+| 版本 | English | 한국어 | 一句话摘要 |
+|---|---|---|---|
+| v0.2.0 | [notes](../../release-notes/v0.2.0.md) | [릴리즈 노트](../../release-notes/ko/v0.2.0.md) | 新增 project registry、`--project` / `--path`、project CLI 和 TUI dashboard。 |
+| v0.1.0 | [notes](../../release-notes/v0.1.0.md) | [릴리즈 노트](../../release-notes/ko/v0.1.0.md) | Codex-to-Claude handoff MVP、token diet、fallback detection、quality gates。 |
+
+## 🧭 使用方法
+
+```bash
+pnpm relay-baton init
+pnpm relay-baton doctor
+pnpm relay-baton run "任务内容" --diet balanced
+pnpm relay-baton handoff --to claude --no-run --diet caveman
+```
+
+注册并使用 project:
+
+```bash
+pnpm relay-baton project add /path/to/repo --name relay-baton --diet caveman --primary codex --fallback claude
+pnpm relay-baton project switch relay-baton
+pnpm relay-baton status --project relay-baton
+pnpm relay-baton budget --project relay-baton
+pnpm relay-baton tui --project relay-baton
+```
+
 ## 🤖 让 agent 一句话装好
 
 [`install/install.md`](../../install/install.md) 既是给人看的安装指南,也是给 Codex / Claude Code 直接执行的指令书。

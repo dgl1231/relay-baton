@@ -1,8 +1,8 @@
 import * as React from "react";
 import { render } from "ink";
-import { App } from "./App";
+import { App, AppProps } from "./App";
 
-export async function startTui(): Promise<void> {
-  const { waitUntilExit } = render(React.createElement(App));
+export async function startTui(props: AppProps = {}): Promise<void> {
+  const { waitUntilExit } = render(React.createElement(App, props));
   await waitUntilExit();
 }

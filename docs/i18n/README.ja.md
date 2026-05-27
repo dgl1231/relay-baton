@@ -49,6 +49,32 @@ pnpm relay-baton doctor
 pnpm relay-baton run "メール添付のアップロード処理を直して" --diet balanced
 ```
 
+## 📝 リリースノート
+
+| Version | English | 한국어 | 一行サマリー |
+|---|---|---|---|
+| v0.2.0 | [notes](../../release-notes/v0.2.0.md) | [릴리즈 노트](../../release-notes/ko/v0.2.0.md) | Project registry、`--project` / `--path`、project CLI、TUI dashboard を追加。 |
+| v0.1.0 | [notes](../../release-notes/v0.1.0.md) | [릴리즈 노트](../../release-notes/ko/v0.1.0.md) | Codex-to-Claude handoff MVP、token diet、fallback detection、quality gates。 |
+
+## 🧭 使い方
+
+```bash
+pnpm relay-baton init
+pnpm relay-baton doctor
+pnpm relay-baton run "作業内容" --diet balanced
+pnpm relay-baton handoff --to claude --no-run --diet caveman
+```
+
+Project を登録して使う:
+
+```bash
+pnpm relay-baton project add /path/to/repo --name relay-baton --diet caveman --primary codex --fallback claude
+pnpm relay-baton project switch relay-baton
+pnpm relay-baton status --project relay-baton
+pnpm relay-baton budget --project relay-baton
+pnpm relay-baton tui --project relay-baton
+```
+
 ## 🤖 エージェントに一行でインストールさせる
 
 [`install/install.md`](../../install/install.md) は **人間用ガイドであり、Codex / Claude Code がそのまま実行できる instruction surface** でもある。

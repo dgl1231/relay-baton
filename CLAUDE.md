@@ -9,6 +9,7 @@ Codex CLI에서 Claude Code CLI로 작업을 이어받게 만드는 로컬 hando
 - Codex CLI를 먼저 실행한다.
 - Codex가 usage/rate/token/context/quota 문제로 멈추면 fallback을 감지한다.
 - 현재 repository 상태를 기준으로 handoff를 생성한다.
+- 여러 repository를 project registry로 등록/전환할 수 있게 한다.
 - Claude Code가 이어서 작업하도록 continuation prompt를 만든다.
 - 전체 로그/전체 diff/전체 repo를 붙여넣지 않고 compact handoff를 만든다.
 
@@ -20,6 +21,7 @@ Codex CLI에서 Claude Code CLI로 작업을 이어받게 만드는 로컬 hando
 - 자동 commit / push / PR
 - 실시간 agent chat platform 구현
 - tmux manager / VS Code / Visual Studio extension
+- continue/autopilot 실제 구현
 - semantic summarization, exact tokenizer
 
 MVP에서는 deterministic compaction만 구현한다.
@@ -38,6 +40,8 @@ MVP에서는 deterministic compaction만 구현한다.
 - `packages/cli`는 core 호출만
 - `packages/tui`는 business logic을 갖지 않음
 - agent별 Adapter 분리, MVP는 Codex/Claude만
+- project 관리는 core의 ProjectManager / ProjectRegistry / ProjectResolver에서 처리
+- CLI/TUI는 project API를 호출하되 business logic을 많이 갖지 않음
 
 ## 인증 정책
 
@@ -62,6 +66,15 @@ MVP에서는 deterministic compaction만 구현한다.
 
 - `node_modules`, `.git`, `dist`, `build`, `.next`, `.turbo`, `coverage`, `bin`, `obj`, `.ai-session`는 기본 제외.
 - README 탐색은 루트 `README.md`를 우선한다. dependency 내부 README는 작업 대상이 아니다.
+
+## Project / TUI
+
+- Project registry 기본 위치는 `~/.relay-baton/projects.json`.
+- repoRoot 결정 우선순위는 `--path` > `--project` > active project > cwd.
+- 아무 project가 없어도 cwd 기준 동작을 유지한다.
+- TUI는 Ink 기반 project/session dashboard다.
+- TUI 키: `q` quit, `r` refresh, `p` next project, `d` cycle diet, `b` budget reload, `h` handoff no-run.
+- TUI에서 Codex/Claude 실제 실행은 금지한다.
 
 ## Agent CLI 실행 옵션
 

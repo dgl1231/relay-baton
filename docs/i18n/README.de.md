@@ -47,6 +47,32 @@ pnpm relay-baton doctor
 pnpm relay-baton run "Fix den Upload-Flow für E-Mail-Anhänge" --diet balanced
 ```
 
+## 📝 Release Notes
+
+| Version | English | 한국어 | Kurzfassung |
+|---|---|---|---|
+| v0.2.0 | [notes](../../release-notes/v0.2.0.md) | [릴리즈 노트](../../release-notes/ko/v0.2.0.md) | Fügt Project Registry, `--project` / `--path`, Project-CLI und TUI-Dashboard hinzu. |
+| v0.1.0 | [notes](../../release-notes/v0.1.0.md) | [릴리즈 노트](../../release-notes/ko/v0.1.0.md) | Codex-to-Claude handoff MVP mit token diet, fallback detection und quality gates. |
+
+## 🧭 Nutzung
+
+```bash
+pnpm relay-baton init
+pnpm relay-baton doctor
+pnpm relay-baton run "Aufgabe" --diet balanced
+pnpm relay-baton handoff --to claude --no-run --diet caveman
+```
+
+Projekt registrieren und verwenden:
+
+```bash
+pnpm relay-baton project add /path/to/repo --name relay-baton --diet caveman --primary codex --fallback claude
+pnpm relay-baton project switch relay-baton
+pnpm relay-baton status --project relay-baton
+pnpm relay-baton budget --project relay-baton
+pnpm relay-baton tui --project relay-baton
+```
+
 ## 🤖 Ein-Zeilen-Installation via Agent
 
 [`install/install.md`](../../install/install.md) ist sowohl ein menschenlesbarer Installationsleitfaden als auch eine Anleitung, die Codex / Claude Code direkt ausführen können.

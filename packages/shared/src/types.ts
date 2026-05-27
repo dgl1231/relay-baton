@@ -97,3 +97,20 @@ export interface BudgetSnapshot {
   };
   truncated: boolean;
 }
+
+export interface BatonProject {
+  id: string;
+  name: string;
+  path: string;
+  createdAt: string;
+  updatedAt: string;
+  lastUsedAt?: string;
+  defaultDiet?: DietProfileName;
+  primaryAgent?: AgentId;
+  fallbackAgent?: AgentId;
+}
+
+export interface ProjectRegistryData {
+  activeProjectId: string | null;
+  projects: BatonProject[];
+}

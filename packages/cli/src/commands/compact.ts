@@ -1,12 +1,14 @@
 import { ConfigLoader, SessionManager, BatonWorkflow } from "@relay-baton/core";
 import type { DietProfileName } from "@relay-baton/shared";
+import { ProjectOpts, resolveProjectContext } from "./projectOptions";
 
-export async function compactCommand(opts: { diet?: string }) {
-  const repoRoot = process.cwd();
+export async function compactCommand(opts: { diet?: string } & ProjectOpts) {
+  const projectContext = resolveProjectContext(opts);
+  const repoRoot = projectContext.repoRoot;
   const { config } = ConfigLoader.load(repoRoot);
   const sm = new SessionManager(repoRoot, config);
   if (!sm.getMeta()) sm.init("");
-  const profileName = (opts.diet ?? config.tokenDiet.profile) as DietProfileName;
+  const profileName = (opts.diet ?? projectContext.project?.defaultDiet ?? config.tokenDiet.profile) as DietProfileName;
   if (!config.tokenDiet.profiles[profileName]) {
     console.error(`unknown diet profile: ${profileName}`);
     process.exit(2);

@@ -1,7 +1,8 @@
 import { ConfigLoader, SessionManager } from "@relay-baton/core";
+import { ProjectOpts, resolveRepoRoot } from "./projectOptions";
 
-export async function initCommand() {
-  const repoRoot = process.cwd();
+export async function initCommand(opts: ProjectOpts = {}) {
+  const repoRoot = resolveRepoRoot(opts);
   const { config } = ConfigLoader.load(repoRoot);
   const sm = new SessionManager(repoRoot, config);
   const r = sm.init("");

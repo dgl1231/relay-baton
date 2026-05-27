@@ -4,15 +4,17 @@ import {
   HandoffQualityGate, TokenDietQualityGate, PromptBuilder,
 } from "@relay-baton/core";
 import type { DietProfileName } from "@relay-baton/shared";
+import { ProjectOpts, resolveProjectContext } from "./projectOptions";
 
-export interface RunOpts {
+export interface RunOpts extends ProjectOpts {
   diet?: string;
   force?: boolean;
   allowApiKeyEnv?: boolean;
 }
 
 export async function runCommand(task: string, opts: RunOpts) {
-  const repoRoot = process.cwd();
+  const projectContext = resolveProjectContext(opts);
+  const repoRoot = projectContext.repoRoot;
   const { config } = ConfigLoader.load(repoRoot);
   const sm = new SessionManager(repoRoot, config);
   if (!sm.getMeta()) sm.init(task);
@@ -24,7 +26,7 @@ export async function runCommand(task: string, opts: RunOpts) {
     process.exit(2);
   }
 
-  const profileName = (opts.diet ?? config.tokenDiet.profile) as DietProfileName;
+  const profileName = (opts.diet ?? projectContext.project?.defaultDiet ?? config.tokenDiet.profile) as DietProfileName;
   if (!config.tokenDiet.profiles[profileName]) {
     console.error(`unknown diet profile: ${profileName}`);
     process.exit(2);

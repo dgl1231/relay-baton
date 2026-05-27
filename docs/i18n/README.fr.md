@@ -47,6 +47,32 @@ pnpm relay-baton doctor
 pnpm relay-baton run "Corrige le flux d'upload des pièces jointes" --diet balanced
 ```
 
+## 📝 Notes de version
+
+| Version | English | 한국어 | Résumé |
+|---|---|---|---|
+| v0.2.0 | [notes](../../release-notes/v0.2.0.md) | [릴리즈 노트](../../release-notes/ko/v0.2.0.md) | Ajoute project registry, `--project` / `--path`, commandes project et dashboard TUI. |
+| v0.1.0 | [notes](../../release-notes/v0.1.0.md) | [릴리즈 노트](../../release-notes/ko/v0.1.0.md) | MVP Codex-to-Claude handoff avec token diet, fallback detection et quality gates. |
+
+## 🧭 Utilisation
+
+```bash
+pnpm relay-baton init
+pnpm relay-baton doctor
+pnpm relay-baton run "tache" --diet balanced
+pnpm relay-baton handoff --to claude --no-run --diet caveman
+```
+
+Enregistrer et utiliser un projet:
+
+```bash
+pnpm relay-baton project add /path/to/repo --name relay-baton --diet caveman --primary codex --fallback claude
+pnpm relay-baton project switch relay-baton
+pnpm relay-baton status --project relay-baton
+pnpm relay-baton budget --project relay-baton
+pnpm relay-baton tui --project relay-baton
+```
+
 ## 🤖 Installation en une ligne via un agent
 
 [`install/install.md`](../../install/install.md) est à la fois un guide humain et un *instruction surface* directement exécutable par Codex / Claude Code.

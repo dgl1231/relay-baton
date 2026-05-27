@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { spawnSync } from "child_process";
 import { ConfigLoader, SessionManager } from "@relay-baton/core";
+import { ProjectOpts, resolveRepoRoot } from "./projectOptions";
 
 const GREEN = "\x1b[32m";
 const RED = "\x1b[31m";
@@ -28,8 +29,8 @@ function section(title: string) {
   console.log(`\n${CYAN}${BOLD}${title}${RESET}`);
 }
 
-export async function doctorCommand() {
-  const repoRoot = process.cwd();
+export async function doctorCommand(opts: ProjectOpts = {}) {
+  const repoRoot = resolveRepoRoot(opts);
   const cfgLoad = ConfigLoader.load(repoRoot);
   const cfg = cfgLoad.config;
 

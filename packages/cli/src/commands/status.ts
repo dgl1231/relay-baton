@@ -1,8 +1,9 @@
 import * as fs from "fs";
 import { ConfigLoader, SessionManager } from "@relay-baton/core";
+import { ProjectOpts, resolveRepoRoot } from "./projectOptions";
 
-export async function statusCommand() {
-  const repoRoot = process.cwd();
+export async function statusCommand(opts: ProjectOpts = {}) {
+  const repoRoot = resolveRepoRoot(opts);
   const { config } = ConfigLoader.load(repoRoot);
   const sm = new SessionManager(repoRoot, config);
   const meta = sm.getMeta();

@@ -25,3 +25,6 @@ export * from "./handoff/TokenDietQualityGate";
 export * from "./handoff/PromptBuilder";
 export * from "./workflow/BatonWorkflow";
 export * from "./workflow/WorkflowStage";
+export * from "./projects/ProjectRegistry";
+export * from "./projects/ProjectManager";
+export * from "./projects/ProjectResolver";

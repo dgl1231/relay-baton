@@ -13,6 +13,7 @@ Primary goal:
 - Start work with Codex CLI.
 - Detect usage/rate/token/context/quota failures.
 - Generate compact handoff files.
+- Manage multiple repositories through a local project registry.
 - Continue work with Claude Code.
 - Reduce token waste through compact state, diff summaries, log tails, repo maps, and file references.
 
@@ -45,6 +46,7 @@ Core modules:
 - HandoffGenerator, HandoffCompactor, ReferenceResolver
 - HandoffQualityGate, TokenDietQualityGate
 - PromptBuilder, BatonWorkflow
+- ProjectRegistry, ProjectManager, ProjectResolver
 
 ## Agent CLI Defaults
 
@@ -68,6 +70,17 @@ Use specific phrases, not bare keywords. Avoid false positives from grep results
 - `relay-baton compress <file>`
 - `relay-baton status`
 - `relay-baton tui`
+- `relay-baton project add/list/switch/current/remove/doctor`
+
+Project-aware commands use `--path` > `--project` > active project > cwd. `compress <file>` stays cwd-based in v0.2.
+
+## TUI v0.2
+
+Keep Ink. Build a project/session dashboard showing active project, registered projects, diet, agents, session status, changed files, compact state, token budget, log tail, and recent errors.
+
+Supported keys: `q`, `r`, `p`, `d`, `b`, `h`.
+
+The TUI must not launch Codex or Claude. It may only generate handoff files in no-run mode.
 
 ## Session Files
 

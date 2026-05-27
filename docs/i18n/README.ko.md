@@ -59,6 +59,32 @@ pnpm relay-baton doctor
 pnpm relay-baton run "메일 첨부파일 업로드 흐름을 고쳐줘" --diet balanced
 ```
 
+## 📝 릴리즈 노트
+
+| 버전 | English | 한국어 | 한 줄 요약 |
+|---|---|---|---|
+| v0.2.0 | [notes](../../release-notes/v0.2.0.md) | [릴리즈 노트](../../release-notes/ko/v0.2.0.md) | Project registry, `--project` / `--path`, project CLI, TUI dashboard 추가. |
+| v0.1.0 | [notes](../../release-notes/v0.1.0.md) | [릴리즈 노트](../../release-notes/ko/v0.1.0.md) | Codex-to-Claude handoff MVP, token diet, fallback detection, quality gates. |
+
+## 🧭 사용법
+
+```bash
+pnpm relay-baton init
+pnpm relay-baton doctor
+pnpm relay-baton run "작업 내용" --diet balanced
+pnpm relay-baton handoff --to claude --no-run --diet caveman
+```
+
+Project를 등록해서 사용:
+
+```bash
+pnpm relay-baton project add /path/to/repo --name relay-baton --diet caveman --primary codex --fallback claude
+pnpm relay-baton project switch relay-baton
+pnpm relay-baton status --project relay-baton
+pnpm relay-baton budget --project relay-baton
+pnpm relay-baton tui --project relay-baton
+```
+
 ## 🤖 Agent에게 한 줄로 설치 시키기
 
 [`install/install.md`](../../install/install.md)는 **사람용 가이드이자, Codex / Claude Code 같은 coding agent가 그대로 따라 실행할 수 있는 instruction surface**다.
