@@ -2,14 +2,15 @@
 
 This directory records versioned release notes for relay-baton.
 
-Use these files as handoff material for Codex, Claude Code, and other coding agents. Each note should explain:
+Each note should explain:
 
 - What changed
 - Why it changed
 - User-facing commands or behavior
-- Validation results
-- Known limitations
+- Compatibility notes
 - Recommended next work
+
+Release notes are user-facing changelogs, not agent handoff material — that role belongs to `.ai-session/handoff.md`. Keep release notes free of one-shot validation logs or test inventories; those go stale and duplicate CI / git history.
 
 ## Versions
 
