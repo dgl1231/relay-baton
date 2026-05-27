@@ -51,6 +51,7 @@ pnpm relay-baton run "Почини флоу загрузки вложений в
 
 | Версия | English | 한국어 | Кратко |
 |---|---|---|---|
+| v0.3.0 | [notes](../../release-notes/v0.3.0.md) | [릴리즈 노트](../../release-notes/ko/v0.3.0.md) | `ProjectResolver` без побочных эффектов, автоматический бэкап/восстановление повреждённого `projects.json`, переопределение через env `RELAY_BATON_PROJECTS_FILE`, очистка `lastError` при fallback. |
 | v0.2.0 | [notes](../../release-notes/v0.2.0.md) | [릴리즈 노트](../../release-notes/ko/v0.2.0.md) | Добавляет project registry, `--project` / `--path`, project CLI и TUI dashboard. |
 | v0.1.0 | [notes](../../release-notes/v0.1.0.md) | [릴리즈 노트](../../release-notes/ko/v0.1.0.md) | MVP Codex-to-Claude handoff с token diet, fallback detection и quality gates. |
 

@@ -51,6 +51,7 @@ pnpm relay-baton run "Conserte o fluxo de upload de anexos de email" --diet bala
 
 | Versão | English | 한국어 | Resumo |
 |---|---|---|---|
+| v0.3.0 | [notes](../../release-notes/v0.3.0.md) | [릴리즈 노트](../../release-notes/ko/v0.3.0.md) | `ProjectResolver` sem efeitos colaterais, backup/recuperação automática de `projects.json` corrompido, override via env `RELAY_BATON_PROJECTS_FILE`, limpeza de `lastError` em fallback. |
 | v0.2.0 | [notes](../../release-notes/v0.2.0.md) | [릴리즈 노트](../../release-notes/ko/v0.2.0.md) | Adiciona project registry, `--project` / `--path`, comandos de project e dashboard TUI. |
 | v0.1.0 | [notes](../../release-notes/v0.1.0.md) | [릴리즈 노트](../../release-notes/ko/v0.1.0.md) | MVP de handoff Codex-to-Claude com token diet, fallback detection e quality gates. |
 

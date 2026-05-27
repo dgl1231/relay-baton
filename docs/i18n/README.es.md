@@ -51,6 +51,7 @@ pnpm relay-baton run "Arregla el flujo de subida de adjuntos del correo" --diet 
 
 | Versión | English | 한국어 | Resumen |
 |---|---|---|---|
+| v0.3.0 | [notes](../../release-notes/v0.3.0.md) | [릴리즈 노트](../../release-notes/ko/v0.3.0.md) | `ProjectResolver` sin efectos secundarios, copia de seguridad/recuperación automática de `projects.json` corrupto, override por env `RELAY_BATON_PROJECTS_FILE`, limpieza de `lastError` en fallback. |
 | v0.2.0 | [notes](../../release-notes/v0.2.0.md) | [릴리즈 노트](../../release-notes/ko/v0.2.0.md) | Añade project registry, `--project` / `--path`, comandos de proyecto y dashboard TUI. |
 | v0.1.0 | [notes](../../release-notes/v0.1.0.md) | [릴리즈 노트](../../release-notes/ko/v0.1.0.md) | MVP de handoff Codex-to-Claude con token diet, fallback detection y quality gates. |
 

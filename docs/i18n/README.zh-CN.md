@@ -53,6 +53,7 @@ pnpm relay-baton run "修复邮件附件上传流程" --diet balanced
 
 | 版本 | English | 한국어 | 一句话摘要 |
 |---|---|---|---|
+| v0.3.0 | [notes](../../release-notes/v0.3.0.md) | [릴리즈 노트](../../release-notes/ko/v0.3.0.md) | 无副作用的 `ProjectResolver`、损坏的 `projects.json` 自动备份/恢复、`RELAY_BATON_PROJECTS_FILE` 环境变量覆盖、fallback 时清理 `lastError`。 |
 | v0.2.0 | [notes](../../release-notes/v0.2.0.md) | [릴리즈 노트](../../release-notes/ko/v0.2.0.md) | 新增 project registry、`--project` / `--path`、project CLI 和 TUI dashboard。 |
 | v0.1.0 | [notes](../../release-notes/v0.1.0.md) | [릴리즈 노트](../../release-notes/ko/v0.1.0.md) | Codex-to-Claude handoff MVP、token diet、fallback detection、quality gates。 |
 

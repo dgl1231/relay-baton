@@ -53,6 +53,7 @@ pnpm relay-baton run "メール添付のアップロード処理を直して" --
 
 | Version | English | 한국어 | 一行サマリー |
 |---|---|---|---|
+| v0.3.0 | [notes](../../release-notes/v0.3.0.md) | [릴리즈 노트](../../release-notes/ko/v0.3.0.md) | 副作用のない `ProjectResolver`、壊れた `projects.json` の自動バックアップ/復旧、`RELAY_BATON_PROJECTS_FILE` 環境変数オーバーライド、fallback 時の `lastError` クリーンアップ。 |
 | v0.2.0 | [notes](../../release-notes/v0.2.0.md) | [릴리즈 노트](../../release-notes/ko/v0.2.0.md) | Project registry、`--project` / `--path`、project CLI、TUI dashboard を追加。 |
 | v0.1.0 | [notes](../../release-notes/v0.1.0.md) | [릴리즈 노트](../../release-notes/ko/v0.1.0.md) | Codex-to-Claude handoff MVP、token diet、fallback detection、quality gates。 |
 

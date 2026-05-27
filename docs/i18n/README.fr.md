@@ -51,6 +51,7 @@ pnpm relay-baton run "Corrige le flux d'upload des pièces jointes" --diet balan
 
 | Version | English | 한국어 | Résumé |
 |---|---|---|---|
+| v0.3.0 | [notes](../../release-notes/v0.3.0.md) | [릴리즈 노트](../../release-notes/ko/v0.3.0.md) | `ProjectResolver` sans effets de bord, sauvegarde/récupération automatique d'un `projects.json` corrompu, override via env `RELAY_BATON_PROJECTS_FILE`, nettoyage de `lastError` en cas de fallback. |
 | v0.2.0 | [notes](../../release-notes/v0.2.0.md) | [릴리즈 노트](../../release-notes/ko/v0.2.0.md) | Ajoute project registry, `--project` / `--path`, commandes project et dashboard TUI. |
 | v0.1.0 | [notes](../../release-notes/v0.1.0.md) | [릴리즈 노트](../../release-notes/ko/v0.1.0.md) | MVP Codex-to-Claude handoff avec token diet, fallback detection et quality gates. |
 

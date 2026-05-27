@@ -63,6 +63,7 @@ pnpm relay-baton run "메일 첨부파일 업로드 흐름을 고쳐줘" --diet 
 
 | 버전 | English | 한국어 | 한 줄 요약 |
 |---|---|---|---|
+| v0.3.0 | [notes](../../release-notes/v0.3.0.md) | [릴리즈 노트](../../release-notes/ko/v0.3.0.md) | Side-effect 없는 `ProjectResolver`, 손상된 `projects.json` 자동 백업/recovery, `RELAY_BATON_PROJECTS_FILE` env override, fallback 시 `lastError` 정리. |
 | v0.2.0 | [notes](../../release-notes/v0.2.0.md) | [릴리즈 노트](../../release-notes/ko/v0.2.0.md) | Project registry, `--project` / `--path`, project CLI, TUI dashboard 추가. |
 | v0.1.0 | [notes](../../release-notes/v0.1.0.md) | [릴리즈 노트](../../release-notes/ko/v0.1.0.md) | Codex-to-Claude handoff MVP, token diet, fallback detection, quality gates. |
 
