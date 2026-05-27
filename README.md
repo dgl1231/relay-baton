@@ -77,13 +77,15 @@ pnpm relay-baton run "Fix the mail attachment upload flow" --diet balanced
 
 ## 📝 Release Notes
 
-Detailed release notes live in [`release-notes/`](./release-notes/). They are written as human-readable changelogs and agent handoff material for Codex, Claude Code, and other coding agents.
+Detailed release notes live in [`release-notes/`](./release-notes/) ([index](./release-notes/README.md)). They are written as human-readable changelogs and agent handoff material for Codex, Claude Code, and other coding agents.
+
+**Latest:** v0.3.0 — [English](./release-notes/v0.3.0.md) · [한국어](./release-notes/ko/v0.3.0.md)
 
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
-| v0.3.0 | [notes](./release-notes/v0.3.0.md) | [릴리즈 노트](./release-notes/ko/v0.3.0.md) | Side-effect-free `ProjectResolver`, registry recovery with backup on corrupt `projects.json`, `RELAY_BATON_PROJECTS_FILE` override, and `lastError` cleanup on fallback. |
-| v0.2.0 | [notes](./release-notes/v0.2.0.md) | [릴리즈 노트](./release-notes/ko/v0.2.0.md) | Adds multi-project registry, `--project` / `--path`, project CLI commands, improved TUI dashboard, and `.gitattributes`. |
-| v0.1.0 | [notes](./release-notes/v0.1.0.md) | [릴리즈 노트](./release-notes/ko/v0.1.0.md) | Initial MVP for Codex-to-Claude handoff with token diet, fallback detection, quality gates, and auth-safe subprocess execution. |
+| v0.3.0 | [Read →](./release-notes/v0.3.0.md) | [읽기 →](./release-notes/ko/v0.3.0.md) | Side-effect-free `ProjectResolver`, registry recovery with backup on corrupt `projects.json`, `RELAY_BATON_PROJECTS_FILE` override, and `lastError` cleanup on fallback. |
+| v0.2.0 | [Read →](./release-notes/v0.2.0.md) | [읽기 →](./release-notes/ko/v0.2.0.md) | Adds multi-project registry, `--project` / `--path`, project CLI commands, improved TUI dashboard, and `.gitattributes`. |
+| v0.1.0 | [Read →](./release-notes/v0.1.0.md) | [읽기 →](./release-notes/ko/v0.1.0.md) | Initial MVP for Codex-to-Claude handoff with token diet, fallback detection, quality gates, and auth-safe subprocess execution. |
 
 ## 🤖 One-line install via an agent
 
