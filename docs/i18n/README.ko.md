@@ -1,10 +1,10 @@
 <div align="center">
 
-# ⚡ relay-baton
+# relay-baton
 
-**Codex CLI ↔ Claude Code 토큰 인지형 인수인계 하네스**
+**코딩 에이전트를 위한 이식 가능한 연속성 인프라**
 
-토큰 예산을 흘리지 않고 한 코딩 에이전트에서 다음 에이전트로 바통을 넘긴다.
+Codex CLI, Claude Code, 그리고 그 다음에 나올 도구 사이로 — 채팅 로그, diff, 저장소를 다시 붙여넣지 않고 — 압축된 코딩 상태를 넘긴다.
 
 [English](../../README.md)
  · **한국어**
@@ -19,15 +19,37 @@
 
 </div>
 
+```bash
+# Codex가 작업 중 quota 벽에 부딪힘. relay-baton이 감지해서 저장소의
+# 실제 상태로 compact handoff를 만들고, Claude에서 그대로 이어받음.
+$ relay-baton run "업로드 파이프라인 리팩터" --diet caveman
+[relay-baton] codex: ... rate limit exceeded ...
+[relay-baton] fallback pattern detected: rate limit exceeded
+[relay-baton] building handoff for claude...
+[relay-baton] claude resumed from .ai-session/handoff.md
+```
+
 ---
 
-> **이 프로젝트의 핵심 미션**
->
-> 💡 **토큰을 최소한으로 사용하면서 Codex CLI와 Claude Code CLI를 하나의 작업 흐름으로 병합한다.**
->
-> 한 agent가 quota / context 한도에 부딪히면 다음 agent가 같은 repository 상태에서 그대로 이어받는다. 단, 전체 로그·diff·repo를 그대로 넘기는 대신 **compact handoff + 파일 참조**만 넘긴다. 이것이 relay-baton이 *token diet harness*인 이유이며, 부가 기능이 아니라 **존재 이유** 그 자체다.
+## 왜 만들었나
 
-`relay-baton`은 **Codex CLI ↔ Claude Code CLI** 작업 인수인계를 자동화하는 로컬 하네스다. 한 agent가 usage / context / quota 한도를 만나면 다음 agent가 같은 repository 상태에서 그대로 이어받는다. 전체 로그·diff·repo를 그대로 붙여넣지 않고 **compact handoff** + **파일 참조** 형태로 넘기는 **token diet harness**이기도 하다.
+AI 코딩 작업은 여러 도구로 흩어지고 있다. 실제 세션은 이런 모양이다:
+
+- 한 묶음은 Codex CLI로, 다른 묶음은 Claude Code로.
+- 아침에는 노트북, 저녁에는 다른 머신.
+- 가득 차거나, 조용히 잘려나가는 context window.
+
+지금까지 agent 사이로 작업을 옮기는 기본 방법은 **채팅 로그 복붙** — 심하면 저장소 전체를 prompt에 던지는 것이다. 3가지 문제가 있다:
+
+1. **토큰.** 채팅 로그는 대부분 노이즈다. 매 턴 그 노이즈에 돈을 낸다.
+2. **연속성.** 다음 agent에게 *의도*가 아니라 transcript가 전달된다.
+3. **취약성.** 파일 하나 누락, diff 하나 stale, agent는 잘못된 전제로 재시작한다.
+
+relay-baton은 agent들 아래에 깔리는 **로컬 하네스**다. 인수인계 사이로 *최소 충분 상태*만 운반한다 — compact 요약, repo map, 파일 참조. transcript가 아니다.
+
+> **토큰을 최소한으로 쓰면서 Codex CLI와 Claude Code CLI를 하나의 작업 흐름으로 병합한다.**
+
+## 핵심 아이디어
 
 ```
 ┌─────────┐   ┌──────────────┐   ┌──────────────┐   ┌────────┐
@@ -39,110 +61,94 @@
                   repo-map.md, full-diff.patch, commands.log
 ```
 
-## ✨ 기능
+코딩 agent용 baton-pass — 4단계 primitive:
 
-- 🪄 **자동 fallback**: Codex 출력에서 `quota exceeded`, `rate limit exceeded`, `maximum context length` 같은 phrase를 감지하면 자동으로 Claude Code로 인수인계.
-- 📉 **Token diet**: 5단계 profile (`off · lite · balanced · caveman · ultra`) + 결정적 압축 (lock/build/min 파일 제외, log tail, repo map).
-- 🛡️ **Auth-safe by default**: `OPENAI_API_KEY` / `ANTHROPIC_API_KEY`는 child process에 **기본 전달 차단**. 명시적 opt-in 시에만 통과.
-- ✅ **Quality Gates**: handoff 누락 섹션과 token 초과를 fallback 실행 전에 검증.
-- 🧰 **One-shot login**: `relay-baton login`으로 Codex / Claude 로그인 흐름을 그대로 띄워준다.
-- 🎛️ **Ink TUI**: 세션 상태·agent 가용성·budget을 한눈에.
-- 🚫 **No API calls**: relay-baton 자체는 OpenAI / Anthropic API를 호출하지 않는다. 로컬 CLI subprocess만.
+- **Detect** 현재 agent가 한계에 닿았는지 감지 (quota, context, rate, errors).
+- **Capture** 중요한 것만 수집 (repo 상태, 변경 파일, 결정, 다음 단계).
+- **Compact** 다음 agent가 실제로 소화할 수 있는 예산 안으로 압축.
+- **Hand off** quality gate를 통과한 뒤에만 넘긴다.
 
-## 🚀 Quick Start
+handoff는 작은 파일(`.ai-session/handoff.md`) + 참조다. 큰 자료(전체 diff, 전체 로그, 전체 repo map)는 디스크에 두고 필요할 때만 로드한다.
+
+## Quick Start
 
 ```bash
 pnpm install
 pnpm build
-pnpm relay-baton login
-pnpm relay-baton doctor
-pnpm relay-baton run "메일 첨부파일 업로드 흐름을 고쳐줘" --diet balanced
+pnpm relay-baton login          # Codex + Claude 로그인
+pnpm relay-baton doctor         # 환경 점검
+pnpm relay-baton run "메일 업로드 흐름을 고쳐줘" --diet balanced
 ```
 
-## 📝 릴리즈 노트
-
-| 버전 | English | 한국어 | 한 줄 요약 |
-|---|---|---|---|
-| v0.3.0 | [notes](../../release-notes/v0.3.0.md) | [릴리즈 노트](../../release-notes/ko/v0.3.0.md) | Side-effect 없는 `ProjectResolver`, 손상된 `projects.json` 자동 백업/recovery, `RELAY_BATON_PROJECTS_FILE` env override, fallback 시 `lastError` 정리. |
-| v0.2.0 | [notes](../../release-notes/v0.2.0.md) | [릴리즈 노트](../../release-notes/ko/v0.2.0.md) | Project registry, `--project` / `--path`, project CLI, TUI dashboard 추가. |
-| v0.1.0 | [notes](../../release-notes/v0.1.0.md) | [릴리즈 노트](../../release-notes/ko/v0.1.0.md) | Codex-to-Claude handoff MVP, token diet, fallback detection, quality gates. |
-
-## 🧭 사용법
+## 작업 흐름
 
 ```bash
-pnpm relay-baton init
-pnpm relay-baton doctor
-pnpm relay-baton run "작업 내용" --diet balanced
-pnpm relay-baton handoff --to claude --no-run --diet caveman
+$ relay-baton init                  # .ai-session/ 생성
+$ relay-baton run "업로드 테스트 불안정 해결" --diet balanced
+... codex 출력 스트림 ...
+[relay-baton] fallback pattern detected: maximum context length
+[relay-baton] building handoff for claude...
+[relay-baton] HandoffQualityGate: ok
+[relay-baton] TokenDietQualityGate: ok
+... claude가 이어받아서 파일 수정 후 종료 ...
+
+$ relay-baton status                # 세션 상태
+$ relay-baton budget                # diet 예산 사용량
 ```
 
-Project를 등록해서 사용:
+자동 fallback 없이 수동 handoff만:
 
 ```bash
-pnpm relay-baton project add /path/to/repo --name relay-baton --diet caveman --primary codex --fallback claude
-pnpm relay-baton project switch relay-baton
-pnpm relay-baton status --project relay-baton
-pnpm relay-baton budget --project relay-baton
-pnpm relay-baton tui --project relay-baton
+$ relay-baton handoff --to claude --no-run --diet caveman
 ```
 
-## 🤖 Agent에게 한 줄로 설치 시키기
-
-[`install/install.md`](../../install/install.md)는 **사람용 가이드이자, Codex / Claude Code 같은 coding agent가 그대로 따라 실행할 수 있는 instruction surface**다.
+여러 저장소 사이 전환:
 
 ```bash
-codex exec --sandbox workspace-write "https://github.com/<your-org>/relay-baton/blob/main/install/install.md 를 읽고 그대로 따라 설치해줘. API key는 출력/저장하지 마라. 끝나면 'pnpm relay-baton doctor' 결과를 보여줘."
+$ relay-baton project add /path/to/repo-a --diet caveman
+$ relay-baton project switch repo-a
+$ relay-baton run "새 metrics endpoint 연결"
 ```
 
-```bash
-claude --permission-mode acceptEdits -p "Read https://github.com/<your-org>/relay-baton/blob/main/install/install.md and follow it step by step to install relay-baton. Do not print or store API keys. End by running 'pnpm relay-baton doctor'."
-```
+## 기능
 
-## 📋 요구사항
+- **자동 fallback** — Codex 출력에서 `quota exceeded`, `rate limit exceeded`, `maximum context length` 등을 감지. grep 결과와 패턴을 설명하는 산문은 건너뜀 (false positive 방지).
+- **Token diet** — 5가지 결정적 압축 profile (`off · lite · balanced · caveman · ultra`). lock/build/min 파일 제외, 로그 tail, repo map.
+- **Quality gates** — fallback 실행 *전에* handoff 완전성과 budget을 검증.
+- **Auth-safe by default** — `OPENAI_API_KEY` / `ANTHROPIC_API_KEY`는 child process에서 제거. `--allow-api-key-env`로만 opt-in. key를 저장/출력/기록하지 않음.
+- **Project registry** — 여러 저장소를 한 번 등록, `--project`/`--path`로 어디서든 실행.
+- **Ink TUI** — project/session dashboard. agent는 절대 실행하지 않음.
+- **자체 API 호출 없음** — OpenAI / Anthropic API를 직접 호출하지 않음. 로컬 `codex`/`claude` CLI subprocess만 spawn.
 
-| 항목 | 버전 / 비고 |
-|---|---|
-| Node.js | ≥ 20 |
-| pnpm | ≥ 9 |
-| git | required |
-| `codex` | **ChatGPT Plus 이상 구독 필요** |
-| `claude` | **Claude Pro 이상 구독 필요** |
-
-> ### 💳 구독 안내
->
-> relay-baton은 OpenAI / Anthropic API를 직접 호출하지 않는다. 로컬 `codex` / `claude` CLI의 **구독 인증**을 그대로 사용한다.
->
-> - Codex CLI → ChatGPT **Plus / Pro / Team / Enterprise**.
-> - Claude Code CLI → Anthropic **Claude Pro / Max / Team / Enterprise**.
-> - 무료 계정으로는 두 CLI 모두 정상 사용이 어렵다.
-> - API key 인증은 가능하지만 **기본 차단** (`--allow-api-key-env` opt-in 필요).
-
-## 🔑 로그인
-
-```bash
-pnpm relay-baton login           # 둘 다
-pnpm relay-baton login codex
-pnpm relay-baton login claude
-```
-
-`claude --version`이 통과해도 로그인은 별도다. "Not logged in"이 보이면 위 명령을 다시 실행하면 된다.
-
-## 🧭 명령어
+## 명령어
 
 | 명령 | 설명 |
 |---|---|
 | `relay-baton init` | `.ai-session/` 생성 |
 | `relay-baton doctor` | 환경 점검 |
-| `relay-baton login [agent]` | Codex / Claude 로그인 |
-| `relay-baton run "<task>"` | Codex 실행 + fallback 감지 + Claude로 이어받기 |
-| `relay-baton handoff --to claude` | 수동 handoff |
-| `relay-baton compact` | compact-state, repo-map, full-diff 재생성 |
-| `relay-baton budget` | 현재 context budget 출력 |
+| `relay-baton login [agent]` | Codex / Claude 로그인 흐름 |
+| `relay-baton run "<task>"` | primary agent 실행 + fallback 감지 + handoff |
+| `relay-baton handoff --to claude` | 수동 handoff (`--diet`, `--no-run`, `--force`) |
+| `relay-baton compact` / `squeeze` | compact-state / repo-map / full-diff 재생성 |
+| `relay-baton budget` | context budget 사용량 |
 | `relay-baton compress <file>` | markdown 결정적 압축 |
 | `relay-baton status` | 세션 상태 |
-| `relay-baton tui` | Ink TUI |
+| `relay-baton project add/list/switch/current/doctor/remove` | project registry 관리 |
+| `relay-baton tui` | Ink dashboard |
 
-## 📉 Diet profiles
+Project 인지 명령은 `--project <name-or-id>`와 `--path <repoPath>`를 받는다. 우선순위: `--path` > `--project` > active project > cwd.
+
+## Project registry
+
+```bash
+relay-baton project add /path/to/relay-baton --name relay-baton --diet caveman --primary codex --fallback claude
+relay-baton project switch relay-baton
+relay-baton status --project relay-baton
+```
+
+기본 저장 위치는 `~/.relay-baton/projects.json`. `RELAY_BATON_PROJECTS_FILE`로 경로 override 가능 (CI, sandbox, 테스트). 손상된 파일은 `projects.json.corrupt-<timestamp>.bak`로 백업 후 빈 registry로 초기화 — 명령은 그대로 계속 동작.
+
+## Token diet profiles
 
 | Profile | 의도 |
 |---|---|
@@ -152,15 +158,29 @@ pnpm relay-baton login claude
 | `caveman` | aggressive minimal-context |
 | `ultra` | 극단 압축 |
 
-> `caveman`은 장난스러운 말투가 아니라 **aggressive minimal-context profile**이다. 기술 정확도는 그대로 유지한다.
+> `caveman`은 장난스러운 말투가 아니라 **aggressive minimal-context**다. 기술 정확도는 유지한다.
 
-## 🛡️ 인증 / 과금 안전
+## 대안 비교
 
-- API key 저장 / 출력 / `.ai-session` 기록 **안 함**.
-- `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`는 기본 차단.
-- `--allow-api-key-env` 또는 `authPolicy.allowApiKeyEnv=true`만 통과.
+| 방식 | 넘기는 것 | 토큰 비용 | 연속성 | 실패 모드 |
+|---|---|---|---|---|
+| Raw 채팅 export | 전체 transcript | 높음 (대부분 노이즈) | 취약 — agent가 자기 사고를 다시 읽음 | context window 초과 |
+| 복붙 prompting | 사람이 기억한 것 | 가변 | 깨지기 쉬움 | 실제 상태와 silent drift |
+| 전체 repo dump | 전부 | 매우 높음 | 강하지만 비쌈 | 모델이 중간에서 잘림 |
+| **relay-baton** | compact 요약 + repo map + 파일 참조 | **낮음, profile로 한정** | 강함 — *실제* repo 상태 기준 | quality gate로 *명시적* 실패 |
 
-## 🎯 설계 원칙
+## 철학
+
+relay-baton은 **AI 네이티브 개발 workflow를 위한 작고 날카로운 도구**다.
+
+- **Local-first.** 모든 것이 디스크에 있다. 클라우드, 데몬, 텔레메트리, 계정 없음.
+- **Composability.** `.ai-session/` 디렉토리는 그냥 파일들이다. 읽고, grep하고, diff 뜨고, PR에 첨부할 수 있다.
+- **가벼운 상태 전송.** handoff는 markdown 파일이지 데이터베이스가 아니다.
+- **영리함보다 결정성.** 하네스 안에서 LLM 요약을 쓰지 않는다 — 모델이 요약을 잘못하면 handoff가 거짓말이 된다. 문자 예산, 구조 규칙, 명시적 참조로만 동작.
+- **Repo 상태가 진실의 원천.** 대화는 해석이고, repo는 사실이다.
+- **토큰 효율성이 기능 그 자체** — 메뉴에 숨겨진 옵션이 아니다.
+
+### 설계 원칙
 
 1. chat relay가 아니라 **work handoff**.
 2. 대화 기록보다 **현재 repository 상태**가 우선.
@@ -168,8 +188,52 @@ pnpm relay-baton login claude
 4. 모든 UI는 core를 호출하는 껍데기다.
 5. **Token diet는 부가 기능이 아니라 핵심 기능**이다.
 
-## 📄 License
+## 미래 방향
+
+relay-baton은 2-agent fallback 하네스로 시작했다. 같은 primitive는 더 멀리 간다:
+
+- **다중-agent relay chain** — Codex → Claude → OpenCode → 다시 Codex.
+- **분기되는 session tree** — 같은 작업을 병렬 agent로 시도하고 diff로 화해.
+- **원격 relay state** — `.ai-session/`을 공유 remote로 push해서 다음 머신이 이어받음.
+- **Orchestrated workflow** — `review`, `diagnose`, `continue` 모드 (명시적 checkpoint를 가진 bounded autopilot).
+- **추가 adapter** — OpenCode, Gemini CLI, Aider 등 로컬 subprocess 인터페이스가 있는 모든 것.
+
+하네스의 모양은 그대로다: detect, capture, compact, hand off.
+
+## 요구사항
+
+| 항목 | 버전 / 비고 |
+|---|---|
+| Node.js | ≥ 20 |
+| pnpm | ≥ 9 |
+| git | 필수 |
+| `codex` | **ChatGPT Plus 이상 구독 필요** |
+| `claude` | **Claude Pro 이상 구독 필요** |
+
+> relay-baton은 OpenAI / Anthropic API를 직접 호출하지 않는다. 로컬 `codex` / `claude` CLI의 **구독 인증**을 사용한다. API key 인증은 가능하지만 **기본 차단** (`--allow-api-key-env` opt-in 필요).
+
+## 로그인
+
+```bash
+pnpm relay-baton login           # 둘 다
+pnpm relay-baton login codex
+pnpm relay-baton login claude
+```
+
+`claude --version`이 통과해도 로그인은 별도다. "Not logged in"이 보이면 위 명령을 다시 실행.
+
+## 릴리즈 노트
+
+**최신:** v0.3.0 — [English](../../release-notes/v0.3.0.md) · [한국어](../../release-notes/ko/v0.3.0.md)
+
+| 버전 | English | 한국어 | 한 줄 요약 |
+|---|---|---|---|
+| v0.3.0 | [Read →](../../release-notes/v0.3.0.md) | [읽기 →](../../release-notes/ko/v0.3.0.md) | Side-effect 없는 `ProjectResolver`, 손상된 `projects.json` 자동 백업/recovery, `RELAY_BATON_PROJECTS_FILE` env override, fallback 시 `lastError` 정리. |
+| v0.2.0 | [Read →](../../release-notes/v0.2.0.md) | [읽기 →](../../release-notes/ko/v0.2.0.md) | Project registry, `--project` / `--path`, project CLI, TUI dashboard 추가. |
+| v0.1.0 | [Read →](../../release-notes/v0.1.0.md) | [읽기 →](../../release-notes/ko/v0.1.0.md) | Codex-to-Claude handoff MVP, token diet, fallback detection, quality gates. |
+
+## License
 
 MIT. 자세한 내용은 [`LICENSE`](../../LICENSE) 참조.
 
-> ℹ️ 전체 문서(설계 원칙, quality gate 세부, `.ai-session/` 파일 의미, 트러블슈팅 등)는 [English README](../../README.md)와 [`install/install.md`](../../install/install.md)에 있다.
+> 전체 문서(quality gate 세부, `.ai-session/` 파일 의미, config schema, TUI 키바인딩, 트러블슈팅 등)는 [English README](../../README.md)와 [`install/install.md`](../../install/install.md)에 있다.

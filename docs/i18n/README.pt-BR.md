@@ -1,10 +1,10 @@
 <div align="center">
 
-# ⚡ relay-baton
+# relay-baton
 
-**Harness de handoff consciente de tokens entre Codex CLI ↔ Claude Code**
+**Infraestrutura portátil de continuação para agentes de codificação.**
 
-Passe o bastão de um agente de codificação para o próximo — sem desperdiçar seu orçamento de tokens.
+Passa estado de codificação comprimido entre Codex CLI, Claude Code e o que vier a seguir — sem recolar o log do chat, o diff ou o repositório.
 
 [English](../../README.md)
  · [한국어](./README.ko.md)
@@ -19,90 +19,201 @@ Passe o bastão de um agente de codificação para o próximo — sem desperdiç
 
 </div>
 
+```bash
+# Codex bate num muro de quota no meio da tarefa. relay-baton detecta,
+# constrói um handoff compacto a partir do estado real do repo, e Claude continua.
+$ relay-baton run "refatorar o pipeline de upload" --diet caveman
+[relay-baton] codex: ... rate limit exceeded ...
+[relay-baton] fallback pattern detected: rate limit exceeded
+[relay-baton] building handoff for claude...
+[relay-baton] claude resumed from .ai-session/handoff.md
+```
+
 ---
 
-> **Missão do projeto**
->
-> 💡 **Gastar o mínimo possível de tokens ao mesclar Codex CLI e Claude Code CLI em um único fluxo de trabalho.**
->
-> Quando um agente atinge um limite de quota / contexto, o próximo retoma exatamente no mesmo estado do repositório — sem recolar log, diff ou repo inteiros. O handoff carrega apenas um *resumo compacto* e *referências de arquivo*. Por isso o relay-baton é um *token diet harness*: não é um recurso extra, é a razão de existir do projeto.
+## Por que existe
 
-## ✨ Recursos
+O trabalho de codificação com IA está se fragmentando entre ferramentas. Uma sessão real fica assim:
 
-- 🪄 **Fallback automático** — Detecta frases como `quota exceeded`, `rate limit exceeded`, `maximum context length` na saída do Codex e transfere para o Claude Code.
-- 📉 **Dieta de tokens** — Cinco perfis (`off · lite · balanced · caveman · ultra`) com compactação determinística.
-- 🛡️ **Auth segura por padrão** — `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` **não são repassadas** a processos filhos por padrão.
-- ✅ **Quality gates** — Verificam completude do handoff e orçamento de tokens antes de lançar o agente fallback.
-- 🧰 **Login em um comando** — `relay-baton login` executa o fluxo de auth de cada CLI.
-- 🎛️ **TUI Ink** — Estado da sessão, disponibilidade de agentes e orçamento em uma única tela.
-- 🚫 **Sem chamadas de API próprias** — apenas subprocessos de CLIs locais.
+- Codex CLI para um lote de edições.
+- Claude Code para outro.
+- Um laptop pela manhã, outra máquina à noite.
+- Uma context window que enche, quebra ou trunca em silêncio.
 
-## 🚀 Início rápido
+A forma padrão hoje de mover trabalho entre agentes é **copiar e colar o log do chat** — ou pior, despejar o repo inteiro num prompt. Três problemas:
+
+1. **Tokens.** Logs de chat são em sua maioria ruído. Você paga por esse ruído a cada turno.
+2. **Continuidade.** O próximo agente recebe transcript, não *intenção*.
+3. **Fragilidade.** Um arquivo perdido, um diff defasado, e o agente reinicia de uma premissa errada.
+
+relay-baton é um **harness local** que fica sob os agentes e transporta o *estado mínimo suficiente* através do handoff: um resumo compacto, um repo map e referências de arquivo — não um transcript.
+
+> **Gaste o mínimo de tokens possível enquanto unifica Codex CLI e Claude Code CLI num único fluxo.**
+
+## A ideia
+
+```
+┌─────────┐   ┌──────────────┐   ┌──────────────┐   ┌────────┐
+│ Codex   │ → │ Fallback     │ → │ Token Diet   │ → │ Claude │
+│ exec    │   │ Detector     │   │ Handoff      │   │ Code   │
+└─────────┘   └──────────────┘   └──────────────┘   └────────┘
+                        ↓                ↓
+                  .ai-session/handoff.md, compact-state.md,
+                  repo-map.md, full-diff.patch, commands.log
+```
+
+Um baton-pass para agentes de codificação — primitiva em 4 passos:
+
+- **Detect** detecta quando o agente atual deixa de ser útil (quota, context, rate, errors).
+- **Capture** captura só o que importa (estado do repo, arquivos alterados, decisões, próximo passo).
+- **Compact** comprime dentro de um orçamento que o próximo agente consegue consumir.
+- **Hand off** entrega apenas depois dos quality gates.
+
+O handoff é um arquivo pequeno (`.ai-session/handoff.md`) mais referências. Tudo pesado (diff completo, log completo, repo map completo) fica em disco e é carregado sob demanda.
+
+## Quick Start
 
 ```bash
 pnpm install
 pnpm build
-pnpm relay-baton login
-pnpm relay-baton doctor
-pnpm relay-baton run "Conserte o fluxo de upload de anexos de email" --diet balanced
+pnpm relay-baton login          # login Codex + Claude
+pnpm relay-baton doctor         # checagem de ambiente
+pnpm relay-baton run "Corrigir o fluxo de upload de anexos de e-mail" --diet balanced
 ```
 
-## 📝 Notas de versão
-
-| Versão | English | 한국어 | Resumo |
-|---|---|---|---|
-| v0.3.0 | [notes](../../release-notes/v0.3.0.md) | [릴리즈 노트](../../release-notes/ko/v0.3.0.md) | `ProjectResolver` sem efeitos colaterais, backup/recuperação automática de `projects.json` corrompido, override via env `RELAY_BATON_PROJECTS_FILE`, limpeza de `lastError` em fallback. |
-| v0.2.0 | [notes](../../release-notes/v0.2.0.md) | [릴리즈 노트](../../release-notes/ko/v0.2.0.md) | Adiciona project registry, `--project` / `--path`, comandos de project e dashboard TUI. |
-| v0.1.0 | [notes](../../release-notes/v0.1.0.md) | [릴리즈 노트](../../release-notes/ko/v0.1.0.md) | MVP de handoff Codex-to-Claude com token diet, fallback detection e quality gates. |
-
-## 🧭 Uso
+## Fluxo de trabalho
 
 ```bash
-pnpm relay-baton init
-pnpm relay-baton doctor
-pnpm relay-baton run "tarefa" --diet balanced
-pnpm relay-baton handoff --to claude --no-run --diet caveman
+$ relay-baton init                  # cria .ai-session/
+$ relay-baton run "corrigir teste flaky de upload" --diet balanced
+... a saída do codex flui ao vivo ...
+[relay-baton] fallback pattern detected: maximum context length
+[relay-baton] building handoff for claude...
+[relay-baton] HandoffQualityGate: ok
+[relay-baton] TokenDietQualityGate: ok
+... claude retoma, edita arquivos, termina ...
+
+$ relay-baton status                # estado da sessão
+$ relay-baton budget                # uso do budget do diet
 ```
 
-Registrar e usar um projeto:
+Handoff manual sem fallback automático:
 
 ```bash
-pnpm relay-baton project add /path/to/repo --name relay-baton --diet caveman --primary codex --fallback claude
-pnpm relay-baton project switch relay-baton
-pnpm relay-baton status --project relay-baton
-pnpm relay-baton budget --project relay-baton
-pnpm relay-baton tui --project relay-baton
+$ relay-baton handoff --to claude --no-run --diet caveman
 ```
 
-## 🤖 Instalação via agente em uma linha
-
-[`install/install.md`](../../install/install.md) é tanto um guia para humanos quanto um *instruction surface* que Codex / Claude Code seguem diretamente.
+Troca entre múltiplos repositórios:
 
 ```bash
-codex exec --sandbox workspace-write "Read https://github.com/<your-org>/relay-baton/blob/main/install/install.md and install relay-baton. Do not print or store API keys."
+$ relay-baton project add /path/to/repo-a --diet caveman
+$ relay-baton project switch repo-a
+$ relay-baton run "conectar o novo metrics endpoint"
 ```
+
+## Recursos
+
+- **Fallback automático** — Detecta `quota exceeded`, `rate limit exceeded`, `maximum context length` etc. na saída do agente. Pula linhas tipo grep e prosa que explica esses padrões (evita falsos positivos).
+- **Token diet** — 5 profiles determinísticos (`off · lite · balanced · caveman · ultra`). Lock/build/min excluídos, tail de logs, repo map no lugar do fonte.
+- **Quality gates** — Completude e budget verificados *antes* do lançamento do fallback.
+- **Auth-safe por padrão** — `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` removidos dos subprocesses. Opt-in só via `--allow-api-key-env`. Nunca armazenados, impressos ou logados.
+- **Project registry** — Registre múltiplos repos uma vez, execute em qualquer um com `--project` ou `--path`.
+- **Ink TUI** — Dashboard de project / sessão. Nunca lança agentes.
+- **Sem API própria** — relay-baton não chama a API da OpenAI / Anthropic. Só subprocess locais `codex` / `claude`.
+
+## Comandos
+
+| Comando | Descrição |
+|---|---|
+| `relay-baton init` | Cria `.ai-session/` no repo atual |
+| `relay-baton doctor` | Checa git / codex / claude / env / config |
+| `relay-baton login [agent]` | Fluxos de login Codex / Claude |
+| `relay-baton run "<task>"` | Roda agente primário + detecta fallback + handoff |
+| `relay-baton handoff --to claude` | Handoff manual (`--diet`, `--no-run`, `--force`) |
+| `relay-baton compact` / `squeeze` | Regera compact-state / repo-map / full-diff |
+| `relay-baton budget` | Mostra uso do context budget |
+| `relay-baton compress <file>` | Compressão determinística de markdown |
+| `relay-baton status` | Estado da sessão |
+| `relay-baton project add/list/switch/current/doctor/remove` | Gerencia registry de projects |
+| `relay-baton tui` | Dashboard Ink |
+
+Comandos com awareness de project aceitam `--project <name-or-id>` e `--path <repoPath>`. Prioridade: `--path` > `--project` > project ativo > cwd.
+
+## Project registry
 
 ```bash
-claude --permission-mode acceptEdits -p "Read https://github.com/<your-org>/relay-baton/blob/main/install/install.md and follow it step by step."
+relay-baton project add /path/to/relay-baton --name relay-baton --diet caveman --primary codex --fallback claude
+relay-baton project switch relay-baton
+relay-baton status --project relay-baton
 ```
 
-## 📋 Requisitos
+Caminho padrão: `~/.relay-baton/projects.json`. `RELAY_BATON_PROJECTS_FILE` faz override (CI, sandbox, testes). Arquivo corrompido é salvo como `projects.json.corrupt-<timestamp>.bak` e o registry é resetado vazio — comandos continuam funcionando.
+
+## Token diet profiles
+
+| Profile | Intenção |
+|---|---|
+| `off` | Truncamento mínimo |
+| `lite` | Limpeza leve |
+| `balanced` *(padrão)* | Uso diário |
+| `caveman` | Mínimo agressivo |
+| `ultra` | Compressão extrema |
+
+> `caveman` **não é tom jocoso** — significa *aggressive minimal-context*. Precisão técnica é preservada.
+
+## Frente às alternativas
+
+| Abordagem | O que é levado | Custo em tokens | Continuidade | Modo de falha |
+|---|---|---|---|---|
+| Export bruto do chat | Transcript inteiro | Alto (a maior parte é ruído) | Frágil — agente relê seu próprio raciocínio | Estouro da context window |
+| Copy-paste prompting | O que o humano lembrou | Variável | Quebradiço | Drift silencioso do estado real |
+| Dump do repo inteiro | Tudo | Muito alto | Forte mas caro | Modelo trunca no meio do arquivo |
+| **relay-baton** | Resumo compacto + repo map + referências | **Baixo, limitado por profile** | Forte — guiado pelo estado *real* do repo | Falha *de forma ruidosa* via quality gates |
+
+## Filosofia
+
+relay-baton é **ferramental pequeno e afiado para workflows de desenvolvimento AI-native**.
+
+- **Local-first.** Tudo vive no seu disco. Sem nuvem, sem daemon, sem telemetria, sem conta.
+- **Composabilidade.** Um diretório `.ai-session/` são só arquivos. Leia, grep, diff, anexe num PR.
+- **Transferência de estado leve.** Um handoff é um arquivo markdown, não um banco de dados.
+- **Determinístico antes de esperto.** Sem sumarização LLM dentro do harness — se o modelo erra o resumo, o handoff mente. Só budgets de caractere, regras estruturais e referências explícitas.
+- **Estado do repo é a fonte da verdade.** Conversa é interpretação; repo é fato.
+- **Eficiência de tokens é a feature** — não um botão escondido num menu.
+
+### Princípios de design
+
+1. É **work handoff**, não chat relay.
+2. **Estado atual do repositório** vence qualquer histórico de conversa.
+3. O handoff precisa ser **legível por humano**.
+4. Cada UI é uma casca fina sobre `core`.
+5. **Token diet não é feature secundária — é a feature principal.**
+
+## Direção futura
+
+relay-baton começa como harness de fallback de dois agentes. A mesma primitiva escala mais longe:
+
+- **Cadeias de relay multi-agente** — Codex → Claude → OpenCode → de volta a Codex.
+- **Árvores de sessão com bifurcação** — Forka uma tarefa em tentativas paralelas; reconcilia via diffs.
+- **Estado de relay remoto** — Push de `.ai-session/` para um remote compartilhado para a próxima máquina retomar.
+- **Workflows orquestrados** — Modos `review`, `diagnose`, `continue` (autopilot limitado com checkpoints explícitos).
+- **Mais adapters** — OpenCode, Gemini CLI, Aider, qualquer coisa com interface subprocess local sã.
+
+A forma do harness não muda: detect, capture, compact, hand off.
+
+## Requisitos
 
 | Item | Versão / Nota |
 |---|---|
 | Node.js | ≥ 20 |
 | pnpm | ≥ 9 |
 | git | obrigatório |
-| `codex` | **assinatura ChatGPT Plus ou superior necessária** |
-| `claude` | **assinatura Claude Pro ou superior necessária** |
+| `codex` | **requer assinatura ChatGPT Plus ou superior** |
+| `claude` | **requer assinatura Claude Pro ou superior** |
 
-> ### 💳 Aviso de assinatura
->
-> relay-baton **não chama** diretamente a API da OpenAI / Anthropic. Usa a **autenticação por assinatura** dos CLIs locais.
-> - Contas gratuitas não funcionam de forma confiável.
-> - Auth por API key é tecnicamente possível, mas **bloqueada por padrão** atrás de `--allow-api-key-env`, para evitar faturamento por uso não intencional.
+> relay-baton não chama diretamente a API da OpenAI / Anthropic. Usa a **autenticação por assinatura** das CLIs locais `codex` / `claude`. Auth por API key é tecnicamente possível, mas **bloqueada por padrão** (opt-in via `--allow-api-key-env`).
 
-## 🔑 Login
+## Login
 
 ```bash
 pnpm relay-baton login           # ambos
@@ -110,44 +221,20 @@ pnpm relay-baton login codex
 pnpm relay-baton login claude
 ```
 
-`claude --version` passar **não** significa que você está logado. Se aparecer "Not logged in", rode o comando novamente.
+`claude --version` passar **não** significa que você está logado. Se aparecer "Not logged in", rode novamente o comando acima.
 
-## 🧭 Comandos
+## Notas de versão
 
-| Comando | Descrição |
-|---|---|
-| `relay-baton init` | Criar `.ai-session/` |
-| `relay-baton doctor` | Diagnóstico de ambiente |
-| `relay-baton login [agent]` | Login Codex / Claude |
-| `relay-baton run "<tarefa>"` | Roda Codex, detecta fallback, transfere para Claude |
-| `relay-baton handoff --to claude` | Handoff manual |
-| `relay-baton compact` | Recria compact-state / repo-map / full-diff |
-| `relay-baton budget` | Mostra orçamento de contexto |
-| `relay-baton compress <arquivo>` | Compactação determinística de Markdown |
-| `relay-baton status` | Status da sessão |
-| `relay-baton tui` | TUI Ink |
+**Última:** v0.3.0 — [English](../../release-notes/v0.3.0.md) · [한국어](../../release-notes/ko/v0.3.0.md)
 
-## 📉 Perfis de dieta
+| Versão | English | 한국어 | Resumo |
+|---|---|---|---|
+| v0.3.0 | [Read →](../../release-notes/v0.3.0.md) | [읽기 →](../../release-notes/ko/v0.3.0.md) | `ProjectResolver` sem efeitos colaterais, backup/recuperação automática de `projects.json` corrompido, override via env `RELAY_BATON_PROJECTS_FILE`, limpeza de `lastError` em fallback. |
+| v0.2.0 | [Read →](../../release-notes/v0.2.0.md) | [읽기 →](../../release-notes/ko/v0.2.0.md) | Adiciona project registry, `--project` / `--path`, comandos de project e dashboard TUI. |
+| v0.1.0 | [Read →](../../release-notes/v0.1.0.md) | [읽기 →](../../release-notes/ko/v0.1.0.md) | MVP de handoff Codex-to-Claude com token diet, fallback detection e quality gates. |
 
-`off` · `lite` · `balanced` *(padrão)* · `caveman` · `ultra`
+## License
 
-> `caveman` **não** é um tom brincalhão — significa *aggressive minimal-context*. Precisão técnica é preservada.
+MIT. Detalhes em [`LICENSE`](../../LICENSE).
 
-## 🛡️ Segurança de auth & cobrança
-
-- API keys **nunca** são armazenadas, impressas ou logadas.
-- `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` são removidas do ambiente de processos filhos por padrão.
-
-## 🎯 Princípios de design
-
-1. É **handoff de trabalho**, não chat relay.
-2. O **estado atual do repositório** prevalece sobre histórico de conversa.
-3. O handoff deve ser **legível por humanos**.
-4. Toda UI é apenas uma casca fina sobre `core`.
-5. **A dieta de tokens não é um recurso secundário — é o recurso central.**
-
-## 📄 Licença
-
-MIT. Veja [`LICENSE`](../../LICENSE).
-
-> ℹ️ Documentação completa em [English README](../../README.md) e [`install/install.md`](../../install/install.md).
+> Documentação completa (detalhes dos quality gates, semântica dos arquivos `.ai-session/`, schema de config, atalhos do TUI, troubleshooting) em [English README](../../README.md) e [`install/install.md`](../../install/install.md).
