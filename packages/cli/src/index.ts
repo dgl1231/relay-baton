@@ -9,6 +9,7 @@ import { compactCommand } from "./commands/compact";
 import { budgetCommand } from "./commands/budget";
 import { compressCommand } from "./commands/compress";
 import { tuiCommand } from "./commands/tui";
+import { loginCommand } from "./commands/login";
 
 const program = new Command();
 program
@@ -60,6 +61,13 @@ program
   .option("--write", "rewrite file in place")
   .option("--out <path>", "write to a different path")
   .action(compressCommand);
+
+program
+  .command("login")
+  .description("Run Codex / Claude Code CLI login flows interactively")
+  .argument("[agent]", "codex | claude | all (default: all)")
+  .option("--allow-api-key-env", "allow passing API key env vars to login process")
+  .action((agent, opts) => loginCommand(agent, opts));
 
 program.command("tui").description("Start the relay-baton TUI").action(tuiCommand);
 

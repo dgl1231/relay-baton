@@ -5,7 +5,7 @@ import type { AgentAdapter } from "./AgentAdapter";
 export class ClaudeCodeAdapter implements AgentAdapter {
   id = "claude" as const;
   displayName = "Claude Code CLI";
-  constructor(private cfg: AgentConfig = { command: "claude", args: ["-p"] }) {}
+  constructor(private cfg: AgentConfig = { command: "claude", args: ["--permission-mode", "acceptEdits", "-p"] }) {}
 
   async detectAvailable(): Promise<boolean> {
     const r = spawnSync(this.cfg.command, ["--version"], { encoding: "utf8" });

@@ -46,6 +46,16 @@ Core modules:
 - HandoffQualityGate, TokenDietQualityGate
 - PromptBuilder, BatonWorkflow
 
+## Agent CLI Defaults
+
+- Codex: `codex exec --sandbox workspace-write "<task>"`. Do not use `--full-auto` (deprecated) or `--ask-for-approval` (unsupported in current Codex).
+- Claude Code: `claude --permission-mode acceptEdits -p "<prompt>"`. Do not use `bypassPermissions`. Login (`/login`) is separate from `claude --version`.
+- Config `agents.<id>.args` overrides the default args.
+
+## Fallback Patterns
+
+Use specific phrases, not bare keywords. Avoid false positives from grep results and documentation lines that merely describe the patterns.
+
 ## Required CLI Commands
 
 - `relay-baton init`

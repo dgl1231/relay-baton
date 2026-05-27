@@ -43,6 +43,21 @@ handoff.md는 짧게 유지한다. 큰 정보는 파일로 저장하고 참조�
 - compact state: `.ai-session/compact-state.md`
 - repo map: `.ai-session/repo-map.md`
 
+## Repository 탐색 규칙
+
+- 다음 디렉터리는 기본 제외: `node_modules`, `.git`, `dist`, `build`, `.next`, `.turbo`, `coverage`, `bin`, `obj`, `.ai-session`.
+- README 탐색은 루트 `README.md`를 우선한다.
+- dependency 내부의 README/소스는 작업 대상이 아니다.
+- `rg` / `grep` 사용 시 위 디렉터리를 제외하는 옵션을 사용해라.
+
+## Agent CLI 실행 옵션 (참고)
+
+- Codex 기본: `codex exec --sandbox workspace-write "<task>"`.
+  - `--full-auto`, `--ask-for-approval` 옵션은 사용하지 않는다 (deprecated 또는 미지원).
+- Claude Code 기본: `claude --permission-mode acceptEdits -p "<prompt>"`.
+  - `bypassPermissions`는 사용하지 않는다.
+  - 처음 실행 시 `claude` 단독 실행 후 `/login`이 필요할 수 있다.
+
 ## 테스트
 
 ```

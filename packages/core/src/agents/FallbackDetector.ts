@@ -4,6 +4,19 @@ export interface FallbackHit {
   index: number;
 }
 
+// Lines that look like ripgrep / grep / file:line search results.
+// e.g. "README.md:10:- ...", "packages/core/foo.ts:99:..."
+const GREP_RESULT_LINE = /^[^\s:]+\.[A-Za-z0-9]{1,8}:\d+[:\-]/;
+
+// Lines that look like documentation about fallback patterns themselves.
+const DOC_EXPLAIN_HINTS = [
+  /fallback\s+pattern/i,
+  /(usage|rate|token|context|quota)\s*[\/,]\s*(usage|rate|token|context|quota)/i, // mentions multiple keywords together
+  /(quota|limit|usage|context)\s+패턴/, // Korean: "quota 패턴" etc.
+  /감지한다/, // Korean: "...detect"
+  /detection pattern/i,
+];
+
 export class FallbackDetector {
   private patterns: string[];
   private seen = new Set<string>();
@@ -15,6 +28,13 @@ export class FallbackDetector {
 
   feed(line: string): FallbackHit | null {
     const idx = ++this.counter;
+
+    // Skip lines that are clearly grep results or doc explanations.
+    if (GREP_RESULT_LINE.test(line)) return null;
+    for (const re of DOC_EXPLAIN_HINTS) {
+      if (re.test(line)) return null;
+    }
+
     const low = line.toLowerCase();
     for (const p of this.patterns) {
       if (low.includes(p)) {

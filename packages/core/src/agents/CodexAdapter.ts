@@ -5,7 +5,7 @@ import type { AgentAdapter } from "./AgentAdapter";
 export class CodexAdapter implements AgentAdapter {
   id = "codex" as const;
   displayName = "Codex CLI";
-  constructor(private cfg: AgentConfig = { command: "codex", args: ["exec"] }) {}
+  constructor(private cfg: AgentConfig = { command: "codex", args: ["exec", "--sandbox", "workspace-write"] }) {}
 
   async detectAvailable(): Promise<boolean> {
     const r = spawnSync(this.cfg.command, ["--version"], { encoding: "utf8" });
