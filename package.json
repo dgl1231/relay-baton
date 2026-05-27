@@ -1,0 +1,22 @@
+{
+  "name": "relay-baton-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Token-aware handoff harness for Codex CLI and Claude Code",
+  "scripts": {
+    "build": "pnpm -r --filter \"./packages/*\" run build",
+    "test": "pnpm -r --filter \"./packages/*\" run test",
+    "typecheck": "pnpm -r --filter \"./packages/*\" run typecheck",
+    "relay-baton": "node packages/cli/dist/index.js",
+    "dev": "pnpm --filter @relay-baton/cli run dev"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5",
+    "@types/node": "^20.14.10"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.0.0"
+}

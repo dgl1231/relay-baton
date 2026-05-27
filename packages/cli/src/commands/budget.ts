@@ -1,0 +1,30 @@
+import * as fs from "fs";
+import { ConfigLoader, SessionManager } from "@relay-baton/core";
+
+export async function budgetCommand() {
+  const repoRoot = process.cwd();
+  const { config } = ConfigLoader.load(repoRoot);
+  const sm = new SessionManager(repoRoot, config);
+  const meta = sm.getMeta();
+  const activeProfile = meta?.tokenDietProfile ?? config.tokenDiet.profile;
+  const profile = config.tokenDiet.profiles[activeProfile];
+
+  const read = (p: string) => { try { return fs.readFileSync(p, "utf8"); } catch { return ""; }};
+  const handoff = read(sm.files.p("handoff"));
+  const repoMap = read(sm.files.p("repoMap"));
+  const fullDiff = read(sm.files.p("fullDiff"));
+  const log = read(sm.files.p("commandsLog"));
+  const compactState = read(sm.files.p("compactState"));
+
+  let budgetSnap: any = null;
+  try { budgetSnap = JSON.parse(read(sm.files.p("contextBudget"))); } catch {/**/}
+
+  console.log("active profile:", activeProfile);
+  console.log("maxHandoffChars:", profile.maxHandoffChars);
+  console.log("handoff.md chars:", handoff.length);
+  console.log("repo-map.md chars:", repoMap.length);
+  console.log("full-diff.patch chars:", fullDiff.length);
+  console.log("commands.log chars:", log.length);
+  console.log("compact-state.md chars:", compactState.length);
+  console.log("truncated:", budgetSnap?.truncated ?? false);
+}

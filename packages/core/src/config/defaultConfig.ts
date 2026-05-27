@@ -1,0 +1,75 @@
+import type { RelayBatonConfig } from "@relay-baton/shared";
+
+export const defaultConfig: RelayBatonConfig = {
+  primaryAgent: "codex",
+  fallbackAgent: "claude",
+  agents: {
+    codex: { command: "codex", args: ["exec"] },
+    claude: { command: "claude", args: ["-p"] },
+  },
+  fallbackPatterns: [
+    "usage limit",
+    "rate limit",
+    "context length",
+    "context limit",
+    "token limit",
+    "quota",
+    "exhausted",
+    "maximum context",
+    "too many requests",
+  ],
+  commands: { test: "", build: "" },
+  authPolicy: {
+    mode: "cli-session",
+    allowApiKeyEnv: false,
+    warnIfApiKeyEnvDetected: true,
+    blockedEnvVars: ["OPENAI_API_KEY", "ANTHROPIC_API_KEY"],
+  },
+  tokenDiet: {
+    enabled: true,
+    profile: "balanced",
+    outputCompression: true,
+    profiles: {
+      lite: {
+        maxHandoffChars: 60000,
+        maxDiffChars: 20000,
+        maxRepoMapChars: 12000,
+        maxLogTailChars: 8000,
+        maxStateChars: 8000,
+        maxErrorChars: 6000,
+      },
+      balanced: {
+        maxHandoffChars: 40000,
+        maxDiffChars: 12000,
+        maxRepoMapChars: 8000,
+        maxLogTailChars: 5000,
+        maxStateChars: 6000,
+        maxErrorChars: 4000,
+      },
+      caveman: {
+        maxHandoffChars: 25000,
+        maxDiffChars: 6000,
+        maxRepoMapChars: 4000,
+        maxLogTailChars: 2500,
+        maxStateChars: 3500,
+        maxErrorChars: 2500,
+      },
+      ultra: {
+        maxHandoffChars: 12000,
+        maxDiffChars: 2500,
+        maxRepoMapChars: 2000,
+        maxLogTailChars: 1000,
+        maxStateChars: 1800,
+        maxErrorChars: 1000,
+      },
+      off: {
+        maxHandoffChars: 200000,
+        maxDiffChars: 100000,
+        maxRepoMapChars: 50000,
+        maxLogTailChars: 50000,
+        maxStateChars: 50000,
+        maxErrorChars: 50000,
+      },
+    },
+  },
+};
