@@ -6,6 +6,8 @@ import { statusCommand } from "./commands/status";
 import { runCommand } from "./commands/run";
 import { handoffCommand } from "./commands/handoff";
 import { handoffHistoryCommand } from "./commands/handoffHistory";
+import { planCommand } from "./commands/plan";
+import { executeCommand } from "./commands/execute";
 import { compactCommand } from "./commands/compact";
 import { budgetCommand } from "./commands/budget";
 import { compressCommand } from "./commands/compress";
@@ -71,6 +73,34 @@ handoff
   .option("--project <name-or-id>", "registered project name or id")
   .option("--path <repoPath>", "repository path")
   .action(handoffHistoryCommand);
+
+program
+  .command("plan")
+  .description("Plan-execute mode: a planner agent writes .ai-session/plan.md")
+  .argument("<task>", "task description")
+  .option("--diet <profile>", "diet profile: off|lite|balanced|caveman|ultra")
+  .option("--with <agent>", "planner agent (default: config planExecute.defaultPlanner)")
+  .option("--planner <agent>", "planner agent (alias of --with)")
+  .option("--executor <agent>", "executor agent for --then-execute")
+  .option("--no-run", "scaffold an empty plan template instead of launching the planner")
+  .option("--then-execute", "run the execute phase immediately after a passing plan")
+  .option("--force", "ignore plan quality gate failures")
+  .option("--allow-api-key-env", "allow passing API key env vars to child processes")
+  .option("--project <name-or-id>", "registered project name or id")
+  .option("--path <repoPath>", "repository path")
+  .action((task, opts) => planCommand(task, opts));
+
+program
+  .command("execute")
+  .description("Plan-execute mode: an executor agent implements .ai-session/plan.md")
+  .option("--diet <profile>", "diet profile: off|lite|balanced|caveman|ultra")
+  .option("--with <agent>", "executor agent (default: config planExecute.defaultExecutor)")
+  .option("--from <path>", "read the plan from a custom path")
+  .option("--force", "ignore quality gate failures")
+  .option("--allow-api-key-env", "allow passing API key env vars to child processes")
+  .option("--project <name-or-id>", "registered project name or id")
+  .option("--path <repoPath>", "repository path")
+  .action(executeCommand);
 
 program
   .command("compact")
