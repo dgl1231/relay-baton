@@ -10,7 +10,7 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 [![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-[![Latest](https://img.shields.io/badge/release-v0.4.0-blue.svg)](./release-notes/v0.4.0.md)
+[![Latest](https://img.shields.io/badge/release-v0.5.0-blue.svg)](./release-notes/v0.5.0.md)
 
 **English**
  · [한국어](./docs/i18n/README.ko.md)
@@ -149,6 +149,8 @@ claude --permission-mode acceptEdits -p "Read https://github.com/<your-org>/rela
 
 - **Automatic fallback.** Detects `quota exceeded`, `rate limit exceeded`, `maximum context length` and similar in agent output and hands off to the fallback agent. False-positive guards skip grep results and prose about the patterns themselves.
 - **Token diet.** Five deterministic compaction profiles (`off · lite · balanced · caveman · ultra`). Lock files, build output, minified bundles, and binary blobs are excluded; logs are tailed; repo maps replace source.
+- **Plan-execute mode.** A proactive alternative to reactive fallback: a planner agent (default Claude) writes a structured `.ai-session/plan.md`, gated for completeness, then an executor agent (default Codex) implements it. `relay-baton plan "<task>" --then-execute`.
+- **Context compression.** Proactive, deterministic mid-session compression of `state.md` / `commands.log` so an agent runs longer before hitting a context wall. `relay-baton compress-context`, plus an auto-pass inside `run`.
 - **Quality gates.** A handoff is *verified* before the fallback agent is launched — required sections present, budget respected, no inlined manifests.
 - **Auth-safe by default.** `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` are stripped from child processes. Opt-in only via `--allow-api-key-env`. No keys are ever stored, printed, or logged.
 - **Project registry.** Register multiple repos once, switch the active project, run commands against any of them with `--project` or `--path`.
@@ -230,7 +232,10 @@ relay-baton tui --project relay-baton
 | `relay-baton run "<task>"` | Run primary agent, detect fallback, hand off |
 | `relay-baton handoff --to claude` | Manual handoff (`--diet`, `--no-run`, `--force`) |
 | `relay-baton handoff history` | List the current + backed-up handoff documents (metadata only) |
+| `relay-baton plan "<task>"` | Plan-execute mode: planner writes `plan.md` (`--with`, `--no-run`, `--then-execute`) |
+| `relay-baton execute` | Plan-execute mode: executor implements `plan.md` (`--with`, `--from`) |
 | `relay-baton compact` / `squeeze` | Rebuild compact-state, repo-map, full-diff |
+| `relay-baton compress-context` | Compress running state.md / commands.log when over budget (`--dry-run`, `--threshold`) |
 | `relay-baton budget` | Show context-budget usage |
 | `relay-baton compress <file>` | Deterministically compress a markdown file |
 | `relay-baton status` | Print session status |

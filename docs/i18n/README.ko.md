@@ -130,6 +130,9 @@ $ relay-baton run "새 metrics endpoint 연결"
 | `relay-baton run "<task>"` | primary agent 실행 + fallback 감지 + handoff |
 | `relay-baton handoff --to claude` | 수동 handoff (`--diet`, `--no-run`, `--force`) |
 | `relay-baton handoff history` | 현재 + 백업 handoff 문서 나열 (metadata만) |
+| `relay-baton plan "<task>"` | Plan-execute: planner가 `plan.md` 작성 (`--with`, `--no-run`, `--then-execute`) |
+| `relay-baton execute` | Plan-execute: executor가 `plan.md` 구현 (`--with`, `--from`) |
+| `relay-baton compress-context` | 진행 중 context(state.md / commands.log) 압축 (`--dry-run`, `--threshold`) |
 | `relay-baton compact` / `squeeze` | compact-state / repo-map / full-diff 재생성 |
 | `relay-baton budget` | context budget 사용량 |
 | `relay-baton compress <file>` | markdown 결정적 압축 |
