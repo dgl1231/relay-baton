@@ -19,6 +19,7 @@ export * from "./token-diet/StateCompactor";
 export * from "./token-diet/HandoffCompactor";
 export * from "./token-diet/ReferenceResolver";
 export * from "./token-diet/DeterministicCompress";
+export * from "./token-diet/ContextCompressor";
 export * from "./handoff/HandoffGenerator";
 export * from "./handoff/HandoffQualityGate";
 export * from "./handoff/TokenDietQualityGate";

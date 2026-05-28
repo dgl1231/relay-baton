@@ -37,6 +37,9 @@ export class ConfigLoader {
       planExecute: override.planExecute
         ? { ...base.planExecute, ...override.planExecute }
         : base.planExecute,
+      contextCompression: override.contextCompression
+        ? { ...base.contextCompression!, ...override.contextCompression }
+        : base.contextCompression,
     };
   }
 }

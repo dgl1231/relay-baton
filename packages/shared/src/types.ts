@@ -61,6 +61,16 @@ export interface RelayBatonConfig {
     defaultExecutor: AgentId;
     maxPlanChars?: number;
   };
+  // v0.5 context compression mode (optional; defaults applied when absent).
+  contextCompression?: {
+    enabled: boolean;
+    /** Auto-compress inside `run` when the threshold is crossed. */
+    auto: boolean;
+    /** Fraction (0..1) of the profile budget that triggers compression. */
+    threshold: number;
+    /** Keep the pre-compression commands.log as commands.log.full.<timestamp>. */
+    rotateRawArtifacts: boolean;
+  };
 }
 
 export interface SessionMeta {

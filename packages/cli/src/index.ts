@@ -8,6 +8,7 @@ import { handoffCommand } from "./commands/handoff";
 import { handoffHistoryCommand } from "./commands/handoffHistory";
 import { planCommand } from "./commands/plan";
 import { executeCommand } from "./commands/execute";
+import { compressContextCommand } from "./commands/compressContext";
 import { compactCommand } from "./commands/compact";
 import { budgetCommand } from "./commands/budget";
 import { compressCommand } from "./commands/compress";
@@ -119,6 +120,17 @@ program
   .action(compactCommand);
 
 addProjectOptions(program.command("budget").description("Show context budget usage")).action(budgetCommand);
+
+program
+  .command("compress-context")
+  .description("Compress running session context (state.md / commands.log) when over budget")
+  .option("--diet <profile>", "diet profile: off|lite|balanced|caveman|ultra")
+  .option("--threshold <ratio>", "compress when weight/budget exceeds this ratio (0..1)")
+  .option("--dry-run", "report what would change without writing")
+  .option("--force", "compress regardless of threshold")
+  .option("--project <name-or-id>", "registered project name or id")
+  .option("--path <repoPath>", "repository path")
+  .action(compressContextCommand);
 
 program
   .command("compress")

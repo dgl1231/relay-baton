@@ -83,4 +83,10 @@ export const defaultConfig: RelayBatonConfig = {
     defaultExecutor: "codex",
     maxPlanChars: 30000,
   },
+  contextCompression: {
+    enabled: true,
+    auto: true,
+    threshold: 0.8,
+    rotateRawArtifacts: true,
+  },
 };
