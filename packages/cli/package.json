@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "echo \"no tests\" && exit 0",
+    "test": "vitest run",
     "start": "node dist/index.js",
     "dev": "tsc -p tsconfig.json --watch"
   },
@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "typescript": "^5.5.4",
+    "vitest": "^2.0.5",
     "@types/node": "^20.14.10"
   }
 }
