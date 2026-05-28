@@ -24,7 +24,7 @@ const program = new Command();
 program
   .name("relay-baton")
   .description("Token-aware handoff harness for Codex CLI and Claude Code")
-  .version("0.3.0");
+  .version("0.4.0");
 
 function addProjectOptions(cmd: Command): Command {
   return cmd

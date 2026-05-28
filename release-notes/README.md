@@ -14,8 +14,8 @@ Release notes are user-facing changelogs, not agent handoff material — that ro
 
 ## Versions
 
-- [v0.5.0](./v0.5.0.md) / [한국어](./ko/v0.5.0.md) - **Planning.** Plan-execute mode (Claude plans, Codex executes), PlanQualityGate, `relay-baton plan` / `execute` commands, carried-over v0.4 items (adapter scaffolds, CI matrix, project-level fallback overrides).
-- [v0.4.0](./v0.4.0.md) / [한국어](./ko/v0.4.0.md) - Planning. Critical-path test coverage, GitHub Actions CI, CLI smoke test, session observability + `handoff history`.
+- [v0.5.0](./v0.5.0.md) / [한국어](./ko/v0.5.0.md) - **Planning.** Plan-execute mode (Claude plans, Codex executes) + context compression mode (proactive mid-session compaction). Carried-over v0.4 items (adapter scaffolds, CI matrix, project-level fallback overrides).
+- [v0.4.0](./v0.4.0.md) / [한국어](./ko/v0.4.0.md) - GitHub Actions CI, critical-path test coverage (99 tests), CLI smoke test, session observability (`startedAt`/`endedAt`/`durationMs`/`handoffCount`), and `relay-baton handoff history`.
 - [v0.3.0](./v0.3.0.md) / [한국어](./ko/v0.3.0.md) - Side-effect-free resolver, registry recovery, `RELAY_BATON_PROJECTS_FILE` override, fallback `lastError` cleanup.
 - [v0.2.0](./v0.2.0.md) / [한국어](./ko/v0.2.0.md) - Project registry, project-aware commands, improved TUI dashboard, and release documentation.
 - [v0.1.0](./v0.1.0.md) / [한국어](./ko/v0.1.0.md) - Initial MVP with Codex/Claude handoff, token diet, fallback detection, session files, quality gates, and auth-safe subprocess execution.
