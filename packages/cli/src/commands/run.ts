@@ -32,7 +32,19 @@ export async function runCommand(task: string, opts: RunOpts) {
     process.exit(2);
   }
 
-  sm.updateMeta({ task, status: "running", activeAgent: "codex", tokenDietProfile: profileName, fallbackReason: null });
+  // v0.4 observability: stamp the start of this run; clear any stale
+  // endedAt/durationMs from a previous run/handoff in the same session.
+  const startedAt = new Date().toISOString();
+  sm.updateMeta({
+    task,
+    status: "running",
+    activeAgent: "codex",
+    tokenDietProfile: profileName,
+    fallbackReason: null,
+    startedAt,
+    endedAt: undefined,
+    durationMs: undefined,
+  });
 
   const codex = new CodexAdapter(config.agents.codex);
   const cmd = codex.buildCommand({ task, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName });
@@ -52,20 +64,36 @@ export async function runCommand(task: string, opts: RunOpts) {
 
   if (r.error) {
     console.error(r.error);
-    sm.updateMeta({ status: "failed", lastError: r.error, lastAgent: "codex", activeAgent: "none" });
+    const endedAt = new Date().toISOString();
+    sm.updateMeta({
+      status: "failed", lastError: r.error, lastAgent: "codex", activeAgent: "none",
+      endedAt, durationMs: Date.parse(endedAt) - Date.parse(startedAt),
+    });
     process.exit(1);
   }
 
   const shouldFallback = r.fallbackReason !== null;
-  sm.updateMeta({
-    lastAgent: "codex",
-    activeAgent: "none",
-    fallbackReason: r.fallbackReason,
-    status: shouldFallback ? "fallback_detected" : (r.exitCode === 0 ? "completed" : "failed"),
-    lastError: r.exitCode === 0 || shouldFallback ? null : `codex exited with ${r.exitCode}`,
-  });
-
-  if (!shouldFallback) {
+  if (shouldFallback) {
+    // Not terminal yet — fallback flow continues below; don't stamp endedAt.
+    sm.updateMeta({
+      lastAgent: "codex",
+      activeAgent: "none",
+      fallbackReason: r.fallbackReason,
+      status: "fallback_detected",
+      lastError: null,
+    });
+  } else {
+    // Terminal — Codex finished, no fallback needed. Stamp endedAt/duration.
+    const endedAt = new Date().toISOString();
+    sm.updateMeta({
+      lastAgent: "codex",
+      activeAgent: "none",
+      fallbackReason: r.fallbackReason,
+      status: r.exitCode === 0 ? "completed" : "failed",
+      lastError: r.exitCode === 0 ? null : `codex exited with ${r.exitCode}`,
+      endedAt,
+      durationMs: Date.parse(endedAt) - Date.parse(startedAt),
+    });
     console.log("[relay-baton] codex finished without fallback. exiting.");
     return;
   }
@@ -78,6 +106,9 @@ export async function runCommand(task: string, opts: RunOpts) {
     previousAgent: "codex",
     nextAgent: "claude",
   });
+  // v0.4 observability: count this successful handoff write.
+  const prevCount = sm.getMeta()?.handoffCount ?? 0;
+  sm.updateMeta({ handoffCount: prevCount + 1 });
 
   const gate = new HandoffQualityGate(repoRoot).check();
   const dietGate = new TokenDietQualityGate(repoRoot, profileName, config.tokenDiet.profiles[profileName])
@@ -106,13 +137,20 @@ export async function runCommand(task: string, opts: RunOpts) {
 
   if (r2.error) {
     console.error(r2.error);
-    sm.updateMeta({ status: "failed", lastError: r2.error, lastAgent: "claude", activeAgent: "none" });
+    const endedAt = new Date().toISOString();
+    sm.updateMeta({
+      status: "failed", lastError: r2.error, lastAgent: "claude", activeAgent: "none",
+      endedAt, durationMs: Date.parse(endedAt) - Date.parse(startedAt),
+    });
     process.exit(1);
   }
+  const endedAt = new Date().toISOString();
   sm.updateMeta({
     status: r2.exitCode === 0 ? "completed" : "failed",
     lastAgent: "claude",
     activeAgent: "none",
     lastError: r2.exitCode === 0 ? null : `claude exited with ${r2.exitCode}`,
+    endedAt,
+    durationMs: Date.parse(endedAt) - Date.parse(startedAt),
   });
 }

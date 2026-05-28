@@ -61,6 +61,16 @@ export interface SessionMeta {
   fallbackReason: string | null;
   lastError: string | null;
   tokenDietProfile: DietProfileName;
+  // v0.4 observability — all optional for backward compatibility with
+  // sessions created on older versions of the CLI.
+  /** ISO timestamp when the most recent `run` / `handoff` command kicked off. */
+  startedAt?: string;
+  /** ISO timestamp when the session transitioned to `completed` or `failed`. */
+  endedAt?: string;
+  /** endedAt - startedAt, in milliseconds. Cleared on a new run/handoff. */
+  durationMs?: number;
+  /** Total number of handoff documents successfully written in this session. */
+  handoffCount?: number;
 }
 
 export interface AgentRunInput {

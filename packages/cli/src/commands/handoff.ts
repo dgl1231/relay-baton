@@ -35,6 +35,11 @@ export async function handoffCommand(opts: HandoffOpts) {
     process.exit(2);
   }
 
+  // v0.4 observability: stamp the start of this handoff and clear any stale
+  // endedAt/durationMs from a previous run/handoff in the same session.
+  const startedAt = new Date().toISOString();
+  sm.updateMeta({ startedAt, endedAt: undefined, durationMs: undefined });
+
   const prevMeta = sm.getMeta()!;
   const wf = new BatonWorkflow(sm, config);
   const result = wf.buildHandoff({
@@ -44,7 +49,13 @@ export async function handoffCommand(opts: HandoffOpts) {
     nextAgent: opts.to,
   });
 
-  sm.updateMeta({ status: "handoff_ready", tokenDietProfile: profileName });
+  // v0.4 observability: count this successful handoff write.
+  const prevCount = sm.getMeta()?.handoffCount ?? 0;
+  sm.updateMeta({
+    status: "handoff_ready",
+    tokenDietProfile: profileName,
+    handoffCount: prevCount + 1,
+  });
   console.log(`[relay-baton] handoff written: ${result.handoffPath} (${result.usedChars} chars, truncated=${result.truncated})`);
 
   const gate = new HandoffQualityGate(repoRoot).check();
@@ -88,13 +99,20 @@ export async function handoffCommand(opts: HandoffOpts) {
   });
   if (r.error) {
     console.error(r.error);
-    sm.updateMeta({ status: "failed", lastError: r.error, lastAgent: "claude", activeAgent: "none" });
+    const endedAt = new Date().toISOString();
+    sm.updateMeta({
+      status: "failed", lastError: r.error, lastAgent: "claude", activeAgent: "none",
+      endedAt, durationMs: Date.parse(endedAt) - Date.parse(startedAt),
+    });
     process.exit(1);
   }
+  const endedAt = new Date().toISOString();
   sm.updateMeta({
     status: r.exitCode === 0 ? "completed" : "failed",
     lastAgent: "claude",
     activeAgent: "none",
     lastError: r.exitCode === 0 ? null : `claude exited with ${r.exitCode}`,
+    endedAt,
+    durationMs: Date.parse(endedAt) - Date.parse(startedAt),
   });
 }
