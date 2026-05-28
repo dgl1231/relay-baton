@@ -130,6 +130,7 @@ $ relay-baton run "neuen metrics-endpoint verdrahten"
 | `relay-baton login [agent]` | Codex / Claude Login-Flows |
 | `relay-baton run "<task>"` | Primärer Agent + Fallback-Erkennung + Handoff |
 | `relay-baton handoff --to claude` | Manueller Handoff (`--diet`, `--no-run`, `--force`) |
+| `relay-baton handoff history` | Aktuelles + gesicherte Handoff-Dokumente auflisten (nur Metadaten) |
 | `relay-baton compact` / `squeeze` | compact-state / repo-map / full-diff neu bauen |
 | `relay-baton budget` | Context-Budget-Nutzung zeigen |
 | `relay-baton compress <file>` | Deterministische Markdown-Komprimierung |

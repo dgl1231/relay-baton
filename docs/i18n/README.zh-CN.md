@@ -129,6 +129,7 @@ $ relay-baton run "接入新的 metrics endpoint"
 | `relay-baton login [agent]` | Codex / Claude 登录流程 |
 | `relay-baton run "<task>"` | 主代理执行 + fallback 检测 + handoff |
 | `relay-baton handoff --to claude` | 手动 handoff (`--diet`、`--no-run`、`--force`) |
+| `relay-baton handoff history` | 列出当前 + 备份的 handoff 文档 (仅 metadata) |
 | `relay-baton compact` / `squeeze` | 重建 compact-state / repo-map / full-diff |
 | `relay-baton budget` | 显示 context budget 用量 |
 | `relay-baton compress <file>` | markdown 文件的确定性压缩 |

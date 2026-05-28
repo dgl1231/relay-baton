@@ -129,6 +129,7 @@ $ relay-baton run "새 metrics endpoint 연결"
 | `relay-baton login [agent]` | Codex / Claude 로그인 흐름 |
 | `relay-baton run "<task>"` | primary agent 실행 + fallback 감지 + handoff |
 | `relay-baton handoff --to claude` | 수동 handoff (`--diet`, `--no-run`, `--force`) |
+| `relay-baton handoff history` | 현재 + 백업 handoff 문서 나열 (metadata만) |
 | `relay-baton compact` / `squeeze` | compact-state / repo-map / full-diff 재생성 |
 | `relay-baton budget` | context budget 사용량 |
 | `relay-baton compress <file>` | markdown 결정적 압축 |

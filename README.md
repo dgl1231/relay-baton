@@ -10,7 +10,7 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 [![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-[![Latest](https://img.shields.io/badge/release-v0.3.0-blue.svg)](./release-notes/v0.3.0.md)
+[![Latest](https://img.shields.io/badge/release-v0.4.0-blue.svg)](./release-notes/v0.4.0.md)
 
 **English**
  · [한국어](./docs/i18n/README.ko.md)
@@ -229,6 +229,7 @@ relay-baton tui --project relay-baton
 | `relay-baton login [agent]` | Run Codex / Claude auth flows (`codex` / `claude` / `all`) |
 | `relay-baton run "<task>"` | Run primary agent, detect fallback, hand off |
 | `relay-baton handoff --to claude` | Manual handoff (`--diet`, `--no-run`, `--force`) |
+| `relay-baton handoff history` | List the current + backed-up handoff documents (metadata only) |
 | `relay-baton compact` / `squeeze` | Rebuild compact-state, repo-map, full-diff |
 | `relay-baton budget` | Show context-budget usage |
 | `relay-baton compress <file>` | Deterministically compress a markdown file |

@@ -5,6 +5,7 @@ import { doctorCommand } from "./commands/doctor";
 import { statusCommand } from "./commands/status";
 import { runCommand } from "./commands/run";
 import { handoffCommand } from "./commands/handoff";
+import { handoffHistoryCommand } from "./commands/handoffHistory";
 import { compactCommand } from "./commands/compact";
 import { budgetCommand } from "./commands/budget";
 import { compressCommand } from "./commands/compress";
@@ -23,7 +24,7 @@ const program = new Command();
 program
   .name("relay-baton")
   .description("Token-aware handoff harness for Codex CLI and Claude Code")
-  .version("0.3.0");
+  .version("0.4.0");
 
 function addProjectOptions(cmd: Command): Command {
   return cmd
@@ -46,17 +47,30 @@ program
   .option("--path <repoPath>", "repository path")
   .action((task, opts) => runCommand(task, opts));
 
-program
+const handoff = program
   .command("handoff")
   .description("Generate a handoff and optionally launch the next agent")
-  .requiredOption("--to <agent>", "next agent (claude)")
+  .option("--to <agent>", "next agent (claude)")
   .option("--diet <profile>", "diet profile: off|lite|balanced|caveman|ultra")
   .option("--force", "ignore quality gate failures")
   .option("--no-run", "do not launch the next agent")
   .option("--allow-api-key-env", "allow passing API key env vars to child processes")
   .option("--project <name-or-id>", "registered project name or id")
   .option("--path <repoPath>", "repository path")
-  .action(handoffCommand);
+  .action((opts) => {
+    if (!opts.to) {
+      console.error("[relay-baton] missing required option: --to <agent>");
+      process.exit(2);
+    }
+    return handoffCommand(opts);
+  });
+
+handoff
+  .command("history")
+  .description("List past handoff documents (current + timestamped backups)")
+  .option("--project <name-or-id>", "registered project name or id")
+  .option("--path <repoPath>", "repository path")
+  .action(handoffHistoryCommand);
 
 program
   .command("compact")
