@@ -8,8 +8,16 @@ export type SessionStatus =
   | "fallback_detected"
   | "handoff_ready"
   | "running_fallback"
+  // v0.5 plan-execute mode
+  | "planning"
+  | "plan_ready"
+  | "executing"
+  // v0.5 context compression mode
+  | "compressing"
   | "completed"
   | "failed";
+
+export type WorkflowMode = "fallback" | "plan-execute";
 
 export interface DietProfile {
   maxHandoffChars: number;
@@ -18,6 +26,8 @@ export interface DietProfile {
   maxLogTailChars: number;
   maxStateChars: number;
   maxErrorChars: number;
+  /** v0.5 plan-execute: max chars for plan.md. Defaults to maxHandoffChars when absent. */
+  maxPlanChars?: number;
 }
 
 export interface AuthPolicy {
@@ -45,6 +55,22 @@ export interface RelayBatonConfig {
     outputCompression: boolean;
     profiles: Record<string, DietProfile>;
   };
+  // v0.5 plan-execute mode (optional; defaults applied when absent).
+  planExecute?: {
+    defaultPlanner: AgentId;
+    defaultExecutor: AgentId;
+    maxPlanChars?: number;
+  };
+  // v0.5 context compression mode (optional; defaults applied when absent).
+  contextCompression?: {
+    enabled: boolean;
+    /** Auto-compress inside `run` when the threshold is crossed. */
+    auto: boolean;
+    /** Fraction (0..1) of the profile budget that triggers compression. */
+    threshold: number;
+    /** Keep the pre-compression commands.log as commands.log.full.<timestamp>. */
+    rotateRawArtifacts: boolean;
+  };
 }
 
 export interface SessionMeta {
@@ -71,6 +97,17 @@ export interface SessionMeta {
   durationMs?: number;
   /** Total number of handoff documents successfully written in this session. */
   handoffCount?: number;
+  // v0.5 plan-execute mode — all optional, backward compatible.
+  /** Which workflow produced this session. Absent = legacy fallback flow. */
+  workflowMode?: WorkflowMode;
+  /** Agent that authored .ai-session/plan.md. */
+  planAuthor?: AgentId | null;
+  /** Agent that executes from the plan. */
+  executor?: AgentId | null;
+  /** ISO timestamp when plan.md passed its quality gate. */
+  planFinalizedAt?: string;
+  /** ISO timestamp when the execute phase started. */
+  executeStartedAt?: string;
 }
 
 export interface AgentRunInput {

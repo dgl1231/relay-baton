@@ -130,6 +130,9 @@ $ relay-baton run "metrics endpoint を配線"
 | `relay-baton run "<task>"` | primary agent 実行 + fallback 検知 + handoff |
 | `relay-baton handoff --to claude` | 手動 handoff (`--diet`, `--no-run`, `--force`) |
 | `relay-baton handoff history` | 現在 + バックアップの handoff 文書を一覧 (metadata のみ) |
+| `relay-baton plan "<task>"` | Plan-execute: planner が `plan.md` を書く (`--with`, `--no-run`, `--then-execute`) |
+| `relay-baton execute` | Plan-execute: executor が `plan.md` を実装 (`--with`, `--from`) |
+| `relay-baton compress-context` | 進行中の context (state.md / commands.log) を圧縮 (`--dry-run`, `--threshold`) |
 | `relay-baton compact` / `squeeze` | compact-state / repo-map / full-diff 再生成 |
 | `relay-baton budget` | context budget 使用量 |
 | `relay-baton compress <file>` | markdown の決定的圧縮 |

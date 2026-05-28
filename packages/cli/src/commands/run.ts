@@ -1,7 +1,7 @@
 import {
   ConfigLoader, SessionManager, GitService, BatonWorkflow,
   CodexAdapter, ClaudeCodeAdapter, FallbackDetector, runAgent,
-  HandoffQualityGate, TokenDietQualityGate, PromptBuilder,
+  HandoffQualityGate, TokenDietQualityGate, PromptBuilder, ContextCompressor,
 } from "@relay-baton/core";
 import type { DietProfileName } from "@relay-baton/shared";
 import { ProjectOpts, resolveProjectContext } from "./projectOptions";
@@ -96,6 +96,21 @@ export async function runCommand(task: string, opts: RunOpts) {
     });
     console.log("[relay-baton] codex finished without fallback. exiting.");
     return;
+  }
+
+  // v0.5 context compression: before building the handoff, proactively
+  // compress running context so the handoff is assembled from tighter
+  // state.md / commands.log. Auto-only and threshold-gated; rolls back itself
+  // on its own gate failure (so it can never make the handoff worse).
+  if (config.contextCompression?.enabled && config.contextCompression?.auto) {
+    const cc = new ContextCompressor(repoRoot, config);
+    const profile = config.tokenDiet.profiles[profileName];
+    const res = cc.compressIfNeeded(profile, {});
+    if (res.compressed) {
+      sm.updateMeta({ status: "compressing" });
+      console.log(`[relay-baton] context compressed: ${res.before.total} -> ${res.after?.total} chars`);
+      sm.updateMeta({ status: "fallback_detected" });
+    }
   }
 
   console.log("[relay-baton] building handoff for claude...");

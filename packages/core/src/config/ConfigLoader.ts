@@ -34,6 +34,12 @@ export class ConfigLoader {
           ...((override.tokenDiet?.profiles as Record<string, DietProfile>) ?? {}),
         },
       },
+      planExecute: override.planExecute
+        ? { ...base.planExecute, ...override.planExecute }
+        : base.planExecute,
+      contextCompression: override.contextCompression
+        ? { ...base.contextCompression!, ...override.contextCompression }
+        : base.contextCompression,
     };
   }
 }

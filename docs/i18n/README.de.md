@@ -131,6 +131,9 @@ $ relay-baton run "neuen metrics-endpoint verdrahten"
 | `relay-baton run "<task>"` | Primärer Agent + Fallback-Erkennung + Handoff |
 | `relay-baton handoff --to claude` | Manueller Handoff (`--diet`, `--no-run`, `--force`) |
 | `relay-baton handoff history` | Aktuelles + gesicherte Handoff-Dokumente auflisten (nur Metadaten) |
+| `relay-baton plan "<task>"` | Plan-execute: Planner schreibt `plan.md` (`--with`, `--no-run`, `--then-execute`) |
+| `relay-baton execute` | Plan-execute: Executor setzt `plan.md` um (`--with`, `--from`) |
+| `relay-baton compress-context` | Laufenden Kontext (state.md / commands.log) komprimieren (`--dry-run`, `--threshold`) |
 | `relay-baton compact` / `squeeze` | compact-state / repo-map / full-diff neu bauen |
 | `relay-baton budget` | Context-Budget-Nutzung zeigen |
 | `relay-baton compress <file>` | Deterministische Markdown-Komprimierung |

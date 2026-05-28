@@ -131,6 +131,9 @@ $ relay-baton run "conectar o novo metrics endpoint"
 | `relay-baton run "<task>"` | Roda agente primário + detecta fallback + handoff |
 | `relay-baton handoff --to claude` | Handoff manual (`--diet`, `--no-run`, `--force`) |
 | `relay-baton handoff history` | Lista o handoff atual + backups (apenas metadados) |
+| `relay-baton plan "<task>"` | Plan-execute: o planejador escreve `plan.md` (`--with`, `--no-run`, `--then-execute`) |
+| `relay-baton execute` | Plan-execute: o executor implementa `plan.md` (`--with`, `--from`) |
+| `relay-baton compress-context` | Comprime o contexto vivo (state.md / commands.log) (`--dry-run`, `--threshold`) |
 | `relay-baton compact` / `squeeze` | Regera compact-state / repo-map / full-diff |
 | `relay-baton budget` | Mostra uso do context budget |
 | `relay-baton compress <file>` | Compressão determinística de markdown |
