@@ -38,6 +38,7 @@ export const defaultConfig: RelayBatonConfig = {
         maxLogTailChars: 8000,
         maxStateChars: 8000,
         maxErrorChars: 6000,
+        maxPlanChars: 45000,
       },
       balanced: {
         maxHandoffChars: 40000,
@@ -46,6 +47,7 @@ export const defaultConfig: RelayBatonConfig = {
         maxLogTailChars: 5000,
         maxStateChars: 6000,
         maxErrorChars: 4000,
+        maxPlanChars: 30000,
       },
       caveman: {
         maxHandoffChars: 25000,
@@ -54,6 +56,7 @@ export const defaultConfig: RelayBatonConfig = {
         maxLogTailChars: 2500,
         maxStateChars: 3500,
         maxErrorChars: 2500,
+        maxPlanChars: 18000,
       },
       ultra: {
         maxHandoffChars: 12000,
@@ -62,6 +65,7 @@ export const defaultConfig: RelayBatonConfig = {
         maxLogTailChars: 1000,
         maxStateChars: 1800,
         maxErrorChars: 1000,
+        maxPlanChars: 9000,
       },
       off: {
         maxHandoffChars: 200000,
@@ -70,7 +74,13 @@ export const defaultConfig: RelayBatonConfig = {
         maxLogTailChars: 50000,
         maxStateChars: 50000,
         maxErrorChars: 50000,
+        maxPlanChars: 150000,
       },
     },
+  },
+  planExecute: {
+    defaultPlanner: "claude",
+    defaultExecutor: "codex",
+    maxPlanChars: 30000,
   },
 };

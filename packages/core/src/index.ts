@@ -23,6 +23,8 @@ export * from "./handoff/HandoffGenerator";
 export * from "./handoff/HandoffQualityGate";
 export * from "./handoff/TokenDietQualityGate";
 export * from "./handoff/PromptBuilder";
+export * from "./plan/PlanSchema";
+export * from "./plan/PlanQualityGate";
 export * from "./workflow/BatonWorkflow";
 export * from "./workflow/WorkflowStage";
 export * from "./projects/ProjectRegistry";

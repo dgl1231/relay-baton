@@ -5,6 +5,7 @@ export const SESSION_FILES = {
   state: "state.md",
   compactState: "compact-state.md",
   handoff: "handoff.md",
+  plan: "plan.md",
   decisions: "decisions.md",
   changedFiles: "changed-files.md",
   repoMap: "repo-map.md",
