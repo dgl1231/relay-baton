@@ -230,10 +230,13 @@ Que `claude --version` funcione **no** significa estar logueado. Si ves "Not log
 
 ## Notas de versión
 
-**Última** v0.6.0 — [English](../../release-notes/v0.6.0.md) · [한국어](../../release-notes/ko/v0.6.0.md)
+**Última** v0.9.0 — [English](../../release-notes/v0.9.0.md) · [한국어](../../release-notes/ko/v0.9.0.md)
 
 | Versión | English | 한국어 | Resumen |
 |---|---|---|---|
+| v0.9.0 | [Read →](../../release-notes/v0.9.0.md) | [읽기 →](../../release-notes/ko/v0.9.0.md) | Automation & Runtime (bounded): LoopController, room /continue --max-steps N · /replan · /replay, relay-baton replay, adaptive per-agent compression thresholds. |
+| v0.8.0 | [Read →](../../release-notes/v0.8.0.md) | [읽기 →](../../release-notes/ko/v0.8.0.md) | Adapter Expansion + Agent Room (first cut): OpenCode/Gemini/Aider adapter scaffolds, project-level fallback overrides, OS CI matrix, chat/room REPL. |
+| v0.7.0 | [Read →](../../release-notes/v0.7.0.md) | [읽기 →](../../release-notes/ko/v0.7.0.md) | Review & Diagnose: review (deterministic diff-vs-plan), execution receipts, plan diffing, --json outputs, conversation event schema (draft). |
 | v0.6.0 | [Read →](../../release-notes/v0.6.0.md) | [읽기 →](../../release-notes/ko/v0.6.0.md) | Trust & Verify: `relay-baton verify` (E2E simulado, sin llamadas al modelo), `doctor --deep`, panel de modo en la TUI, `docs/ROADMAP.md`. |
 | v0.5.0 | [Read →](../../release-notes/v0.5.0.md) | [읽기 →](../../release-notes/ko/v0.5.0.md) | Modo plan-execute (`plan` / `execute`) + compresión de contexto (`compress-context`). |
 | v0.4.0 | [Read →](../../release-notes/v0.4.0.md) | [읽기 →](../../release-notes/ko/v0.4.0.md) | CI de GitHub Actions, tests, observabilidad de sesión, `handoff history`. |
