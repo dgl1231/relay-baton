@@ -142,16 +142,22 @@ v0.8):
 |---|---|
 | `/agent claude` | Switch the active agent to Claude (planner/reviewer). |
 | `/agent codex` | Switch the active agent to Codex (executor). |
-| `/plan` | Produce/refine `plan.md` with the current agent. |
+| `/plan <task>` | Produce/refine `plan.md` with the current agent (preview first). |
+| `/replan <task>` | Re-plan; backs up the current `plan.md` first (preview first). |
 | `/execute` | Run the executor against the current plan (preview first). |
-| `/review` | v0.7 review: diff vs plan/handoff, as a `review` event. |
-| `/handoff` | Build a handoff document (no-run by default). |
-| `/budget` | Show context-budget usage. |
-| `/status` | Show session status. |
+| `/continue --max-steps N` | Bounded plan↔execute loop; stops on no-progress/budget (preview first). |
+| `/review` | Deterministic diff vs plan/handoff, as a `review` event (read-only). |
+| `/diagnose` | Deep environment + artifact diagnostics — `doctor --deep` (read-only). |
+| `/handoff` | Build a handoff document and launch the next agent (preview first). |
+| `/budget` | Show context-budget usage (read-only). |
+| `/status` | Show session status (read-only). |
+| `/replay` | Show the recorded conversation timeline (read-only). |
+| `/help` | List room commands. |
 | `/exit` | Leave the room. |
 
-(`/continue --max-steps N` and `/replan` are **v0.9**, tied to bounded
-continue mode — see ROADMAP.)
+Read-only commands (`/review`, `/diagnose`, `/budget`, `/status`, `/replay`)
+run immediately; every command that could launch a real agent shows a prompt
+preview and asks for confirmation first.
 
 ## 7. Safety policy
 
@@ -188,9 +194,11 @@ The first cut should be small and safe:
 
 - **v0.9**: bounded continue (`/continue --max-steps 3`), `/replan`, session
   replay/resume from `conversation.jsonl`, optional daemon prototype.
-- **v1.0**: stable, project-aware Agent Room workflow; safe
-  handoff/run/plan/execute/review/diagnose flow; demo gif/screenshots;
-  documented real-agent end-to-end path.
+- **v1.0** *(shipped)*: stable, project-aware Agent Room workflow; safe
+  handoff/run/plan/execute/review/diagnose/replay flow, each read-only or
+  confirmation-first; `/diagnose` runs `doctor --deep` (config + artifact
+  contract validation). Demo gif/screenshots and a documented real-agent
+  end-to-end path remain out of scope (cannot be produced deterministically).
 
 ---
 

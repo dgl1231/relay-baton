@@ -1,5 +1,13 @@
 export const SESSION_DIR = ".ai-session";
 
+/**
+ * v1.0 stability contract. These are the frozen schema versions for the two
+ * persisted contracts relay-baton owns. Bump ONLY on a breaking shape change;
+ * loaders normalize older payloads up to the current version.
+ */
+export const CONFIG_VERSION = 1;
+export const SESSION_SCHEMA_VERSION = 1;
+
 export const SESSION_FILES = {
   task: "task.md",
   state: "state.md",

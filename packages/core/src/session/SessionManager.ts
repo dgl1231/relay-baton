@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as crypto from "crypto";
 import type { SessionMeta, RelayBatonConfig } from "@relay-baton/shared";
-import { SESSION_FILES } from "@relay-baton/shared";
+import { SESSION_FILES, SESSION_SCHEMA_VERSION } from "@relay-baton/shared";
 import { SessionFiles } from "./SessionFiles";
 import { readSessionMeta, writeSessionMeta } from "./SessionState";
 
@@ -52,6 +52,7 @@ export class SessionManager {
     const metaPath = this.files.p("sessionJson");
     if (!fs.existsSync(metaPath)) {
       const meta: SessionMeta = {
+        schemaVersion: SESSION_SCHEMA_VERSION,
         id: crypto.randomUUID(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),

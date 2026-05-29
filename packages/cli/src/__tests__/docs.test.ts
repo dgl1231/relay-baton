@@ -90,3 +90,37 @@ describe("v0.6 docs", () => {
     expect(readme).toMatch(/relay-baton verify/);
   });
 });
+
+describe("v1.0 docs", () => {
+  it("ships docs/ARTIFACTS.md documenting the .ai-session stability contract", () => {
+    const artifacts = read("docs/ARTIFACTS.md");
+    expect(artifacts).toMatch(/CONFIG_VERSION/);
+    expect(artifacts).toMatch(/SESSION_SCHEMA_VERSION/);
+    expect(artifacts).toMatch(/session\.json/);
+    expect(artifacts).toMatch(/conversation\.jsonl/);
+    expect(artifacts).toMatch(/validateArtifacts/);
+  });
+
+  it("ships a full command reference (EN + KO) covering every top-level command", () => {
+    const cmds = read("docs/COMMANDS.md");
+    const ko = read("docs/i18n/COMMANDS.ko.md");
+    const commands = [
+      "init", "status", "doctor", "verify", "login", "run", "handoff",
+      "plan", "execute", "receipt", "compact", "compress-context",
+      "compress", "budget", "chat", "replay", "review", "project", "tui",
+    ];
+    for (const c of commands) {
+      expect(cmds).toContain(c);
+      expect(ko).toContain(c);
+    }
+    expect(cmds).toMatch(/--allow-api-key-env/);
+    expect(ko).toMatch(/--allow-api-key-env/);
+  });
+
+  it("documents the stabilized Agent Room command set including /diagnose", () => {
+    const room = read("docs/AGENT_ROOM.md");
+    for (const c of ["/plan", "/replan", "/execute", "/continue", "/review", "/diagnose", "/handoff", "/replay"]) {
+      expect(room).toContain(c);
+    }
+  });
+});

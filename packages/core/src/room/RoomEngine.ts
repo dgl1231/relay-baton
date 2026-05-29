@@ -24,13 +24,14 @@ export type RunCommand =
   | "execute"
   | "continue"
   | "review"
+  | "diagnose"
   | "handoff"
   | "budget"
   | "status"
   | "replay";
 
 /** Read-only / no-model commands skip the confirmation gate. */
-const NO_CONFIRM: ReadonlySet<RunCommand> = new Set(["review", "budget", "status", "replay"]);
+const NO_CONFIRM: ReadonlySet<RunCommand> = new Set(["review", "diagnose", "budget", "status", "replay"]);
 
 export class RoomEngine {
   private log: ConversationLog;
@@ -93,6 +94,7 @@ export class RoomEngine {
       case "execute":
       case "continue":
       case "review":
+      case "diagnose":
       case "handoff":
       case "budget":
       case "status":

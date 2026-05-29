@@ -43,6 +43,11 @@ export interface AgentConfig {
 }
 
 export interface RelayBatonConfig {
+  /**
+   * v1.0 frozen-contract marker. Absent = legacy (treated as version 1).
+   * See CONFIG_VERSION in constants.
+   */
+  configVersion?: number;
   primaryAgent: AgentId;
   fallbackAgent: AgentId;
   agents: Record<string, AgentConfig>;
@@ -80,6 +85,11 @@ export interface RelayBatonConfig {
 }
 
 export interface SessionMeta {
+  /**
+   * v1.0 frozen-contract marker. Absent = legacy (treated as version 1).
+   * See SESSION_SCHEMA_VERSION in constants.
+   */
+  schemaVersion?: number;
   id: string;
   createdAt: string;
   updatedAt: string;

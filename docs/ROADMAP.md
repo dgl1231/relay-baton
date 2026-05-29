@@ -82,7 +82,7 @@ first interactive multi-agent "room".
     real agent run**.
   - [ ] Conversation+context **TUI panel** layout (§5 of AGENT_ROOM) — deferred.
 
-## v0.9 — Automation & Runtime (current)
+## v0.9 — Automation & Runtime
 
 Carefully add bounded automation while keeping the safety rails.
 
@@ -102,18 +102,23 @@ Carefully add bounded automation while keeping the safety rails.
 - [ ] A daemon prototype remains a *candidate*, not a commitment — **deferred /
   out of scope for now**.
 
-## v1.0 — Stable Local Release
+## v1.0 — Stable Local Release (current)
 
-- Frozen, documented config schema and SessionMeta contract.
-- Full command reference + i18n parity across supported languages.
-- Stability/compatibility guarantees for `.ai-session/` artifacts.
-- Polished TUI and a complete `doctor`/`verify` health story.
-- **Stable, project-aware Agent Room workflow** (see
+- [x] Frozen, documented config schema and SessionMeta contract
+  (`CONFIG_VERSION` / `SESSION_SCHEMA_VERSION`, `validateConfig` /
+  `validateSessionMeta` + normalizers).
+- [x] Full command reference + i18n parity (`docs/COMMANDS.md` EN + KO).
+- [x] Stability/compatibility guarantees for `.ai-session/` artifacts
+  (`validateArtifacts`, `docs/ARTIFACTS.md`, wired into `doctor --deep`).
+- [x] A complete `doctor`/`verify` health story (config + artifact contract
+  checks in `doctor --deep`).
+- [x] **Stable, project-aware Agent Room workflow** (see
   [`docs/AGENT_ROOM.md`](./AGENT_ROOM.md)):
-  - Safe handoff / run / plan / execute / review / diagnose flow inside the room.
-  - Demo gif / screenshots.
-  - Real-agent end-to-end documentation (`verify --real-agents` graduated from
-    scaffold to a documented, opt-in path).
+  - [x] Safe handoff / run / plan / execute / review / diagnose / replay flow
+    inside the room, each read-only or confirmation-first.
+  - [ ] Demo gif / screenshots — deferred (cannot be produced deterministically).
+  - [ ] Real-agent end-to-end documentation — deferred (`verify --real-agents`
+    stays scaffold-only).
 
 ## Permanently out of scope
 

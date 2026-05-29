@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import type { RelayBatonConfig, DietProfile } from "@relay-baton/shared";
 import { defaultConfig } from "./defaultConfig";
+import { normalizeConfig } from "./ConfigSchema";
 
 export class ConfigLoader {
   static load(repoRoot: string): { config: RelayBatonConfig; source: "default" | "file"; error?: string } {
@@ -12,7 +13,7 @@ export class ConfigLoader {
     try {
       const raw = fs.readFileSync(cfgPath, "utf8");
       const parsed = JSON.parse(raw);
-      return { config: this.merge(defaultConfig, parsed), source: "file" };
+      return { config: normalizeConfig(this.merge(defaultConfig, parsed)), source: "file" };
     } catch (e: any) {
       return { config: defaultConfig, source: "default", error: e?.message ?? String(e) };
     }

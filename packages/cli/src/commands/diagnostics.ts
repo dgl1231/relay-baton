@@ -4,6 +4,7 @@ import * as os from "os";
 import { spawnSync } from "child_process";
 import { ConfigLoader, SessionManager } from "@relay-baton/core";
 import { PLAN_SECTIONS, planSectionBody } from "@relay-baton/core";
+import { validateConfig, validateArtifacts } from "@relay-baton/core";
 import type { RelayBatonConfig } from "@relay-baton/shared";
 import { collectHandoffHistory } from "./handoffHistory";
 
@@ -127,6 +128,33 @@ export function deepChecks(repoRoot: string, cfg: RelayBatonConfig): Check[] {
     }
   } else {
     checks.push({ status: "info", label: "project registry", value: "none (cwd-based mode)" });
+  }
+
+  // Config contract validation (v1.0 frozen schema).
+  {
+    const r = validateConfig(cfg);
+    checks.push({
+      status: r.ok ? "ok" : "fail",
+      label: "config contract",
+      value: r.ok ? `valid (v${cfg.configVersion ?? "?"})` : r.errors.join("; "),
+    });
+    for (const w of r.warnings) {
+      checks.push({ status: "warn", label: "config contract", value: w });
+    }
+  }
+
+  // .ai-session artifact shape validation (v1.0 frozen artifacts).
+  {
+    const report = validateArtifacts(repoRoot);
+    if (!report.exists) {
+      checks.push({ status: "info", label: "artifact shapes", value: "no .ai-session yet" });
+    } else {
+      for (const c of report.checks) {
+        const status: CheckStatus =
+          c.status === "absent" ? "info" : c.status === "warn" ? "warn" : c.status === "fail" ? "fail" : "ok";
+        checks.push({ status, label: `artifact: ${c.file}`, value: c.detail });
+      }
+    }
   }
 
   // .ai-session health.

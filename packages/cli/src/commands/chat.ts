@@ -8,6 +8,7 @@ import type { AgentId } from "@relay-baton/shared";
 import { ProjectOpts, resolveProjectContext } from "./projectOptions";
 import { adapterFor } from "./agentFor";
 import { reviewCommand } from "./review";
+import { doctorCommand } from "./doctor";
 import { budgetCommand } from "./budget";
 import { statusCommand } from "./status";
 import { planCommand } from "./plan";
@@ -135,6 +136,7 @@ async function runAction(
 
   // Read-only / no-model commands run immediately.
   if (command === "review") return void (await reviewCommand({ ...ctx.passthrough }));
+  if (command === "diagnose") return void (await doctorCommand({ ...ctx.passthrough, deep: true }));
   if (command === "budget") return void (await budgetCommand({ ...ctx.passthrough }));
   if (command === "status") return void (await statusCommand({ ...ctx.passthrough }));
   if (command === "replay") {

@@ -14,6 +14,7 @@ Release notes are user-facing changelogs, not agent handoff material — that ro
 
 ## Versions
 
+- [v1.0.0](./v1.0.0.md) / [한국어](./ko/v1.0.0.md) - Stable Local Release: frozen config/session contracts (`CONFIG_VERSION`/`SESSION_SCHEMA_VERSION`, `validateConfig`/`validateSessionMeta`), `.ai-session/` artifact validation (`validateArtifacts` + `doctor --deep`), full command reference (`docs/COMMANDS.md` EN+KO), finalized Agent Room set with read-only `/diagnose`.
 - [v0.9.0](./v0.9.0.md) / [한국어](./ko/v0.9.0.md) - Automation & Runtime (bounded): `LoopController`, room `/continue --max-steps N` / `/replan` / `/replay`, `relay-baton replay`, adaptive per-agent compression thresholds.
 - [v0.8.0](./v0.8.0.md) / [한국어](./ko/v0.8.0.md) - Adapter Expansion + Agent Room (first cut): OpenCode/Gemini/Aider adapter scaffolds, project-level fallback overrides, OS CI matrix, `relay-baton chat`/`room` (turn-based, confirmation-first REPL).
 - [v0.7.0](./v0.7.0.md) / [한국어](./ko/v0.7.0.md) - Review & Diagnose: `relay-baton review` (deterministic diff-vs-plan), execution receipts, plan diffing, `--json` for status/budget/review, conversation event schema (draft).

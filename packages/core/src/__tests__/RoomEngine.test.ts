@@ -74,6 +74,7 @@ describe("RoomEngine", () => {
     const plan = e.handle("/plan do the thing");
     expect(plan).toMatchObject({ kind: "run", command: "plan", args: "do the thing", agent: "codex", requiresConfirmation: true });
     expect(e.handle("/review")).toMatchObject({ kind: "run", command: "review", requiresConfirmation: false });
+    expect(e.handle("/diagnose")).toMatchObject({ kind: "run", command: "diagnose", requiresConfirmation: false });
     expect(e.handle("/status")).toMatchObject({ kind: "run", command: "status", requiresConfirmation: false });
     expect(e.handle("/budget")).toMatchObject({ kind: "run", command: "budget", requiresConfirmation: false });
     expect(e.handle("/execute")).toMatchObject({ kind: "run", command: "execute", requiresConfirmation: true });
