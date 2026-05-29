@@ -15,6 +15,8 @@ export const SESSION_FILES = {
   fullDiff: "full-diff.patch",
   contextBudget: "context-budget.json",
   sessionJson: "session.json",
+  // v0.7 — append-only conversation event log (Agent Room groundwork).
+  conversation: "conversation.jsonl",
 } as const;
 
 export const TRUNCATE_MARKER =

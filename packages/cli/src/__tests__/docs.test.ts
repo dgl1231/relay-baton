@@ -40,6 +40,16 @@ describe("v0.6 docs", () => {
     expect(readme).toContain("docs/AGENT_ROOM.md");
   });
 
+  it("ships release-notes/v0.7.0.md (EN + KO) with the Review & Diagnose theme", () => {
+    const notes = read("release-notes/v0.7.0.md");
+    expect(notes).toMatch(/Review\s*&?\s*Diagnose/i);
+    expect(notes).toMatch(/relay-baton review/);
+    expect(notes).toMatch(/receipt/);
+    const ko = read("release-notes/ko/v0.7.0.md");
+    expect(ko).toMatch(/Review\s*&?\s*Diagnose/i);
+    expect(ko).toMatch(/receipt/);
+  });
+
   it("documents the plan/execute/compress-context workflow in the root README", () => {
     const readme = read("README.md");
     expect(readme).toMatch(/relay-baton plan/);
