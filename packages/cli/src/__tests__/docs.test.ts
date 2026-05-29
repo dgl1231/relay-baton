@@ -31,6 +31,15 @@ describe("v0.6 docs", () => {
     expect(ko).toMatch(/doctor --deep/);
   });
 
+  it("ships docs/AGENT_ROOM.md and links it from the README", () => {
+    const room = read("docs/AGENT_ROOM.md");
+    expect(room).toMatch(/Agent Room/i);
+    expect(room).toMatch(/conversation\.jsonl/);
+    const readme = read("README.md");
+    expect(readme).toMatch(/Agent Room \/ Conversation Mode/i);
+    expect(readme).toContain("docs/AGENT_ROOM.md");
+  });
+
   it("documents the plan/execute/compress-context workflow in the root README", () => {
     const readme = read("README.md");
     expect(readme).toMatch(/relay-baton plan/);

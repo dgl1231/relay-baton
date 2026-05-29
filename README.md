@@ -548,6 +548,16 @@ The full roadmap lives in [`docs/ROADMAP.md`](./docs/ROADMAP.md):
 - **v0.9 — Automation & Runtime**: multi-turn loop, adaptive thresholds.
 - **v1.0 — Stable Local Release**: frozen schema, full command reference, i18n parity.
 
+### Future: Agent Room / Conversation Mode
+
+A planned direction (first cut in v0.8) to turn relay-baton into an interactive
+**multi-agent workspace**: talk to Claude and Codex by turns in one session,
+with per-agent messages clearly distinguished — Claude as planner/reviewer,
+Codex as executor. It keeps every existing safety rail (subprocess-only, no API
+keys, no auto commit/push/PR, confirmation-first with a prompt preview before
+any real run). Design only for now — **not implemented yet**. Full design:
+[`docs/AGENT_ROOM.md`](./docs/AGENT_ROOM.md).
+
 ## Release notes
 
 Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-notes/README.md)). They are user-facing changelogs, not agent handoff material — that role belongs to `.ai-session/handoff.md`.

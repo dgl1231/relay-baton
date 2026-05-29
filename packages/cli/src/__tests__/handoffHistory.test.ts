@@ -93,7 +93,9 @@ describe("handoffHistoryCommand", () => {
   });
 
   it("prints the empty-history sentinel when no handoff files exist", async () => {
-    await handoffHistoryCommand({});
+    // Resolve by explicit path so a registered active project never shadows
+    // the temp repo this test owns.
+    await handoffHistoryCommand({ path: dir });
     expect(logs.join("\n")).toMatch(/no handoff history/i);
   });
 
@@ -102,7 +104,7 @@ describe("handoffHistoryCommand", () => {
     touch(path.join(sessionDir, "handoff.md"), "# Relay Baton Handoff\nSENSITIVE BODY MARKER xyz\n", 2000);
     touch(path.join(sessionDir, "handoff.2026-05-27T05-35-10-865Z.md"), "# Relay Baton Handoff\nOLDER BODY MARKER abc\n", 1000);
 
-    await handoffHistoryCommand({});
+    await handoffHistoryCommand({ path: dir });
     const out = logs.join("\n");
 
     // header is printed
