@@ -10,7 +10,7 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 [![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-[![Latest](https://img.shields.io/badge/release-v0.5.0-blue.svg)](./release-notes/v0.5.0.md)
+[![Latest](https://img.shields.io/badge/release-v0.6.0-blue.svg)](./release-notes/v0.6.0.md)
 
 **English**
  · [한국어](./docs/i18n/README.ko.md)
@@ -113,6 +113,59 @@ $ relay-baton project add /path/to/repo-b --diet balanced
 $ relay-baton project switch repo-b
 $ relay-baton run "wire up the new metrics endpoint"
 ```
+
+### Plan-execute mode
+
+A proactive alternative to reactive fallback: have a planner write a structured
+plan, gate it for completeness, then have an executor implement it.
+
+```bash
+# 1) Planner (default: Claude) writes .ai-session/plan.md, gated by PlanQualityGate.
+$ relay-baton plan "add rate limiting to the upload endpoint" --with claude
+
+# 2) Inspect / edit the plan if you want.
+$ cat .ai-session/plan.md
+
+# 3) Executor (default: Codex) implements the plan.
+$ relay-baton execute --with codex
+
+# Or do both in one shot once the plan passes its gate:
+$ relay-baton plan "add rate limiting" --then-execute
+
+# Scaffold an empty plan template without launching an agent:
+$ relay-baton plan "explore options" --no-run
+```
+
+### Context-compression mode
+
+Deterministic mid-session compaction of `state.md` / `commands.log` so an agent
+runs longer before hitting a context wall. No model call, fully reversible
+(raw artifacts are rotated to `commands.log.full.<ts>`).
+
+```bash
+# See what would change without writing anything.
+$ relay-baton compress-context --dry-run
+
+# Compress when weight/budget exceeds the threshold (default 0.8).
+$ relay-baton compress-context --threshold 0.8
+
+# Force compression regardless of threshold.
+$ relay-baton compress-context --force
+```
+
+### Verify the harness (no model calls)
+
+```bash
+# Simulated end-to-end check: resolution, fallback detection, handoff no-run,
+# token budget, API-key env block. Exits non-zero on failure.
+$ relay-baton verify
+
+# Extended environment diagnostics (OK/WARN/FAIL checklist).
+$ relay-baton doctor --deep
+```
+
+Neither `verify` nor `doctor --deep` makes any network or model call, and
+`verify` writes nothing into your repo (it uses a throwaway temp dir).
 
 ## Quick start
 
@@ -227,7 +280,8 @@ relay-baton tui --project relay-baton
 | Command | Description |
 |---|---|
 | `relay-baton init` | Create `.ai-session/` in the current repo |
-| `relay-baton doctor` | Check git / codex / claude / env / config |
+| `relay-baton doctor` | Check git / codex / claude / env / config (`--deep` for extended diagnostics) |
+| `relay-baton verify` | Simulated end-to-end check — no real model calls (`--diet`, `--verbose`, `--keep-temp`) |
 | `relay-baton login [agent]` | Run Codex / Claude auth flows (`codex` / `claude` / `all`) |
 | `relay-baton run "<task>"` | Run primary agent, detect fallback, hand off |
 | `relay-baton handoff --to claude` | Manual handoff (`--diet`, `--no-run`, `--force`) |
@@ -486,21 +540,25 @@ The harness stays the same shape: detect, capture, compact, hand off.
 
 ### Roadmap
 
-- OpenCode / Gemini / Aider adapters
-- Per-model tokenizer option (opt-in)
-- Semantic diff for compact state (opt-in)
-- Multi-session management / TUI command palette
-- Fuzzy project switcher
-- Daemon / IDE extension (separate package)
+The full roadmap lives in [`docs/ROADMAP.md`](./docs/ROADMAP.md):
+
+- **v0.6 — Trust & Verify** (current): `verify`, `doctor --deep`, TUI mode panel.
+- **v0.7 — Review & Diagnose**: `review`, plan execution receipts, plan diffing.
+- **v0.8 — Adapter Expansion**: OpenCode / Gemini / Aider scaffolds, CI matrix.
+- **v0.9 — Automation & Runtime**: multi-turn loop, adaptive thresholds.
+- **v1.0 — Stable Local Release**: frozen schema, full command reference, i18n parity.
 
 ## Release notes
 
 Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-notes/README.md)). They are user-facing changelogs, not agent handoff material — that role belongs to `.ai-session/handoff.md`.
 
-**Latest:** v0.3.0 — [English](./release-notes/v0.3.0.md) · [한국어](./release-notes/ko/v0.3.0.md)
+**Latest:** v0.6.0 — [English](./release-notes/v0.6.0.md) · [한국어](./release-notes/ko/v0.6.0.md)
 
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
+| v0.6.0 | [Read →](./release-notes/v0.6.0.md) | [읽기 →](./release-notes/ko/v0.6.0.md) | Trust & Verify: `relay-baton verify` (simulated E2E, no model calls), `doctor --deep`, TUI mode panel, `docs/ROADMAP.md`. |
+| v0.5.0 | [Read →](./release-notes/v0.5.0.md) | [읽기 →](./release-notes/ko/v0.5.0.md) | Plan-execute mode (`plan` / `execute`, planner→executor, PlanQualityGate) + context-compression mode (`compress-context`). |
+| v0.4.0 | [Read →](./release-notes/v0.4.0.md) | [읽기 →](./release-notes/ko/v0.4.0.md) | GitHub Actions CI, critical-path tests, CLI smoke test, session observability, `handoff history`. |
 | v0.3.0 | [Read →](./release-notes/v0.3.0.md) | [읽기 →](./release-notes/ko/v0.3.0.md) | Side-effect-free `ProjectResolver`, registry recovery with backup on corrupt `projects.json`, `RELAY_BATON_PROJECTS_FILE` override, `lastError` cleanup on fallback. |
 | v0.2.0 | [Read →](./release-notes/v0.2.0.md) | [읽기 →](./release-notes/ko/v0.2.0.md) | Multi-project registry, `--project` / `--path`, project CLI commands, improved TUI dashboard, `.gitattributes`. |
 | v0.1.0 | [Read →](./release-notes/v0.1.0.md) | [읽기 →](./release-notes/ko/v0.1.0.md) | Initial MVP for Codex-to-Claude handoff with token diet, fallback detection, quality gates, and auth-safe subprocess execution. |

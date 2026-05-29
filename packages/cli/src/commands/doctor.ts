@@ -1,8 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
-import { spawnSync } from "child_process";
 import { ConfigLoader, SessionManager } from "@relay-baton/core";
 import { ProjectOpts, resolveRepoRoot } from "./projectOptions";
+import { Check, CheckStatus, coreChecks, deepChecks } from "./diagnostics";
 
 const GREEN = "\x1b[32m";
 const RED = "\x1b[31m";
@@ -12,68 +12,69 @@ const DIM = "\x1b[2m";
 const BOLD = "\x1b[1m";
 const RESET = "\x1b[0m";
 
-function which(cmd: string): boolean {
-  const r = spawnSync(cmd, ["--version"], { encoding: "utf8" });
-  return r.error == null;
+function icon(status: CheckStatus): string {
+  return status === "ok" ? `${GREEN}✓${RESET}`
+    : status === "warn" ? `${YELLOW}!${RESET}`
+    : status === "info" ? `${CYAN}•${RESET}`
+    : `${RED}✗${RESET}`;
 }
 
-function row(ok: boolean | "warn" | "info", label: string, value: string) {
-  const icon = ok === true ? `${GREEN}✓${RESET}`
-    : ok === "warn" ? `${YELLOW}!${RESET}`
-    : ok === "info" ? `${CYAN}•${RESET}`
-    : `${RED}✗${RESET}`;
-  console.log(`  ${icon}  ${label.padEnd(26)} ${DIM}${value}${RESET}`);
+function printCheck(c: Check) {
+  console.log(`  ${icon(c.status)}  ${c.label.padEnd(26)} ${DIM}${c.value}${RESET}`);
 }
 
 function section(title: string) {
   console.log(`\n${CYAN}${BOLD}${title}${RESET}`);
 }
 
-export async function doctorCommand(opts: ProjectOpts = {}) {
+export interface DoctorOpts extends ProjectOpts {
+  deep?: boolean;
+}
+
+export async function doctorCommand(opts: DoctorOpts = {}) {
   const repoRoot = resolveRepoRoot(opts);
   const cfgLoad = ConfigLoader.load(repoRoot);
   const cfg = cfgLoad.config;
 
-  console.log(`${BOLD}relay-baton doctor${RESET}  ${DIM}${repoRoot}${RESET}`);
+  console.log(`${BOLD}relay-baton doctor${opts.deep ? " --deep" : ""}${RESET}  ${DIM}${repoRoot}${RESET}`);
 
-  section("Environment");
-  const gitOk = fs.existsSync(path.join(repoRoot, ".git"));
-  row(gitOk, "git repository", gitOk ? "yes" : "no (run inside a git repo)");
-  row(which("git"), "git command", which("git") ? "available" : "MISSING");
+  const core = coreChecks(repoRoot, cfg);
+  section("Core");
+  for (const c of core) printCheck(c);
+  printCheck({ status: "info", label: "config source", value: cfgLoad.source + (cfgLoad.error ? ` (error: ${cfgLoad.error})` : "") });
+  printCheck({ status: "info", label: "AGENTS.md", value: fs.existsSync(path.join(repoRoot, "AGENTS.md")) ? "exists" : "missing" });
+  printCheck({ status: "info", label: "CLAUDE.md", value: fs.existsSync(path.join(repoRoot, "CLAUDE.md")) ? "exists" : "missing" });
 
-  section("Agents");
-  const codexOk = which(cfg.agents.codex?.command ?? "codex");
-  const claudeOk = which(cfg.agents.claude?.command ?? "claude");
-  row(codexOk, "codex command", codexOk ? "available" : "missing — run `relay-baton login codex`");
-  row(claudeOk, "claude command", claudeOk ? "available" : "missing — run `relay-baton login claude`");
-
-  section("Auth / Billing");
-  for (const ev of cfg.authPolicy.blockedEnvVars) {
-    const set = !!process.env[ev];
-    if (set && cfg.authPolicy.warnIfApiKeyEnvDetected) {
-      row("warn", ev, "set — blocked by default (use --allow-api-key-env to pass through)");
-    } else {
-      row("info", ev, set ? "set (blocked by default)" : "not set");
-    }
+  let deep: Check[] = [];
+  if (opts.deep) {
+    deep = deepChecks(repoRoot, cfg);
+    section("Deep diagnostics");
+    for (const c of deep) printCheck(c);
   }
-  row("info", "authPolicy.allowApiKeyEnv", String(cfg.authPolicy.allowApiKeyEnv));
-  row("info", "config source", cfgLoad.source + (cfgLoad.error ? ` (error: ${cfgLoad.error})` : ""));
 
-  section("Session");
-  const sm = new SessionManager(repoRoot, cfg);
-  row(fs.existsSync(sm.files.dir), ".ai-session", fs.existsSync(sm.files.dir) ? sm.files.dir : "missing — run `relay-baton init`");
-  row("info", "AGENTS.md", fs.existsSync(path.join(repoRoot, "AGENTS.md")) ? "exists" : "missing");
-  row("info", "CLAUDE.md", fs.existsSync(path.join(repoRoot, "CLAUDE.md")) ? "exists" : "missing");
+  const all = [...core, ...deep];
+  const fails = all.filter(c => c.status === "fail").length;
+  const warns = all.filter(c => c.status === "warn").length;
 
-  const next: string[] = [];
-  if (!gitOk) next.push("Initialize a git repository first.");
-  if (!codexOk) next.push("Install Codex CLI, then `relay-baton login codex`.");
-  if (!claudeOk) next.push("Install Claude Code CLI, then `relay-baton login claude`.");
-  if (!fs.existsSync(sm.files.dir)) next.push("Run `relay-baton init` to create .ai-session/.");
-  if (next.length > 0) {
-    section("Next steps");
-    for (const n of next) console.log(`  ${DIM}→${RESET} ${n}`);
+  section("Summary");
+  if (fails > 0) {
+    console.log(`  ${RED}${fails} failure(s)${RESET}, ${warns} warning(s).`);
+  } else if (warns > 0) {
+    console.log(`  ${YELLOW}${warns} warning(s)${RESET}, no failures.`);
   } else {
-    console.log(`\n${GREEN}All checks passed.${RESET}`);
+    console.log(`  ${GREEN}All checks passed.${RESET}`);
+  }
+
+  if (!opts.deep) {
+    console.log(`  ${DIM}Run \`relay-baton doctor --deep\` for extended diagnostics.${RESET}`);
+  }
+
+  // doctor never exits non-zero on warnings; only on hard failures.
+  if (fails > 0) process.exitCode = 1;
+
+  // Touch SessionManager so an uninitialized repo still gives a hint.
+  const sm = new SessionManager(repoRoot, cfg);
+  if (!fs.existsSync(sm.files.dir)) {
+    console.log(`  ${DIM}→ Run \`relay-baton init\` to create .ai-session/.${RESET}`);
   }
 }

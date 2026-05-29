@@ -2,6 +2,7 @@
 import { Command } from "commander";
 import { initCommand } from "./commands/init";
 import { doctorCommand } from "./commands/doctor";
+import { verifyCommand } from "./commands/verify";
 import { statusCommand } from "./commands/status";
 import { runCommand } from "./commands/run";
 import { handoffCommand } from "./commands/handoff";
@@ -27,7 +28,7 @@ const program = new Command();
 program
   .name("relay-baton")
   .description("Token-aware handoff harness for Codex CLI and Claude Code")
-  .version("0.5.0");
+  .version("0.6.0");
 
 function addProjectOptions(cmd: Command): Command {
   return cmd
@@ -36,8 +37,18 @@ function addProjectOptions(cmd: Command): Command {
 }
 
 addProjectOptions(program.command("init").description("Initialize .ai-session in the current repository")).action(initCommand);
-addProjectOptions(program.command("doctor").description("Check local environment")).action(doctorCommand);
+addProjectOptions(program.command("doctor").description("Check local environment").option("--deep", "run extended diagnostics")).action(doctorCommand);
 addProjectOptions(program.command("status").description("Show current session status")).action(statusCommand);
+
+addProjectOptions(
+  program
+    .command("verify")
+    .description("Simulated end-to-end check of the relay-baton pipeline (no real model calls)")
+    .option("--diet <profile>", "diet profile: off|lite|balanced|caveman|ultra")
+    .option("--real-agents", "EXPERIMENTAL scaffold only; never executes real agents")
+    .option("--keep-temp", "keep the throwaway temp repo used for the handoff check")
+    .option("--verbose", "print per-step detail")
+).action(verifyCommand);
 
 program
   .command("run")

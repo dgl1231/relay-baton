@@ -125,7 +125,8 @@ $ relay-baton run "새 metrics endpoint 연결"
 | 명령 | 설명 |
 |---|---|
 | `relay-baton init` | `.ai-session/` 생성 |
-| `relay-baton doctor` | 환경 점검 |
+| `relay-baton doctor` | 환경 점검 (`--deep` 확장 진단) |
+| `relay-baton verify` | 시뮬레이션 end-to-end 점검 — 실제 모델 호출 없음 |
 | `relay-baton login [agent]` | Codex / Claude 로그인 흐름 |
 | `relay-baton run "<task>"` | primary agent 실행 + fallback 감지 + handoff |
 | `relay-baton handoff --to claude` | 수동 handoff (`--diet`, `--no-run`, `--force`) |
@@ -228,10 +229,13 @@ pnpm relay-baton login claude
 
 ## 릴리즈 노트
 
-**최신:** v0.3.0 — [English](../../release-notes/v0.3.0.md) · [한국어](../../release-notes/ko/v0.3.0.md)
+**최신:** v0.6.0 — [English](../../release-notes/v0.6.0.md) · [한국어](../../release-notes/ko/v0.6.0.md)
 
 | 버전 | English | 한국어 | 한 줄 요약 |
 |---|---|---|---|
+| v0.6.0 | [Read →](../../release-notes/v0.6.0.md) | [읽기 →](../../release-notes/ko/v0.6.0.md) | Trust & Verify: `relay-baton verify`(시뮬레이션 E2E, 모델 호출 없음), `doctor --deep`, TUI mode 패널, `docs/ROADMAP.md`. |
+| v0.5.0 | [Read →](../../release-notes/v0.5.0.md) | [읽기 →](../../release-notes/ko/v0.5.0.md) | plan-execute 모드(`plan` / `execute`) + context 압축(`compress-context`). |
+| v0.4.0 | [Read →](../../release-notes/v0.4.0.md) | [읽기 →](../../release-notes/ko/v0.4.0.md) | GitHub Actions CI, 테스트, session observability, `handoff history`. |
 | v0.3.0 | [Read →](../../release-notes/v0.3.0.md) | [읽기 →](../../release-notes/ko/v0.3.0.md) | Side-effect 없는 `ProjectResolver`, 손상된 `projects.json` 자동 백업/recovery, `RELAY_BATON_PROJECTS_FILE` env override, fallback 시 `lastError` 정리. |
 | v0.2.0 | [Read →](../../release-notes/v0.2.0.md) | [읽기 →](../../release-notes/ko/v0.2.0.md) | Project registry, `--project` / `--path`, project CLI, TUI dashboard 추가. |
 | v0.1.0 | [Read →](../../release-notes/v0.1.0.md) | [읽기 →](../../release-notes/ko/v0.1.0.md) | Codex-to-Claude handoff MVP, token diet, fallback detection, quality gates. |

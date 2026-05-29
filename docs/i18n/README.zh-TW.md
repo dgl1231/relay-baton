@@ -125,7 +125,8 @@ $ relay-baton run "接上新的 metrics endpoint"
 | 指令 | 說明 |
 |---|---|
 | `relay-baton init` | 在目前倉庫建立 `.ai-session/` |
-| `relay-baton doctor` | 檢查 git / codex / claude / env / config |
+| `relay-baton doctor` | 檢查 git / codex / claude / env / config（`--deep` 進行擴充診斷） |
+| `relay-baton verify` | 模擬端到端檢查 — 不進行真實模型呼叫 |
 | `relay-baton login [agent]` | Codex / Claude 登入流程 |
 | `relay-baton run "<task>"` | 主代理執行 + fallback 偵測 + handoff |
 | `relay-baton handoff --to claude` | 手動 handoff (`--diet`、`--no-run`、`--force`) |
@@ -228,10 +229,13 @@ pnpm relay-baton login claude
 
 ## 發布說明
 
-**最新:** v0.3.0 — [English](../../release-notes/v0.3.0.md) · [한국어](../../release-notes/ko/v0.3.0.md)
+**最新:** v0.6.0 — [English](../../release-notes/v0.6.0.md) · [한국어](../../release-notes/ko/v0.6.0.md)
 
 | 版本 | English | 한국어 | 一句話摘要 |
 |---|---|---|---|
+| v0.6.0 | [Read →](../../release-notes/v0.6.0.md) | [읽기 →](../../release-notes/ko/v0.6.0.md) | Trust & Verify：`relay-baton verify`（模擬 E2E，無模型呼叫）、`doctor --deep`、TUI 模式面板、`docs/ROADMAP.md`。 |
+| v0.5.0 | [Read →](../../release-notes/v0.5.0.md) | [읽기 →](../../release-notes/ko/v0.5.0.md) | plan-execute 模式（`plan` / `execute`）+ 上下文壓縮（`compress-context`）。 |
+| v0.4.0 | [Read →](../../release-notes/v0.4.0.md) | [읽기 →](../../release-notes/ko/v0.4.0.md) | GitHub Actions CI、測試、工作階段可觀測性、`handoff history`。 |
 | v0.3.0 | [Read →](../../release-notes/v0.3.0.md) | [읽기 →](../../release-notes/ko/v0.3.0.md) | 無副作用的 `ProjectResolver`、損壞的 `projects.json` 自動備份/還原、`RELAY_BATON_PROJECTS_FILE` 環境變數覆蓋、fallback 時清理 `lastError`。 |
 | v0.2.0 | [Read →](../../release-notes/v0.2.0.md) | [읽기 →](../../release-notes/ko/v0.2.0.md) | 新增 project registry、`--project` / `--path`、project CLI 和 TUI dashboard。 |
 | v0.1.0 | [Read →](../../release-notes/v0.1.0.md) | [읽기 →](../../release-notes/ko/v0.1.0.md) | Codex-to-Claude handoff MVP、token diet、fallback detection、quality gates。 |

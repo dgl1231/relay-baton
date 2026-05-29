@@ -14,6 +14,7 @@ Release notes are user-facing changelogs, not agent handoff material — that ro
 
 ## Versions
 
+- [v0.6.0](./v0.6.0.md) / [한국어](./ko/v0.6.0.md) - Trust & Verify: `relay-baton verify` (simulated end-to-end check, no real model calls), `doctor --deep` extended diagnostics, TUI mode panel, and `docs/ROADMAP.md`.
 - [v0.5.0](./v0.5.0.md) / [한국어](./ko/v0.5.0.md) - Plan-execute mode (`plan` / `execute`, planner→executor, PlanQualityGate) + context compression mode (`compress-context`, deterministic mid-session compaction with a rollback gate). 124 tests.
 - [v0.4.0](./v0.4.0.md) / [한국어](./ko/v0.4.0.md) - GitHub Actions CI, critical-path test coverage (99 tests), CLI smoke test, session observability (`startedAt`/`endedAt`/`durationMs`/`handoffCount`), and `relay-baton handoff history`.
 - [v0.3.0](./v0.3.0.md) / [한국어](./ko/v0.3.0.md) - Side-effect-free resolver, registry recovery, `RELAY_BATON_PROJECTS_FILE` override, fallback `lastError` cleanup.

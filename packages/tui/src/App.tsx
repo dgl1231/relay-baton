@@ -11,8 +11,10 @@ import {
   SessionManager,
 } from "@relay-baton/core";
 import type { BatonProject, DietProfileName } from "@relay-baton/shared";
+import { PLAN_SECTIONS, planSectionBody } from "@relay-baton/core";
 import { Sidebar } from "./components/Sidebar";
 import { SessionPanel } from "./components/SessionPanel";
+import { ModePanel } from "./components/ModePanel";
 import { ChangedFilesPanel } from "./components/ChangedFilesPanel";
 import { BudgetPanel } from "./components/BudgetPanel";
 import { LogTailPanel } from "./components/LogTailPanel";
@@ -118,6 +120,42 @@ export function App(props: AppProps = {}) {
   let budget: any = null;
   try { budget = JSON.parse(fs.readFileSync(sm.files.p("contextBudget"), "utf8")); } catch {/**/}
 
+  // v0.6 display-only: derive current mode + plan/compress/handoff state.
+  const mode = ((): string => {
+    switch (meta?.status) {
+      case "planning":
+      case "plan_ready": return "plan";
+      case "executing": return "execute";
+      case "compressing": return "compress-context";
+      case "running":
+      case "running_fallback": return "run";
+      case "handoff_ready": return "handoff";
+      default: return "idle";
+    }
+  })();
+
+  const planMd = readSafe(sm.files.p("plan"), 8000);
+  const planStatus = ((): string => {
+    if (!planMd.trim()) return "none";
+    const missing = PLAN_SECTIONS.filter(s => planSectionBody(planMd, s).length === 0);
+    const fin = meta?.planFinalizedAt ? " (finalized)" : "";
+    return missing.length === 0 ? `ready, ${PLAN_SECTIONS.length} sections${fin}` : `draft, ${missing.length} empty section(s)`;
+  })();
+
+  let compressStatus = "no rotations";
+  let latestHandoff = "none";
+  try {
+    const names = fs.readdirSync(sm.files.dir);
+    const rotated = names.filter(n => n.startsWith("commands.log.full."));
+    if (rotated.length > 0) compressStatus = `${rotated.length} rotated log(s)`;
+    const handoffs = names.filter(n => n === "handoff.md" || /^handoff\.\d{4}-/.test(n));
+    let newest = 0;
+    for (const n of handoffs) {
+      try { const m = fs.statSync(path.join(sm.files.dir, n)).mtimeMs; if (m > newest) newest = m; } catch {/**/}
+    }
+    if (newest > 0) latestHandoff = `${handoffs.length} file(s), newest ${new Date(newest).toISOString().replace(/\.\d+Z$/, "Z")}`;
+  } catch {/**/}
+
   const agents = {
     codex: which(config.agents.codex?.command ?? "codex"),
     claude: which(config.agents.claude?.command ?? "claude"),
@@ -140,6 +178,12 @@ export function App(props: AppProps = {}) {
             meta={meta}
             repoRoot={repoRoot}
             fallbackReason={meta?.fallbackReason ?? null}
+          />
+          <ModePanel
+            mode={mode}
+            planStatus={planStatus}
+            compressStatus={compressStatus}
+            latestHandoff={latestHandoff}
           />
           <ChangedFilesPanel changed={changed} compact={compact} />
           <BudgetPanel budget={budget} selectedDiet={selectedDiet} />
