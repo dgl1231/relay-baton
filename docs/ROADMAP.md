@@ -58,7 +58,7 @@ Help the human (and the next agent) understand what changed and why.
   review/diagnose results are persisted as conversation events so the eventual
   Agent Room can replay them. Direction doc only this version.
 
-## v0.8 — Adapter Expansion + Agent Room (first cut) — current
+## v0.8 — Adapter Expansion + Agent Room (first cut)
 
 Grow beyond Codex/Claude only when a real user needs it, and stand up the
 first interactive multi-agent "room".
@@ -82,21 +82,25 @@ first interactive multi-agent "room".
     real agent run**.
   - [ ] Conversation+context **TUI panel** layout (§5 of AGENT_ROOM) — deferred.
 
-## v0.9 — Automation & Runtime
+## v0.9 — Automation & Runtime (current)
 
 Carefully add bounded automation while keeping the safety rails.
 
-- Multi-turn plan↔execute loop with a budget guard (capped iterations to avoid
-  token runaway); divergence captured to `errors.md`.
-- Adaptive per-model compression thresholds and cross-session archiving.
-- Optional non-interactive `run --until` orchestration (still no
-  auto-commit/push/PR; still subprocess-only).
-- **Agent Room + bounded continue** — wire the room into bounded automation
+- [x] Multi-turn plan↔execute loop with a budget guard (`LoopController`:
+  capped iterations, stop on `budget`/`divergence`/`explicit-stop`).
+- [x] Adaptive per-agent compression thresholds
+  (`contextCompression.perAgent`, `resolveCompressionThreshold`).
+- [x] **Agent Room + bounded continue** — wired into bounded automation
   (see [`docs/AGENT_ROOM.md`](./AGENT_ROOM.md)):
-  - `/continue --max-steps 3` (bounded, never unbounded autopilot).
-  - `/replan` from inside the room.
-  - Session replay / resume from `conversation.jsonl`.
-  - A daemon prototype is a *candidate* for this stage, not a commitment.
+  - [x] `/continue --max-steps N` (bounded, never unbounded autopilot).
+  - [x] `/replan` from inside the room (backs up the current plan).
+  - [x] Session replay from `conversation.jsonl` (`relay-baton replay`,
+    room `/replay`).
+- [ ] Optional non-interactive `run --until` orchestration — deferred candidate
+  (still no auto-commit/push/PR; still subprocess-only).
+- [ ] Cross-session archiving — deferred.
+- [ ] A daemon prototype remains a *candidate*, not a commitment — **deferred /
+  out of scope for now**.
 
 ## v1.0 — Stable Local Release
 
