@@ -6,6 +6,10 @@ export const defaultConfig: RelayBatonConfig = {
   agents: {
     codex: { command: "codex", args: ["exec", "--sandbox", "workspace-write"] },
     claude: { command: "claude", args: ["--permission-mode", "acceptEdits", "-p"] },
+    // v0.8 scaffold adapters — opt-in via --with / config; not primary defaults.
+    opencode: { command: "opencode", args: ["run"] },
+    gemini: { command: "gemini", args: ["-p"] },
+    aider: { command: "aider", args: ["--message"] },
   },
   fallbackPatterns: [
     "usage limit reached",

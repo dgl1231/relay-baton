@@ -10,7 +10,7 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 [![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-[![Latest](https://img.shields.io/badge/release-v0.7.0-blue.svg)](./release-notes/v0.7.0.md)
+[![Latest](https://img.shields.io/badge/release-v0.8.0-blue.svg)](./release-notes/v0.8.0.md)
 
 **English**
  · [한국어](./docs/i18n/README.ko.md)
@@ -299,7 +299,8 @@ relay-baton tui --project relay-baton
 | `relay-baton project list` / `current` / `doctor` | Inspect registered projects |
 | `relay-baton project switch <name-or-id>` | Change the active project |
 | `relay-baton project remove <name-or-id>` | Unregister a project |
-| `relay-baton tui` | Launch the Ink dashboard |
+| `relay-baton tui` | Launch the Ink dashboard (display-only; never spawns agents) |
+| `relay-baton chat` / `room` | Agent Room (v0.8): turn-based, confirmation-first multi-agent REPL |
 
 Project-aware commands accept `--project <name-or-id>` and `--path <repoPath>`.
 
@@ -545,8 +546,8 @@ The harness stays the same shape: detect, capture, compact, hand off.
 The full roadmap lives in [`docs/ROADMAP.md`](./docs/ROADMAP.md):
 
 - **v0.6 — Trust & Verify**: `verify`, `doctor --deep`, TUI mode panel.
-- **v0.7 — Review & Diagnose** (current): `review`, plan execution receipts, plan diffing, `--json` outputs, conversation event schema.
-- **v0.8 — Adapter Expansion**: OpenCode / Gemini / Aider scaffolds, CI matrix.
+- **v0.7 — Review & Diagnose**: `review`, plan execution receipts, plan diffing, `--json` outputs, conversation event schema.
+- **v0.8 — Adapter Expansion + Agent Room (first cut)** (current): OpenCode / Gemini / Aider adapter scaffolds, project-level fallback overrides, OS CI matrix, and `relay-baton chat`/`room` (turn-based, confirmation-first REPL).
 - **v0.9 — Automation & Runtime**: multi-turn loop, adaptive thresholds.
 - **v1.0 — Stable Local Release**: frozen schema, full command reference, i18n parity.
 
@@ -564,10 +565,11 @@ any real run). Design only for now — **not implemented yet**. Full design:
 
 Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-notes/README.md)). They are user-facing changelogs, not agent handoff material — that role belongs to `.ai-session/handoff.md`.
 
-**Latest:** v0.7.0 — [English](./release-notes/v0.7.0.md) · [한국어](./release-notes/ko/v0.7.0.md)
+**Latest:** v0.8.0 — [English](./release-notes/v0.8.0.md) · [한국어](./release-notes/ko/v0.8.0.md)
 
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
+| v0.8.0 | [Read →](./release-notes/v0.8.0.md) | [읽기 →](./release-notes/ko/v0.8.0.md) | Adapter Expansion + Agent Room (first cut): OpenCode/Gemini/Aider scaffolds, project-level fallback overrides, OS CI matrix, `relay-baton chat`/`room` (turn-based, confirmation-first REPL). |
 | v0.7.0 | [Read →](./release-notes/v0.7.0.md) | [읽기 →](./release-notes/ko/v0.7.0.md) | Review & Diagnose: `relay-baton review` (deterministic diff-vs-plan), execution receipts, plan diffing, `--json` for status/budget/review, conversation event schema (draft). |
 | v0.6.0 | [Read →](./release-notes/v0.6.0.md) | [읽기 →](./release-notes/ko/v0.6.0.md) | Trust & Verify: `relay-baton verify` (simulated E2E, no model calls), `doctor --deep`, TUI mode panel, `docs/ROADMAP.md`. |
 | v0.5.0 | [Read →](./release-notes/v0.5.0.md) | [읽기 →](./release-notes/ko/v0.5.0.md) | Plan-execute mode (`plan` / `execute`, planner→executor, PlanQualityGate) + context-compression mode (`compress-context`). |

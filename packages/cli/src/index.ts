@@ -16,6 +16,7 @@ import { compactCommand } from "./commands/compact";
 import { budgetCommand } from "./commands/budget";
 import { compressCommand } from "./commands/compress";
 import { tuiCommand } from "./commands/tui";
+import { chatCommand } from "./commands/chat";
 import { loginCommand } from "./commands/login";
 import {
   projectAddCommand,
@@ -30,7 +31,7 @@ const program = new Command();
 program
   .name("relay-baton")
   .description("Token-aware handoff harness for Codex CLI and Claude Code")
-  .version("0.7.0");
+  .version("0.8.0");
 
 function addProjectOptions(cmd: Command): Command {
   return cmd
@@ -181,6 +182,14 @@ project.command("remove").argument("<name-or-id>").description("Remove a project
 project.command("doctor").description("Check registered projects").action(projectDoctorCommand);
 
 addProjectOptions(program.command("tui").description("Start the relay-baton TUI")).action(tuiCommand);
+
+addProjectOptions(
+  program
+    .command("chat")
+    .aliases(["room"])
+    .description("Agent Room (v0.8 first cut): turn-based, confirmation-first multi-agent REPL")
+    .option("--allow-api-key-env", "allow passing API key env vars to confirmed agent runs"),
+).action(chatCommand);
 
 program.parseAsync(process.argv).catch(err => {
   console.error(err?.stack ?? err);

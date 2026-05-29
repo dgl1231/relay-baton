@@ -17,6 +17,23 @@ const DOC_EXPLAIN_HINTS = [
   /detection pattern/i,
 ];
 
+/**
+ * Overlay a project's fallback-pattern overrides onto the global list.
+ * Project patterns are appended after the globals and de-duplicated
+ * case-insensitively (first occurrence wins, original casing preserved).
+ */
+export function resolveFallbackPatterns(global: string[], projectPatterns?: string[]): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const p of [...global, ...(projectPatterns ?? [])]) {
+    const key = p.trim().toLowerCase();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(p);
+  }
+  return out;
+}
+
 export class FallbackDetector {
   private patterns: string[];
   private seen = new Set<string>();

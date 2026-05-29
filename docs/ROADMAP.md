@@ -19,8 +19,11 @@ commit/push/PR, deterministic compaction only.**
   observability, `handoff history`.
 - **v0.5** — Plan-execute mode (`plan` / `execute`, planner→executor,
   PlanQualityGate) + context-compression mode (`compress-context`).
+- **v0.6** — Trust & Verify: `verify`, `doctor --deep`, TUI mode panel.
+- **v0.7** — Review & Diagnose: `review`, execution receipts, plan diffing,
+  `--json` for status/budget/review, conversation event schema (draft).
 
-## v0.6 — Trust & Verify (current)
+## v0.6 — Trust & Verify
 
 Make the existing pipeline provable and observable before adding surface area.
 
@@ -55,26 +58,29 @@ Help the human (and the next agent) understand what changed and why.
   review/diagnose results are persisted as conversation events so the eventual
   Agent Room can replay them. Direction doc only this version.
 
-## v0.8 — Adapter Expansion + Agent Room (first cut)
+## v0.8 — Adapter Expansion + Agent Room (first cut) — current
 
 Grow beyond Codex/Claude only when a real user needs it, and stand up the
 first interactive multi-agent "room".
 
-- OpenCode / Gemini / Aider adapter scaffolds — each is `<Name>Adapter.ts` + a
-  mirror test + a README row.
-- Project-level fallback-pattern overrides (`BatonProject.fallbackPatterns?`
-  overlays global).
-- macOS / Windows CI matrix (`matrix.os`) — expect Windows path/EOL fixes.
-- **Agent Room / Conversation Mode (first implementation)** — see
+- [x] OpenCode / Gemini / Aider adapter scaffolds — each is `<Name>Adapter.ts`
+  + a mirror test + a README row.
+- [x] Project-level fallback-pattern overrides (`BatonProject.fallbackPatterns?`
+  overlays global via `resolveFallbackPatterns`).
+- [x] macOS / Windows / Ubuntu CI matrix (`matrix.os`).
+- [x] **Agent Room / Conversation Mode (first implementation)** — see
   [`docs/AGENT_ROOM.md`](./AGENT_ROOM.md):
-  - `relay-baton chat` (alias `relay-baton room`) entry point.
-  - Distinct, labeled messages for **user / claude / codex / relay-baton**.
-  - Claude as planner/reviewer, Codex as executor.
-  - TUI shaped as a **conversation panel + context panel**.
-  - Slash-command candidates: `/agent claude`, `/agent codex`, `/plan`,
-    `/execute`, `/review`, `/handoff`, `/budget`, `/status`, `/exit`.
-  - **Confirmation-first by default**, with a **prompt preview before any real
-    agent run**.
+  - [x] `relay-baton chat` (alias `relay-baton room`) entry point — a
+    **turn-based, confirmation-first CLI REPL** (not a realtime platform; the
+    Ink TUI stays display-only).
+  - [x] Distinct, labeled messages for **user / claude / codex / relay-baton**,
+    logged to `conversation.jsonl`.
+  - [x] Claude as planner/reviewer, Codex as executor.
+  - [x] Slash commands: `/agent claude|codex`, `/plan`, `/execute`, `/review`,
+    `/handoff`, `/budget`, `/status`, `/help`, `/exit`.
+  - [x] **Confirmation-first by default**, with a **prompt preview before any
+    real agent run**.
+  - [ ] Conversation+context **TUI panel** layout (§5 of AGENT_ROOM) — deferred.
 
 ## v0.9 — Automation & Runtime
 
