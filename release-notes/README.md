@@ -14,6 +14,9 @@ Release notes are user-facing changelogs, not agent handoff material — that ro
 
 ## Versions
 
+- [v0.9.0](./v0.9.0.md) / [한국어](./ko/v0.9.0.md) - Automation & Runtime (bounded): `LoopController`, room `/continue --max-steps N` / `/replan` / `/replay`, `relay-baton replay`, adaptive per-agent compression thresholds.
+- [v0.8.0](./v0.8.0.md) / [한국어](./ko/v0.8.0.md) - Adapter Expansion + Agent Room (first cut): OpenCode/Gemini/Aider adapter scaffolds, project-level fallback overrides, OS CI matrix, `relay-baton chat`/`room` (turn-based, confirmation-first REPL).
+- [v0.7.0](./v0.7.0.md) / [한국어](./ko/v0.7.0.md) - Review & Diagnose: `relay-baton review` (deterministic diff-vs-plan), execution receipts, plan diffing, `--json` for status/budget/review, conversation event schema (draft).
 - [v0.6.0](./v0.6.0.md) / [한국어](./ko/v0.6.0.md) - Trust & Verify: `relay-baton verify` (simulated end-to-end check, no real model calls), `doctor --deep` extended diagnostics, TUI mode panel, and `docs/ROADMAP.md`.
 - [v0.5.0](./v0.5.0.md) / [한국어](./ko/v0.5.0.md) - Plan-execute mode (`plan` / `execute`, planner→executor, PlanQualityGate) + context compression mode (`compress-context`, deterministic mid-session compaction with a rollback gate). 124 tests.
 - [v0.4.0](./v0.4.0.md) / [한국어](./ko/v0.4.0.md) - GitHub Actions CI, critical-path test coverage (99 tests), CLI smoke test, session observability (`startedAt`/`endedAt`/`durationMs`/`handoffCount`), and `relay-baton handoff history`.
