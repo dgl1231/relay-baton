@@ -2,6 +2,7 @@ import * as fs from "fs";
 import {
   ConfigLoader, SessionManager, BatonWorkflow, GitService,
   PlanQualityGate, PromptBuilder, runAgent, planTemplate,
+  backupPlan, diffPlans,
 } from "@relay-baton/core";
 import type { AgentId, DietProfileName } from "@relay-baton/shared";
 import { ProjectOpts, resolveProjectContext } from "./projectOptions";
@@ -67,6 +68,12 @@ export async function planCommand(task: string, opts: PlanOpts) {
     return;
   }
 
+  // Plan diffing (v0.7): back up the existing plan so we can report a
+  // deterministic section-level delta after the planner rewrites it.
+  const prevPlan = fs.existsSync(sm.files.p("plan")) ? fs.readFileSync(sm.files.p("plan"), "utf8") : "";
+  const backupPath = backupPlan(repoRoot);
+  if (backupPath) console.log(`[relay-baton] backed up previous plan: ${backupPath}`);
+
   // Launch the planner agent with the planner prompt.
   const adapter = adapterFor(planner, config);
   const prompt = PromptBuilder.planner(task);
@@ -107,6 +114,20 @@ export async function planCommand(task: string, opts: PlanOpts) {
     lastError: null,
   });
   console.log(`[relay-baton] plan ready: ${sm.files.p("plan")}`);
+
+  // Report the section-level delta vs the previous plan, if there was one.
+  if (prevPlan.trim()) {
+    const newPlan = fs.readFileSync(sm.files.p("plan"), "utf8");
+    const delta = diffPlans(prevPlan, newPlan);
+    if (delta.changed) {
+      console.log("[relay-baton] plan delta vs previous:");
+      for (const s of delta.sections) {
+        if (s.change !== "unchanged") console.log(`  - ${s.section}: ${s.change}`);
+      }
+    } else {
+      console.log("[relay-baton] plan unchanged vs previous.");
+    }
+  }
 
   if (opts.thenExecute) {
     console.log("[relay-baton] --then-execute: starting execute phase...");

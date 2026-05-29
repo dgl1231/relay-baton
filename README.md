@@ -10,7 +10,7 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 [![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-[![Latest](https://img.shields.io/badge/release-v0.6.0-blue.svg)](./release-notes/v0.6.0.md)
+[![Latest](https://img.shields.io/badge/release-v0.7.0-blue.svg)](./release-notes/v0.7.0.md)
 
 **English**
  · [한국어](./docs/i18n/README.ko.md)
@@ -288,6 +288,8 @@ relay-baton tui --project relay-baton
 | `relay-baton handoff history` | List the current + backed-up handoff documents (metadata only) |
 | `relay-baton plan "<task>"` | Plan-execute mode: planner writes `plan.md` (`--with`, `--no-run`, `--then-execute`) |
 | `relay-baton execute` | Plan-execute mode: executor implements `plan.md` (`--with`, `--from`) |
+| `relay-baton review` | Deterministically review the diff against `plan.md` Steps — no model call (`--json`) |
+| `relay-baton receipt done/skip/list` | Append-only execution receipts for plan steps (`--note`, `--json`) |
 | `relay-baton compact` / `squeeze` | Rebuild compact-state, repo-map, full-diff |
 | `relay-baton compress-context` | Compress running state.md / commands.log when over budget (`--dry-run`, `--threshold`) |
 | `relay-baton budget` | Show context-budget usage |
@@ -542,20 +544,31 @@ The harness stays the same shape: detect, capture, compact, hand off.
 
 The full roadmap lives in [`docs/ROADMAP.md`](./docs/ROADMAP.md):
 
-- **v0.6 — Trust & Verify** (current): `verify`, `doctor --deep`, TUI mode panel.
-- **v0.7 — Review & Diagnose**: `review`, plan execution receipts, plan diffing.
+- **v0.6 — Trust & Verify**: `verify`, `doctor --deep`, TUI mode panel.
+- **v0.7 — Review & Diagnose** (current): `review`, plan execution receipts, plan diffing, `--json` outputs, conversation event schema.
 - **v0.8 — Adapter Expansion**: OpenCode / Gemini / Aider scaffolds, CI matrix.
 - **v0.9 — Automation & Runtime**: multi-turn loop, adaptive thresholds.
 - **v1.0 — Stable Local Release**: frozen schema, full command reference, i18n parity.
+
+### Future: Agent Room / Conversation Mode
+
+A planned direction (first cut in v0.8) to turn relay-baton into an interactive
+**multi-agent workspace**: talk to Claude and Codex by turns in one session,
+with per-agent messages clearly distinguished — Claude as planner/reviewer,
+Codex as executor. It keeps every existing safety rail (subprocess-only, no API
+keys, no auto commit/push/PR, confirmation-first with a prompt preview before
+any real run). Design only for now — **not implemented yet**. Full design:
+[`docs/AGENT_ROOM.md`](./docs/AGENT_ROOM.md).
 
 ## Release notes
 
 Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-notes/README.md)). They are user-facing changelogs, not agent handoff material — that role belongs to `.ai-session/handoff.md`.
 
-**Latest:** v0.6.0 — [English](./release-notes/v0.6.0.md) · [한국어](./release-notes/ko/v0.6.0.md)
+**Latest:** v0.7.0 — [English](./release-notes/v0.7.0.md) · [한국어](./release-notes/ko/v0.7.0.md)
 
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
+| v0.7.0 | [Read →](./release-notes/v0.7.0.md) | [읽기 →](./release-notes/ko/v0.7.0.md) | Review & Diagnose: `relay-baton review` (deterministic diff-vs-plan), execution receipts, plan diffing, `--json` for status/budget/review, conversation event schema (draft). |
 | v0.6.0 | [Read →](./release-notes/v0.6.0.md) | [읽기 →](./release-notes/ko/v0.6.0.md) | Trust & Verify: `relay-baton verify` (simulated E2E, no model calls), `doctor --deep`, TUI mode panel, `docs/ROADMAP.md`. |
 | v0.5.0 | [Read →](./release-notes/v0.5.0.md) | [읽기 →](./release-notes/ko/v0.5.0.md) | Plan-execute mode (`plan` / `execute`, planner→executor, PlanQualityGate) + context-compression mode (`compress-context`). |
 | v0.4.0 | [Read →](./release-notes/v0.4.0.md) | [읽기 →](./release-notes/ko/v0.4.0.md) | GitHub Actions CI, critical-path tests, CLI smoke test, session observability, `handoff history`. |

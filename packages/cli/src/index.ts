@@ -4,6 +4,8 @@ import { initCommand } from "./commands/init";
 import { doctorCommand } from "./commands/doctor";
 import { verifyCommand } from "./commands/verify";
 import { statusCommand } from "./commands/status";
+import { reviewCommand } from "./commands/review";
+import { receiptDoneCommand, receiptSkipCommand, receiptListCommand } from "./commands/receipt";
 import { runCommand } from "./commands/run";
 import { handoffCommand } from "./commands/handoff";
 import { handoffHistoryCommand } from "./commands/handoffHistory";
@@ -28,7 +30,7 @@ const program = new Command();
 program
   .name("relay-baton")
   .description("Token-aware handoff harness for Codex CLI and Claude Code")
-  .version("0.6.0");
+  .version("0.7.0");
 
 function addProjectOptions(cmd: Command): Command {
   return cmd
@@ -38,7 +40,14 @@ function addProjectOptions(cmd: Command): Command {
 
 addProjectOptions(program.command("init").description("Initialize .ai-session in the current repository")).action(initCommand);
 addProjectOptions(program.command("doctor").description("Check local environment").option("--deep", "run extended diagnostics")).action(doctorCommand);
-addProjectOptions(program.command("status").description("Show current session status")).action(statusCommand);
+addProjectOptions(program.command("status").description("Show current session status").option("--json", "print machine-readable JSON")).action(statusCommand);
+
+addProjectOptions(
+  program
+    .command("review")
+    .description("Deterministically review the working-tree diff against the current plan (no model call)")
+    .option("--json", "print machine-readable JSON"),
+).action(reviewCommand);
 
 addProjectOptions(
   program
@@ -130,7 +139,12 @@ program
   .option("--path <repoPath>", "repository path")
   .action(compactCommand);
 
-addProjectOptions(program.command("budget").description("Show context budget usage")).action(budgetCommand);
+addProjectOptions(program.command("budget").description("Show context budget usage").option("--json", "print machine-readable JSON")).action(budgetCommand);
+
+const receipt = program.command("receipt").description("Append-only execution receipts for plan steps");
+addProjectOptions(receipt.command("done").description("Mark a plan step done").argument("<step>", "1-based step index").option("--note <text>", "short note")).action((step, opts) => receiptDoneCommand(step, opts));
+addProjectOptions(receipt.command("skip").description("Mark a plan step skipped").argument("<step>", "1-based step index").option("--note <text>", "short note")).action((step, opts) => receiptSkipCommand(step, opts));
+addProjectOptions(receipt.command("list").description("List recorded receipts").option("--json", "print machine-readable JSON")).action(receiptListCommand);
 
 program
   .command("compress-context")

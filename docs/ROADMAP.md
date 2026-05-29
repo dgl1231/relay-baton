@@ -46,16 +46,35 @@ Help the human (and the next agent) understand what changed and why.
 - Plan diffing — re-plan shows a delta against the previous `plan.md` instead
   of a full rewrite; prior kept as `plan.<ts>.md`.
 - Richer `status` / `budget` output and machine-readable (`--json`) variants.
+- **Conversation event schema (draft)** — design the append-only event log
+  (`.ai-session/conversation.jsonl`) that future versions use to record who
+  said/did what (user / claude / codex / relay-baton). Documentation + draft
+  types only; no chat command this version. See
+  [`docs/AGENT_ROOM.md`](./AGENT_ROOM.md).
+- **`review`/`diagnose` as conversation events** — document the direction that
+  review/diagnose results are persisted as conversation events so the eventual
+  Agent Room can replay them. Direction doc only this version.
 
-## v0.8 — Adapter Expansion
+## v0.8 — Adapter Expansion + Agent Room (first cut)
 
-Grow beyond Codex/Claude only when a real user needs it.
+Grow beyond Codex/Claude only when a real user needs it, and stand up the
+first interactive multi-agent "room".
 
 - OpenCode / Gemini / Aider adapter scaffolds — each is `<Name>Adapter.ts` + a
   mirror test + a README row.
 - Project-level fallback-pattern overrides (`BatonProject.fallbackPatterns?`
   overlays global).
 - macOS / Windows CI matrix (`matrix.os`) — expect Windows path/EOL fixes.
+- **Agent Room / Conversation Mode (first implementation)** — see
+  [`docs/AGENT_ROOM.md`](./AGENT_ROOM.md):
+  - `relay-baton chat` (alias `relay-baton room`) entry point.
+  - Distinct, labeled messages for **user / claude / codex / relay-baton**.
+  - Claude as planner/reviewer, Codex as executor.
+  - TUI shaped as a **conversation panel + context panel**.
+  - Slash-command candidates: `/agent claude`, `/agent codex`, `/plan`,
+    `/execute`, `/review`, `/handoff`, `/budget`, `/status`, `/exit`.
+  - **Confirmation-first by default**, with a **prompt preview before any real
+    agent run**.
 
 ## v0.9 — Automation & Runtime
 
@@ -66,6 +85,12 @@ Carefully add bounded automation while keeping the safety rails.
 - Adaptive per-model compression thresholds and cross-session archiving.
 - Optional non-interactive `run --until` orchestration (still no
   auto-commit/push/PR; still subprocess-only).
+- **Agent Room + bounded continue** — wire the room into bounded automation
+  (see [`docs/AGENT_ROOM.md`](./AGENT_ROOM.md)):
+  - `/continue --max-steps 3` (bounded, never unbounded autopilot).
+  - `/replan` from inside the room.
+  - Session replay / resume from `conversation.jsonl`.
+  - A daemon prototype is a *candidate* for this stage, not a commitment.
 
 ## v1.0 — Stable Local Release
 
@@ -73,6 +98,12 @@ Carefully add bounded automation while keeping the safety rails.
 - Full command reference + i18n parity across supported languages.
 - Stability/compatibility guarantees for `.ai-session/` artifacts.
 - Polished TUI and a complete `doctor`/`verify` health story.
+- **Stable, project-aware Agent Room workflow** (see
+  [`docs/AGENT_ROOM.md`](./AGENT_ROOM.md)):
+  - Safe handoff / run / plan / execute / review / diagnose flow inside the room.
+  - Demo gif / screenshots.
+  - Real-agent end-to-end documentation (`verify --real-agents` graduated from
+    scaffold to a documented, opt-in path).
 
 ## Permanently out of scope
 

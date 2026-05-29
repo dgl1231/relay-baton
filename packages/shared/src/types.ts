@@ -145,6 +145,49 @@ export interface BudgetSnapshot {
   truncated: boolean;
 }
 
+// v0.7 — conversation event schema (DRAFT).
+// Append-only event log groundwork for the future Agent Room / Conversation
+// Mode (see docs/AGENT_ROOM.md). v0.7 only defines the schema and lets
+// `review`/`diagnose` persist events; no chat/room command ships yet.
+export type ConversationRole = "user" | "claude" | "codex" | "relay-baton";
+
+export type ConversationEventKind =
+  | "message"
+  | "command"
+  | "prompt_preview"
+  | "agent_run"
+  | "plan"
+  | "execute"
+  | "review"
+  | "diagnose"
+  | "handoff"
+  | "status"
+  | "budget";
+
+export interface ConversationEvent {
+  /** Stable id, e.g. "evt_<uuid>". */
+  id: string;
+  /** ISO timestamp. */
+  ts: string;
+  /** Owning session (SessionMeta.id) when known. */
+  sessionId?: string;
+  role: ConversationRole;
+  kind: ConversationEventKind;
+  /** Token-diet-friendly summary. NEVER a full diff/log — reference instead. */
+  text: string;
+  /** Pointers to .ai-session artifacts (relative names), not inlined blobs. */
+  refs?: Record<string, string>;
+  /** Kind-specific, all optional. */
+  meta?: {
+    agent?: AgentId;
+    diet?: DietProfileName;
+    exitCode?: number;
+    confirmed?: boolean;
+    stepRefs?: string[];
+    [k: string]: unknown;
+  };
+}
+
 export interface BatonProject {
   id: string;
   name: string;
