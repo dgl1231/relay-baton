@@ -12,6 +12,7 @@ export type RoomCommandName =
   | "execute"
   | "continue"
   | "review"
+  | "diagnose"
   | "handoff"
   | "budget"
   | "status"
@@ -32,6 +33,7 @@ export const ROOM_COMMANDS: { name: RoomCommandName; usage: string; help: string
   { name: "execute", usage: "/execute", help: "preview an execute run (executor agent)" },
   { name: "continue", usage: "/continue --max-steps N", help: "preview a bounded plan↔execute loop (default 3 steps)" },
   { name: "review", usage: "/review", help: "deterministic diff-vs-plan review (no model call)" },
+  { name: "diagnose", usage: "/diagnose", help: "run deep environment + artifact diagnostics (no model call)" },
   { name: "handoff", usage: "/handoff", help: "preview a handoff to the next agent" },
   { name: "budget", usage: "/budget", help: "show context-budget usage" },
   { name: "status", usage: "/status", help: "show current session status" },

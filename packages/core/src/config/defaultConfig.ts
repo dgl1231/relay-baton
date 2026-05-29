@@ -1,6 +1,7 @@
 import type { RelayBatonConfig } from "@relay-baton/shared";
 
 export const defaultConfig: RelayBatonConfig = {
+  configVersion: 1,
   primaryAgent: "codex",
   fallbackAgent: "claude",
   agents: {
