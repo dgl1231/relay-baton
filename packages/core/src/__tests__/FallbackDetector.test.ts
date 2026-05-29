@@ -1,6 +1,24 @@
 import { describe, it, expect } from "vitest";
-import { FallbackDetector } from "../agents/FallbackDetector";
+import { FallbackDetector, resolveFallbackPatterns } from "../agents/FallbackDetector";
 import { defaultConfig } from "../config/defaultConfig";
+
+describe("resolveFallbackPatterns (project overlay)", () => {
+  it("appends project patterns after globals, deduped case-insensitively", () => {
+    const out = resolveFallbackPatterns(
+      ["quota exceeded", "rate limit exceeded"],
+      ["Custom Org Limit", "QUOTA EXCEEDED", "  "],
+    );
+    expect(out).toEqual(["quota exceeded", "rate limit exceeded", "Custom Org Limit"]);
+  });
+  it("returns the globals unchanged when no project patterns are given", () => {
+    expect(resolveFallbackPatterns(["a", "b"])).toEqual(["a", "b"]);
+  });
+  it("a detector built from the overlay catches the project-only phrase", () => {
+    const patterns = resolveFallbackPatterns(defaultConfig.fallbackPatterns, ["org seat budget hit"]);
+    const d = new FallbackDetector(patterns);
+    expect(d.feed("notice: org seat budget hit")?.pattern).toBe("org seat budget hit");
+  });
+});
 
 describe("FallbackDetector", () => {
   it("detects specific phrases case-insensitively", () => {

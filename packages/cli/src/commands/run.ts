@@ -1,6 +1,6 @@
 import {
   ConfigLoader, SessionManager, GitService, BatonWorkflow,
-  CodexAdapter, ClaudeCodeAdapter, FallbackDetector, runAgent,
+  CodexAdapter, ClaudeCodeAdapter, FallbackDetector, resolveFallbackPatterns, runAgent,
   HandoffQualityGate, TokenDietQualityGate, PromptBuilder, ContextCompressor,
 } from "@relay-baton/core";
 import type { DietProfileName } from "@relay-baton/shared";
@@ -48,7 +48,8 @@ export async function runCommand(task: string, opts: RunOpts) {
 
   const codex = new CodexAdapter(config.agents.codex);
   const cmd = codex.buildCommand({ task, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName });
-  const detector = new FallbackDetector(config.fallbackPatterns);
+  const patterns = resolveFallbackPatterns(config.fallbackPatterns, projectContext.project?.fallbackPatterns);
+  const detector = new FallbackDetector(patterns);
 
   console.log(`[relay-baton] running ${cmd.command} ${cmd.args.join(" ")}`);
   const r = await runAgent({

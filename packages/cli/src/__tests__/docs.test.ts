@@ -50,6 +50,22 @@ describe("v0.6 docs", () => {
     expect(ko).toMatch(/receipt/);
   });
 
+  it("ships release-notes/v0.8.0.md (EN + KO) with the Agent Room first cut", () => {
+    const notes = read("release-notes/v0.8.0.md");
+    expect(notes).toMatch(/Agent Room/i);
+    expect(notes).toMatch(/relay-baton chat/);
+    expect(notes).toMatch(/OpenCode|Gemini|Aider/);
+    const ko = read("release-notes/ko/v0.8.0.md");
+    expect(ko).toMatch(/Agent Room/i);
+    expect(ko).toMatch(/relay-baton chat/);
+  });
+
+  it("documents the chat/room command and adapter scaffolds in the README", () => {
+    const readme = read("README.md");
+    expect(readme).toMatch(/relay-baton chat/);
+    expect(readme).toMatch(/room/);
+  });
+
   it("documents the plan/execute/compress-context workflow in the root README", () => {
     const readme = read("README.md");
     expect(readme).toMatch(/relay-baton plan/);

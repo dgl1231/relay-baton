@@ -198,6 +198,12 @@ export interface BatonProject {
   defaultDiet?: DietProfileName;
   primaryAgent?: AgentId;
   fallbackAgent?: AgentId;
+  /**
+   * v0.8: project-level fallback-pattern overlay. When set and non-empty,
+   * these are appended to the global config.fallbackPatterns (deduped,
+   * case-insensitive) for runs scoped to this project.
+   */
+  fallbackPatterns?: string[];
 }
 
 export interface ProjectRegistryData {
