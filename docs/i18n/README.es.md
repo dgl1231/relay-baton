@@ -126,7 +126,8 @@ $ relay-baton run "conectar el nuevo metrics endpoint"
 | Comando | Descripción |
 |---|---|
 | `relay-baton init` | Crear `.ai-session/` en el repo actual |
-| `relay-baton doctor` | Comprobar git / codex / claude / env / config |
+| `relay-baton doctor` | Comprobar git / codex / claude / env / config (`--deep` para diagnóstico ampliado) |
+| `relay-baton verify` | Comprobación end-to-end simulada — sin llamadas reales al modelo |
 | `relay-baton login [agent]` | Flujos de login de Codex / Claude |
 | `relay-baton run "<task>"` | Ejecutar agente primario + detectar fallback + handoff |
 | `relay-baton handoff --to claude` | Handoff manual (`--diet`, `--no-run`, `--force`) |
@@ -229,10 +230,13 @@ Que `claude --version` funcione **no** significa estar logueado. Si ves "Not log
 
 ## Notas de versión
 
-**Última:** v0.3.0 — [English](../../release-notes/v0.3.0.md) · [한국어](../../release-notes/ko/v0.3.0.md)
+**Última** v0.6.0 — [English](../../release-notes/v0.6.0.md) · [한국어](../../release-notes/ko/v0.6.0.md)
 
 | Versión | English | 한국어 | Resumen |
 |---|---|---|---|
+| v0.6.0 | [Read →](../../release-notes/v0.6.0.md) | [읽기 →](../../release-notes/ko/v0.6.0.md) | Trust & Verify: `relay-baton verify` (E2E simulado, sin llamadas al modelo), `doctor --deep`, panel de modo en la TUI, `docs/ROADMAP.md`. |
+| v0.5.0 | [Read →](../../release-notes/v0.5.0.md) | [읽기 →](../../release-notes/ko/v0.5.0.md) | Modo plan-execute (`plan` / `execute`) + compresión de contexto (`compress-context`). |
+| v0.4.0 | [Read →](../../release-notes/v0.4.0.md) | [읽기 →](../../release-notes/ko/v0.4.0.md) | CI de GitHub Actions, tests, observabilidad de sesión, `handoff history`. |
 | v0.3.0 | [Read →](../../release-notes/v0.3.0.md) | [읽기 →](../../release-notes/ko/v0.3.0.md) | `ProjectResolver` sin efectos secundarios, copia de seguridad/recuperación automática de `projects.json` corrupto, override por env `RELAY_BATON_PROJECTS_FILE`, limpieza de `lastError` en fallback. |
 | v0.2.0 | [Read →](../../release-notes/v0.2.0.md) | [읽기 →](../../release-notes/ko/v0.2.0.md) | Añade project registry, `--project` / `--path`, comandos de proyecto y dashboard TUI. |
 | v0.1.0 | [Read →](../../release-notes/v0.1.0.md) | [읽기 →](../../release-notes/ko/v0.1.0.md) | MVP de handoff Codex-to-Claude con token diet, fallback detection y quality gates. |

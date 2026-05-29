@@ -126,7 +126,8 @@ $ relay-baton run "câbler le nouveau endpoint metrics"
 | Commande | Description |
 |---|---|
 | `relay-baton init` | Crée `.ai-session/` dans le dépôt courant |
-| `relay-baton doctor` | Vérifie git / codex / claude / env / config |
+| `relay-baton doctor` | Vérifie git / codex / claude / env / config (`--deep` pour un diagnostic étendu) |
+| `relay-baton verify` | Vérification end-to-end simulée — aucun appel réel au modèle |
 | `relay-baton login [agent]` | Flux de login Codex / Claude |
 | `relay-baton run "<task>"` | Lance l'agent primaire + détecte fallback + handoff |
 | `relay-baton handoff --to claude` | Handoff manuel (`--diet`, `--no-run`, `--force`) |
@@ -229,10 +230,13 @@ pnpm relay-baton login claude
 
 ## Notes de version
 
-**Dernière :** v0.3.0 — [English](../../release-notes/v0.3.0.md) · [한국어](../../release-notes/ko/v0.3.0.md)
+**Dernière :** v0.6.0 — [English](../../release-notes/v0.6.0.md) · [한국어](../../release-notes/ko/v0.6.0.md)
 
 | Version | English | 한국어 | Résumé |
 |---|---|---|---|
+| v0.6.0 | [Read →](../../release-notes/v0.6.0.md) | [읽기 →](../../release-notes/ko/v0.6.0.md) | Trust & Verify : `relay-baton verify` (E2E simulé, aucun appel modèle), `doctor --deep`, panneau de mode TUI, `docs/ROADMAP.md`. |
+| v0.5.0 | [Read →](../../release-notes/v0.5.0.md) | [읽기 →](../../release-notes/ko/v0.5.0.md) | Mode plan-execute (`plan` / `execute`) + compression de contexte (`compress-context`). |
+| v0.4.0 | [Read →](../../release-notes/v0.4.0.md) | [읽기 →](../../release-notes/ko/v0.4.0.md) | CI GitHub Actions, tests, observabilité de session, `handoff history`. |
 | v0.3.0 | [Read →](../../release-notes/v0.3.0.md) | [읽기 →](../../release-notes/ko/v0.3.0.md) | `ProjectResolver` sans effets de bord, sauvegarde/récupération automatique d'un `projects.json` corrompu, override via env `RELAY_BATON_PROJECTS_FILE`, nettoyage de `lastError` en cas de fallback. |
 | v0.2.0 | [Read →](../../release-notes/v0.2.0.md) | [읽기 →](../../release-notes/ko/v0.2.0.md) | Ajoute project registry, `--project` / `--path`, commandes project et dashboard TUI. |
 | v0.1.0 | [Read →](../../release-notes/v0.1.0.md) | [읽기 →](../../release-notes/ko/v0.1.0.md) | MVP Codex-to-Claude handoff avec token diet, fallback detection et quality gates. |
