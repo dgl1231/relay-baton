@@ -229,10 +229,13 @@ pnpm relay-baton login claude
 
 ## 릴리즈 노트
 
-**최신:** v0.6.0 — [English](../../release-notes/v0.6.0.md) · [한국어](../../release-notes/ko/v0.6.0.md)
+**최신:** v0.9.0 — [English](../../release-notes/v0.9.0.md) · [한국어](../../release-notes/ko/v0.9.0.md)
 
 | 버전 | English | 한국어 | 한 줄 요약 |
 |---|---|---|---|
+| v0.9.0 | [Read →](../../release-notes/v0.9.0.md) | [읽기 →](../../release-notes/ko/v0.9.0.md) | Automation & Runtime (bounded): LoopController, room /continue --max-steps N · /replan · /replay, relay-baton replay, adaptive per-agent compression thresholds. |
+| v0.8.0 | [Read →](../../release-notes/v0.8.0.md) | [읽기 →](../../release-notes/ko/v0.8.0.md) | Adapter Expansion + Agent Room (first cut): OpenCode/Gemini/Aider adapter scaffolds, project-level fallback overrides, OS CI matrix, chat/room REPL. |
+| v0.7.0 | [Read →](../../release-notes/v0.7.0.md) | [읽기 →](../../release-notes/ko/v0.7.0.md) | Review & Diagnose: review (deterministic diff-vs-plan), execution receipts, plan diffing, --json outputs, conversation event schema (draft). |
 | v0.6.0 | [Read →](../../release-notes/v0.6.0.md) | [읽기 →](../../release-notes/ko/v0.6.0.md) | Trust & Verify: `relay-baton verify`(시뮬레이션 E2E, 모델 호출 없음), `doctor --deep`, TUI mode 패널, `docs/ROADMAP.md`. |
 | v0.5.0 | [Read →](../../release-notes/v0.5.0.md) | [읽기 →](../../release-notes/ko/v0.5.0.md) | plan-execute 모드(`plan` / `execute`) + context 압축(`compress-context`). |
 | v0.4.0 | [Read →](../../release-notes/v0.4.0.md) | [읽기 →](../../release-notes/ko/v0.4.0.md) | GitHub Actions CI, 테스트, session observability, `handoff history`. |
