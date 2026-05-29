@@ -5,7 +5,7 @@ import * as path from "path";
 import { SessionManager } from "../session/SessionManager";
 import { defaultConfig } from "../config/defaultConfig";
 import { RoomEngine } from "../room/RoomEngine";
-import { parseSlash, parseAgentArg } from "../room/RoomCommands";
+import { parseSlash, parseAgentArg, parseMaxSteps } from "../room/RoomCommands";
 import { ConversationLog } from "../conversation/ConversationLog";
 
 function setup(): string {
@@ -33,6 +33,17 @@ describe("parseAgentArg", () => {
     expect(parseAgentArg("CODEX")).toBe("codex");
     expect(parseAgentArg("gemini")).toBeNull();
     expect(parseAgentArg("")).toBeNull();
+  });
+});
+
+describe("parseMaxSteps", () => {
+  it("parses --max-steps / -n / bare number and clamps to [1,20]", () => {
+    expect(parseMaxSteps("--max-steps 5")).toBe(5);
+    expect(parseMaxSteps("-n 2")).toBe(2);
+    expect(parseMaxSteps("7")).toBe(7);
+    expect(parseMaxSteps("")).toBe(3); // default
+    expect(parseMaxSteps("--max-steps 0")).toBe(3); // invalid -> fallback
+    expect(parseMaxSteps("--max-steps 999")).toBe(20); // clamp
   });
 });
 
@@ -67,6 +78,20 @@ describe("RoomEngine", () => {
     expect(e.handle("/budget")).toMatchObject({ kind: "run", command: "budget", requiresConfirmation: false });
     expect(e.handle("/execute")).toMatchObject({ kind: "run", command: "execute", requiresConfirmation: true });
     expect(e.handle("/handoff")).toMatchObject({ kind: "run", command: "handoff", requiresConfirmation: true });
+  });
+
+  it("supports v0.9 /continue (bounded) and /replan, and read-only /replay", () => {
+    const dir = setup();
+    const e = new RoomEngine(dir, "sess-1", "codex");
+    expect(e.handle("/continue --max-steps 2")).toMatchObject({
+      kind: "run", command: "continue", requiresConfirmation: true, maxSteps: 2,
+    });
+    expect(e.handle("/continue")).toMatchObject({ kind: "run", command: "continue", maxSteps: 3 });
+    expect(e.handle("/replan tighten the api")).toMatchObject({
+      kind: "run", command: "replan", args: "tighten the api", requiresConfirmation: true,
+    });
+    expect(e.handle("/replan").kind).toBe("error");
+    expect(e.handle("/replay")).toMatchObject({ kind: "run", command: "replay", requiresConfirmation: false });
   });
 
   it("errors on /plan without a task, /agent without a valid id, and unknown commands", () => {

@@ -70,6 +70,12 @@ export interface RelayBatonConfig {
     threshold: number;
     /** Keep the pre-compression commands.log as commands.log.full.<timestamp>. */
     rotateRawArtifacts: boolean;
+    /**
+     * v0.9: adaptive per-agent thresholds. When the active agent has an entry,
+     * it overrides the global `threshold`. Agents with larger context windows
+     * can run hotter (higher threshold) before compaction kicks in.
+     */
+    perAgent?: Partial<Record<AgentId, number>>;
   };
 }
 

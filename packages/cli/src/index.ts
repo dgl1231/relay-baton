@@ -17,6 +17,7 @@ import { budgetCommand } from "./commands/budget";
 import { compressCommand } from "./commands/compress";
 import { tuiCommand } from "./commands/tui";
 import { chatCommand } from "./commands/chat";
+import { replayCommand } from "./commands/replay";
 import { loginCommand } from "./commands/login";
 import {
   projectAddCommand,
@@ -31,7 +32,7 @@ const program = new Command();
 program
   .name("relay-baton")
   .description("Token-aware handoff harness for Codex CLI and Claude Code")
-  .version("0.8.0");
+  .version("0.9.0");
 
 function addProjectOptions(cmd: Command): Command {
   return cmd
@@ -190,6 +191,16 @@ addProjectOptions(
     .description("Agent Room (v0.8 first cut): turn-based, confirmation-first multi-agent REPL")
     .option("--allow-api-key-env", "allow passing API key env vars to confirmed agent runs"),
 ).action(chatCommand);
+
+addProjectOptions(
+  program
+    .command("replay")
+    .description("Replay the recorded conversation timeline (read-only, no model call)")
+    .option("--json", "print machine-readable JSON")
+    .option("--session <id>", "filter to a single session id")
+    .option("--kind <kinds>", "comma-separated event kinds to include")
+    .option("--limit <n>", "keep only the most recent N events"),
+).action(replayCommand);
 
 program.parseAsync(process.argv).catch(err => {
   console.error(err?.stack ?? err);

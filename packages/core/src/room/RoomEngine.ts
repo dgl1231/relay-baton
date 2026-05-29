@@ -1,6 +1,6 @@
 import type { AgentId } from "@relay-baton/shared";
 import { ConversationLog } from "../conversation/ConversationLog";
-import { parseSlash, parseAgentArg, roomHelpText, RoomCommandName } from "./RoomCommands";
+import { parseSlash, parseAgentArg, parseMaxSteps, roomHelpText, RoomCommandName } from "./RoomCommands";
 
 /**
  * What the REPL should do in response to a line. The engine is pure and
@@ -16,12 +16,21 @@ export type RoomAction =
   | { kind: "switch-agent"; agent: AgentId }
   | { kind: "error"; message: string }
   /** A run the CLI should preview + confirm before executing. */
-  | { kind: "run"; command: RunCommand; args: string; agent: AgentId; requiresConfirmation: boolean };
+  | { kind: "run"; command: RunCommand; args: string; agent: AgentId; requiresConfirmation: boolean; maxSteps?: number };
 
-export type RunCommand = "plan" | "execute" | "review" | "handoff" | "budget" | "status";
+export type RunCommand =
+  | "plan"
+  | "replan"
+  | "execute"
+  | "continue"
+  | "review"
+  | "handoff"
+  | "budget"
+  | "status"
+  | "replay";
 
 /** Read-only / no-model commands skip the confirmation gate. */
-const NO_CONFIRM: ReadonlySet<RunCommand> = new Set(["review", "budget", "status"]);
+const NO_CONFIRM: ReadonlySet<RunCommand> = new Set(["review", "budget", "status", "replay"]);
 
 export class RoomEngine {
   private log: ConversationLog;
@@ -80,21 +89,26 @@ export class RoomEngine {
         return { kind: "switch-agent", agent: next };
       }
       case "plan":
+      case "replan":
       case "execute":
+      case "continue":
       case "review":
       case "handoff":
       case "budget":
-      case "status": {
+      case "status":
+      case "replay": {
         const command = cmd.name as RunCommand;
-        if (command === "plan" && !cmd.args) {
-          return { kind: "error", message: "usage: /plan <task>" };
+        if ((command === "plan" || command === "replan") && !cmd.args) {
+          return { kind: "error", message: `usage: /${command} <task>` };
         }
+        const maxSteps = command === "continue" ? parseMaxSteps(cmd.args) : undefined;
         return {
           kind: "run",
           command,
           args: cmd.args,
           agent: this.agent,
           requiresConfirmation: !NO_CONFIRM.has(command),
+          maxSteps,
         };
       }
       default:

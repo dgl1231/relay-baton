@@ -2,8 +2,10 @@ import * as fs from "fs";
 import * as path from "path";
 import type { DietProfile, RelayBatonConfig } from "@relay-baton/shared";
 import { SessionFiles } from "../session/SessionFiles";
+import type { AgentId } from "@relay-baton/shared";
 import { StateCompactor } from "./StateCompactor";
 import { LogCompactor } from "./LogCompactor";
+import { resolveCompressionThreshold } from "./CompressionPolicy";
 
 export interface ContextWeight {
   state: number;
@@ -54,10 +56,10 @@ export class ContextCompressor {
    * commands.log, raw log rotated to commands.log.full.<ts>. Verified by an
    * inline gate; rolls back the log on gate failure.
    */
-  compressIfNeeded(profile: DietProfile, opts: { force?: boolean; threshold?: number; dryRun?: boolean } = {}): CompressionResult {
+  compressIfNeeded(profile: DietProfile, opts: { force?: boolean; threshold?: number; dryRun?: boolean; agent?: AgentId } = {}): CompressionResult {
     const f = this.files();
     const before = this.weigh(profile);
-    const threshold = opts.threshold ?? this.config.contextCompression?.threshold ?? 0.8;
+    const threshold = opts.threshold ?? resolveCompressionThreshold(this.config, opts.agent);
 
     if (!opts.force && before.ratio < threshold) {
       return { compressed: false, reason: `under threshold (${before.ratio.toFixed(2)} < ${threshold})`, before };

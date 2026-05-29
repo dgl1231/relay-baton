@@ -1,13 +1,16 @@
 # Agent Room / Conversation Mode (design)
 
-> **Status: v0.8 first cut shipped (CLI REPL).** `relay-baton chat` (alias
-> `room`) now exists as a **turn-based, confirmation-first CLI REPL** — not a
+> **Status: v0.9 bounded continue shipped (CLI REPL).** `relay-baton chat`
+> (alias `room`) is a **turn-based, confirmation-first CLI REPL** — not a
 > realtime platform, not a daemon, and not the Ink TUI (which stays
 > display-only per the project's safety rules). It supports the slash commands
 > below, distinguishes user / claude / codex / relay-baton messages, logs to
 > `conversation.jsonl`, and shows a **prompt preview + explicit confirmation
-> before any real agent run**. The full conversation+context **TUI panel**
-> layout in §5 is still forward-looking. See [`ROADMAP.md`](./ROADMAP.md).
+> before any real agent run**. v0.9 adds **bounded** `/continue --max-steps N`
+> (gated by `LoopController`), `/replan` (backs up the current plan), and
+> `/replay` (read-only timeline; also `relay-baton replay`). The full
+> conversation+context **TUI panel** layout in §5 is still forward-looking.
+> See [`ROADMAP.md`](./ROADMAP.md).
 
 ## 1. Purpose
 

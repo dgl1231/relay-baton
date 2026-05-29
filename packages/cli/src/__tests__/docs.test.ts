@@ -60,6 +60,22 @@ describe("v0.6 docs", () => {
     expect(ko).toMatch(/relay-baton chat/);
   });
 
+  it("ships release-notes/v0.9.0.md (EN + KO) with the bounded automation theme", () => {
+    const notes = read("release-notes/v0.9.0.md");
+    expect(notes).toMatch(/Automation\s*&?\s*Runtime/i);
+    expect(notes).toMatch(/relay-baton replay/);
+    expect(notes).toMatch(/--max-steps/);
+    const ko = read("release-notes/ko/v0.9.0.md");
+    expect(ko).toMatch(/Automation\s*&?\s*Runtime/i);
+    expect(ko).toMatch(/--max-steps/);
+  });
+
+  it("documents replay and bounded continue in the README", () => {
+    const readme = read("README.md");
+    expect(readme).toMatch(/relay-baton replay/);
+    expect(readme).toMatch(/continue/);
+  });
+
   it("documents the chat/room command and adapter scaffolds in the README", () => {
     const readme = read("README.md");
     expect(readme).toMatch(/relay-baton chat/);

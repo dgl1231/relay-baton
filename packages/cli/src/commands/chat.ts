@@ -1,6 +1,7 @@
 import * as readline from "readline";
 import {
   ConfigLoader, SessionManager, GitService, RoomEngine, PromptBuilder,
+  LoopController, ConversationReplay, backupPlan,
 } from "@relay-baton/core";
 import type { RoomAction, RunCommand } from "@relay-baton/core";
 import type { AgentId } from "@relay-baton/shared";
@@ -32,11 +33,17 @@ function say(role: string, text: string) {
  * Build a model-free prompt PREVIEW for a run-type command. This shows exactly
  * what would be spawned; it never executes. Confirmation-first by design.
  */
-function buildPreview(command: RunCommand, args: string, agent: AgentId, repoRoot: string, sessionDir: string, config: any): string | null {
-  if (command === "plan") {
+function buildPreview(command: RunCommand, args: string, agent: AgentId, repoRoot: string, sessionDir: string, config: any, maxSteps = 3): string | null {
+  if (command === "plan" || command === "replan") {
     const prompt = PromptBuilder.planner(args);
     const c = adapterFor(agent, config).buildCommand({ task: prompt, prompt, repoRoot, sessionDir });
-    return `${c.command} ${c.args.slice(0, -1).join(" ")} "<planner prompt, ${prompt.length} chars>"`;
+    const note = command === "replan" ? " (current plan.md is backed up first)" : "";
+    return `${c.command} ${c.args.slice(0, -1).join(" ")} "<planner prompt, ${prompt.length} chars>"${note}`;
+  }
+  if (command === "continue") {
+    const prompt = PromptBuilder.executor();
+    const c = adapterFor(agent, config).buildCommand({ task: prompt, prompt, repoRoot, sessionDir });
+    return `bounded loop: up to ${maxSteps} execute step(s), each: ${c.command} ${c.args.slice(0, -1).join(" ")} "<executor prompt>" — stops on no-progress or budget`;
   }
   if (command === "execute") {
     const prompt = PromptBuilder.executor();
@@ -124,14 +131,19 @@ async function runAction(
   ctx: { repoRoot: string; sessionDir: string; config: any; passthrough: any },
 ) {
   const { command, args, agent } = action;
+  const maxSteps = action.maxSteps ?? 3;
 
   // Read-only / no-model commands run immediately.
   if (command === "review") return void (await reviewCommand({ ...ctx.passthrough }));
   if (command === "budget") return void (await budgetCommand({ ...ctx.passthrough }));
   if (command === "status") return void (await statusCommand({ ...ctx.passthrough }));
+  if (command === "replay") {
+    for (const l of new ConversationReplay(ctx.repoRoot).renderLines()) console.log(l);
+    return;
+  }
 
   // Real agent runs: show a prompt preview, then require explicit confirmation.
-  const preview = buildPreview(command, args, agent, ctx.repoRoot, ctx.sessionDir, ctx.config);
+  const preview = buildPreview(command, args, agent, ctx.repoRoot, ctx.sessionDir, ctx.config, maxSteps);
   say("relay-baton", `prompt preview for /${command} (${agent}):`);
   console.log("  " + (preview ?? "(no preview available)"));
   const answer = (await ask(rl, "  run this? [y/N] ")).trim().toLowerCase();
@@ -142,9 +154,45 @@ async function runAction(
 
   if (command === "plan") {
     await planCommand(args, { ...ctx.passthrough, with: agent });
+  } else if (command === "replan") {
+    try { backupPlan(ctx.repoRoot, new Date()); } catch {/* best-effort */}
+    await planCommand(args, { ...ctx.passthrough, with: agent });
   } else if (command === "execute") {
     await executeCommand({ ...ctx.passthrough, with: agent });
   } else if (command === "handoff") {
     await handoffCommand({ ...ctx.passthrough, to: agent });
+  } else if (command === "continue") {
+    await runBoundedContinue(maxSteps, agent, ctx);
+  }
+}
+
+/**
+ * Bounded plan↔execute continuation. Runs at most `maxSteps` execute passes,
+ * each gated by LoopController. Stops early on no-progress (divergence) using a
+ * git working-tree signature as the progress key. Never unbounded; never
+ * auto-commits. One confirmation already happened upstream.
+ */
+async function runBoundedContinue(
+  maxSteps: number,
+  agent: AgentId,
+  ctx: { repoRoot: string; sessionDir: string; config: any; passthrough: any },
+) {
+  const loop = new LoopController({ maxSteps });
+  const git = new GitService(ctx.repoRoot);
+  const progressKey = () => {
+    try { return git.diff().length + ":" + git.changedFiles().length; }
+    catch { return undefined; }
+  };
+
+  let obs: { progressKey?: string } = {};
+  for (;;) {
+    const d = loop.next(obs);
+    if (!d.proceed) {
+      say("relay-baton", `continue stopped after step ${d.step} (${d.reason ?? "done"}).`);
+      break;
+    }
+    say("relay-baton", `continue step ${d.step}/${maxSteps} (execute via ${agent})…`);
+    await executeCommand({ ...ctx.passthrough, with: agent });
+    obs = { progressKey: progressKey() };
   }
 }
