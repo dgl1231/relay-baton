@@ -1,0 +1,6 @@
+# Rust / Tauri build output
+src-tauri/target/
+src-tauri/gen/
+
+# Staged CLI sidecar binaries (produced by the Release workflow / SEA recipe)
+src-tauri/binaries/

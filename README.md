@@ -10,7 +10,8 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 [![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-[![Latest](https://img.shields.io/badge/release-v0.9.0-blue.svg)](./release-notes/v0.9.0.md)
+[![Latest](https://img.shields.io/badge/release-v1.1.0-blue.svg)](./release-notes/v1.1.0.md)
+[![Download](https://img.shields.io/badge/download-binaries-238636.svg)](https://github.com/dgl1231/relay-baton/releases/latest)
 
 **English**
  · [한국어](./docs/i18n/README.ko.md)
@@ -36,6 +37,31 @@ $ relay-baton run "refactor the upload pipeline" --diet caveman
 ```
 
 ---
+
+## Download
+
+Prebuilt, single-file executables are attached to every release — no Node install required to run them.
+
+| OS | Binary | Get it |
+| --- | --- | --- |
+| macOS (Apple Silicon) | `relay-baton-macos-arm64` | [Latest release](https://github.com/dgl1231/relay-baton/releases/latest) |
+| Linux (x64) | `relay-baton-linux-x64` | [Latest release](https://github.com/dgl1231/relay-baton/releases/latest) |
+| Windows (x64) | `relay-baton-windows-x64.exe` | [Latest release](https://github.com/dgl1231/relay-baton/releases/latest) |
+
+```bash
+# macOS / Linux
+chmod +x relay-baton-macos-arm64
+./relay-baton-macos-arm64 --version
+```
+
+```powershell
+# Windows
+.\relay-baton-windows-x64.exe --version
+```
+
+> Older versions: pick any tag on the [releases page](https://github.com/dgl1231/relay-baton/releases). Prefer to build from source instead? See [Install](#install) below.
+>
+> A **desktop GUI** (Tauri) is in progress — the v1.1 scaffold lives in [`desktop/`](./desktop); the full app ships in v1.2 (see [roadmap](./docs/ROADMAP.md)).
 
 ## Why this exists
 

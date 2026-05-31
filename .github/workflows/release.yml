@@ -1,0 +1,130 @@
+name: Release
+
+# Build standalone, single-file executables for each OS and attach them to the
+# GitHub Release for the pushed tag. No publishing to npm, no API calls, no
+# secrets beyond the default GITHUB_TOKEN.
+#
+# Trigger: push a tag like `v1.1.0`.
+#   git tag v1.1.0 && git push origin v1.1.0
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-binaries:
+    name: build ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            label: linux-x64
+            asset: relay-baton-linux-x64
+          - os: macos-latest
+            label: macos-arm64
+            asset: relay-baton-macos-arm64
+          - os: windows-latest
+            label: windows-x64
+            asset: relay-baton-windows-x64.exe
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable corepack (activate pinned pnpm)
+        run: corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build workspace
+        run: pnpm build
+
+      # Bundle the compiled CLI (and its workspace deps) into one CommonJS file.
+      # esbuild/postject are run via npx so the repo's lockfile stays untouched.
+      - name: Bundle CLI into a single file
+        run: >-
+          npx --yes esbuild packages/cli/dist/index.js
+          --bundle --platform=node --target=node20 --format=cjs
+          --outfile=build/relay-baton.cjs
+
+      - name: Generate SEA blob
+        run: node --experimental-sea-config bin/sea-config.json
+
+      # --- Copy the host node binary, then inject the SEA blob into it. ---
+      - name: Stage node binary (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          mkdir -p dist-bin
+          cp "$(command -v node)" "dist-bin/${{ matrix.asset }}"
+
+      - name: Remove macOS signature
+        if: runner.os == 'macOS'
+        run: codesign --remove-signature "dist-bin/${{ matrix.asset }}"
+
+      - name: Inject SEA blob (Unix)
+        if: runner.os != 'Windows'
+        run: >-
+          npx --yes postject "dist-bin/${{ matrix.asset }}"
+          NODE_SEA_BLOB build/sea-prep.blob
+          --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
+          ${{ runner.os == 'macOS' && '--macho-segment-name NODE_SEA' || '' }}
+
+      - name: Re-sign macOS binary (ad-hoc)
+        if: runner.os == 'macOS'
+        run: codesign --sign - "dist-bin/${{ matrix.asset }}"
+
+      - name: Stage node binary (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist-bin | Out-Null
+          node -e "require('fs').copyFileSync(process.execPath, 'dist-bin/${{ matrix.asset }}')"
+
+      - name: Inject SEA blob (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: >-
+          npx --yes postject "dist-bin/${{ matrix.asset }}"
+          NODE_SEA_BLOB build/sea-prep.blob
+          --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
+
+      - name: Smoke test the binary (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          chmod +x "dist-bin/${{ matrix.asset }}"
+          "./dist-bin/${{ matrix.asset }}" --version
+
+      - name: Smoke test the binary (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: & "dist-bin/${{ matrix.asset }}" --version
+
+      - name: Upload to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist-bin/${{ matrix.asset }}
+          draft: false
+          fail_on_unmatched_files: true
+
+      - name: Upload build artifact (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset }}
+          path: dist-bin/${{ matrix.asset }}

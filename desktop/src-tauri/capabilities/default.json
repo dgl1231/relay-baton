@@ -1,0 +1,21 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Allow the window to invoke the bundled relay-baton CLI sidecar (read-only commands).",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "binaries/relay-baton",
+          "sidecar": true,
+          "args": true
+        }
+      ]
+    }
+  ]
+}

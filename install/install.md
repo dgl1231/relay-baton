@@ -24,6 +24,21 @@ Claude Code 예시 (대화형 또는 headless):
 claude --permission-mode acceptEdits -p "Read https://github.com/<your-org>/relay-baton/blob/main/install/install.md and follow it step by step to install relay-baton on this machine."
 ```
 
+## 가장 빠른 길 — 빌드 없이 바이너리 받기 (v1.1+)
+
+소스를 빌드하지 않고 바로 쓰려면 릴리즈에 첨부된 단일 실행파일을 받는다. Node 설치도 필요 없다.
+
+- 최신: <https://github.com/dgl1231/relay-baton/releases/latest>
+- 특정 버전: <https://github.com/dgl1231/relay-baton/releases> 에서 원하는 태그 선택
+
+| OS | 파일 | 실행 |
+|---|---|---|
+| macOS (Apple Silicon) | `relay-baton-macos-arm64` | `chmod +x relay-baton-macos-arm64 && ./relay-baton-macos-arm64 --version` |
+| Linux (x64) | `relay-baton-linux-x64` | `chmod +x relay-baton-linux-x64 && ./relay-baton-linux-x64 --version` |
+| Windows (x64) | `relay-baton-windows-x64.exe` | `.\relay-baton-windows-x64.exe --version` |
+
+> 바이너리는 relay-baton CLI만 포함한다. 실제 작업에는 여전히 로그인된 `codex` / `claude` CLI가 필요하다(아래 Step 2~3). 소스에서 직접 빌드하려면 다음 섹션을 따른다.
+
 ## 1. 사전 요구사항
 
 | 항목 | 버전 | 비고 |

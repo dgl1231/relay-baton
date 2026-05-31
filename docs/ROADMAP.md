@@ -22,6 +22,56 @@ commit/push/PR, deterministic compaction only.**
 - **v0.6** — Trust & Verify: `verify`, `doctor --deep`, TUI mode panel.
 - **v0.7** — Review & Diagnose: `review`, execution receipts, plan diffing,
   `--json` for status/budget/review, conversation event schema (draft).
+- **v0.8** — Adapter expansion (OpenCode/Gemini/Aider scaffolds), CI OS matrix,
+  Agent Room / conversation mode (first cut).
+- **v0.9** — Bounded automation: plan↔execute loop, adaptive compression,
+  `/continue --max-steps`, session replay.
+- **v1.0** — Stable Local Release: frozen config/session contracts, full command
+  reference + i18n parity, artifact stability guarantees, complete doctor/verify.
+- **v1.1** — Distributable: standalone single-file executables per OS, automated
+  GitHub Release pipeline, README downloads, Tauri desktop shell (scaffold).
+
+## v1.1 — Distributable (current)
+
+Make relay-baton something you **download and run**, not only something you
+build. The CLI stays the engine; new surfaces are thin shells over it.
+
+- [x] **Standalone executables** — single-file binaries for linux-x64 /
+  macos-arm64 / windows-x64 built with Node SEA (no runtime install needed).
+  Bundling (esbuild) and injection (postject) run via `npx` so the repo lockfile
+  and the build/test CI stay untouched. See [`bin/sea-config.json`](../bin/sea-config.json).
+- [x] **Release pipeline** — [`.github/workflows/release.yml`](../.github/workflows/release.yml)
+  builds the matrix on every `v*` tag and attaches the binaries to the GitHub
+  Release (default `GITHUB_TOKEN` only; no npm publish, no secrets).
+- [x] **Per-release downloads in the README** — direct "latest release" links so
+  users grab the binary for their OS.
+- [x] **Tauri desktop shell (scaffold)** — `desktop/` (outside the pnpm
+  workspace) wraps the CLI as a Tauri **sidecar**; the webview calls
+  `relay-baton status/budget --json`. No logic duplicated; all hard constraints
+  intact. Full GUI is v1.2.
+
+## v1.2 — Desktop GUI
+
+Grow the scaffold into a real, distributable desktop app — the "opencode /
+Claude Code-style UI" without re-implementing any engine logic.
+
+- [ ] Bundle the desktop app in the Release pipeline (Tauri build job consuming
+  the same SEA sidecar binaries) → per-release `.dmg` / `.msi` / `.AppImage`.
+- [ ] Project switcher + diet selector + budget panel (mirrors the Ink TUI,
+  display-first).
+- [ ] Handoff preview pane (renders `.ai-session/handoff.md` read-only).
+- [ ] Agent Room view — confirmation-first, prompt preview before any real run
+  (same safety model as the CLI room; never an autopilot).
+- [ ] Code-signing / notarization story documented (binaries ship ad-hoc-signed
+  until then).
+
+## v1.3 — Distribution polish
+
+- [ ] One-line installers (`install.sh` / `install.ps1`) that fetch the latest
+  release binary and put it on PATH.
+- [ ] Optional Homebrew tap / Scoop manifest (community-maintainable).
+- [ ] Auto-update channel for the desktop app (Tauri updater, opt-in).
+- [ ] SBOM + checksums attached to each release.
 
 ## v0.6 — Trust & Verify
 
@@ -102,7 +152,7 @@ Carefully add bounded automation while keeping the safety rails.
 - [ ] A daemon prototype remains a *candidate*, not a commitment — **deferred /
   out of scope for now**.
 
-## v1.0 — Stable Local Release (current)
+## v1.0 — Stable Local Release
 
 - [x] Frozen, documented config schema and SessionMeta contract
   (`CONFIG_VERSION` / `SESSION_SCHEMA_VERSION`, `validateConfig` /
