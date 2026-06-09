@@ -58,8 +58,11 @@ jobs:
       # `npx --yes <tool>` does not reliably expose the bin on CI runners
       # (exit 127), so install explicitly. This touches only the global store,
       # not the repo lockfile, so the build/test CI stays unaffected.
+      # Pin exact versions verified locally end-to-end. postject's "latest" is a
+      # prerelease (1.0.0-alpha.x), so a caret range silently resolves to none;
+      # name the exact version instead.
       - name: Install bundler tools (esbuild + postject)
-        run: npm install -g esbuild@^0.21 postject@^1
+        run: npm install -g esbuild@0.28.0 postject@1.0.0-alpha.6
 
       # Bundle the compiled CLI (and its workspace deps) into one CommonJS file.
       - name: Bundle CLI into a single file

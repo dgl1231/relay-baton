@@ -14,6 +14,7 @@ Release notes are user-facing changelogs, not agent handoff material — that ro
 
 ## Versions
 
+- [v1.1.3](./v1.1.3.md) / [한국어](./ko/v1.1.3.md) - Release pipeline hotfix #3: pinned exact bundler versions (`esbuild@0.28.0`, `postject@1.0.0-alpha.6`) — `postject@^1` resolved to nothing because its "latest" is a prerelease. No behavior changes.
 - [v1.1.2](./v1.1.2.md) / [한국어](./ko/v1.1.2.md) - Release pipeline hotfix #2: `npx --yes esbuild/postject` failed with exit 127 on CI runners, so the workflow now installs them with `npm install -g` and calls them directly (recipe verified locally end-to-end). No behavior changes.
 - [v1.1.1](./v1.1.1.md) / [한국어](./ko/v1.1.1.md) - Release pipeline hotfix: fixed `release.yml` line 115 (a leading `&` in the Windows smoke-test step made the workflow invalid YAML, so no job ran for v1.1.0 and no binaries were attached). New tag re-runs the corrected pipeline. No behavior changes.
 - [v1.1.0](./v1.1.0.md) / [한국어](./ko/v1.1.0.md) - Distributable: standalone single-file executables per OS (Node SEA), automated GitHub Release pipeline (`.github/workflows/release.yml`), README download links, and a Tauri desktop shell scaffold (`desktop/`, CLI sidecar). No new model behavior; all hard constraints intact.
