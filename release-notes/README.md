@@ -14,6 +14,7 @@ Release notes are user-facing changelogs, not agent handoff material — that ro
 
 ## Versions
 
+- [v1.1.1](./v1.1.1.md) / [한국어](./ko/v1.1.1.md) - Release pipeline hotfix: fixed `release.yml` line 115 (a leading `&` in the Windows smoke-test step made the workflow invalid YAML, so no job ran for v1.1.0 and no binaries were attached). New tag re-runs the corrected pipeline. No behavior changes.
 - [v1.1.0](./v1.1.0.md) / [한국어](./ko/v1.1.0.md) - Distributable: standalone single-file executables per OS (Node SEA), automated GitHub Release pipeline (`.github/workflows/release.yml`), README download links, and a Tauri desktop shell scaffold (`desktop/`, CLI sidecar). No new model behavior; all hard constraints intact.
 - [v1.0.0](./v1.0.0.md) / [한국어](./ko/v1.0.0.md) - Stable Local Release: frozen config/session contracts (`CONFIG_VERSION`/`SESSION_SCHEMA_VERSION`, `validateConfig`/`validateSessionMeta`), `.ai-session/` artifact validation (`validateArtifacts` + `doctor --deep`), full command reference (`docs/COMMANDS.md` EN+KO), finalized Agent Room set with read-only `/diagnose`.
 - [v0.9.0](./v0.9.0.md) / [한국어](./ko/v0.9.0.md) - Automation & Runtime (bounded): `LoopController`, room `/continue --max-steps N` / `/replan` / `/replay`, `relay-baton replay`, adaptive per-agent compression thresholds.
