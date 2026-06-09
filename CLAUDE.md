@@ -4,6 +4,10 @@
 
 Codex CLI에서 Claude Code CLI로 작업을 이어받게 만드는 로컬 handoff harness이며, token diet harness다.
 
+> **새 세션이라면 먼저 [`docs/HANDOFF.md`](./docs/HANDOFF.md)를 읽어라.** 현재 상태(= v1.1.3 배포 완료),
+> 다음 작업(= v1.2 Desktop GUI), 이 머신의 환경 주의사항(pnpm/npx/gh)이 거기 정리돼 있다.
+> 릴리즈/배포 방법은 [`docs/RELEASE.md`](./docs/RELEASE.md).
+
 ## 핵심 목표
 
 - Codex CLI를 먼저 실행한다.

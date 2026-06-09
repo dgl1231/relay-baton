@@ -594,15 +594,18 @@ any real run). Design only for now — **not implemented yet**. Full design:
 - [`docs/ARTIFACTS.md`](./docs/ARTIFACTS.md) — `.ai-session/` artifact stability contract (v1.0)
 - [`docs/AGENT_ROOM.md`](./docs/AGENT_ROOM.md) — Agent Room design
 - [`docs/ROADMAP.md`](./docs/ROADMAP.md) — roadmap
+- [`docs/RELEASE.md`](./docs/RELEASE.md) — release & distribution runbook (how the per-OS binaries are built/shipped)
+- [`docs/HANDOFF.md`](./docs/HANDOFF.md) — session handoff / current state (start here in a new session)
 
 ## Release notes
 
 Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-notes/README.md)). They are user-facing changelogs, not agent handoff material — that role belongs to `.ai-session/handoff.md`.
 
-**Latest:** v1.0.0 — [English](./release-notes/v1.0.0.md) · [한국어](./release-notes/ko/v1.0.0.md)
+**Latest:** v1.1.3 — [English](./release-notes/v1.1.3.md) · [한국어](./release-notes/ko/v1.1.3.md)
 
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
+| v1.1.3 | [Read →](./release-notes/v1.1.3.md) | [읽기 →](./release-notes/ko/v1.1.3.md) | Distributable (shipped): per-OS standalone executables (Node SEA) attached to the GitHub Release, automated `release.yml` pipeline, README downloads, Tauri desktop scaffold. (v1.1.0–1.1.2 were release-pipeline hotfixes.) |
 | v1.0.0 | [Read →](./release-notes/v1.0.0.md) | [읽기 →](./release-notes/ko/v1.0.0.md) | Stable Local Release: frozen config/session contracts, `.ai-session/` artifact validation (`doctor --deep`), full command reference (`docs/COMMANDS.md` EN+KO), finalized Agent Room set with read-only `/diagnose`. |
 | v0.9.0 | [Read →](./release-notes/v0.9.0.md) | [읽기 →](./release-notes/ko/v0.9.0.md) | Automation & Runtime (bounded): `LoopController`, `/continue --max-steps N`, `/replan`, `relay-baton replay` / room `/replay`, adaptive per-agent compression thresholds. |
 | v0.8.0 | [Read →](./release-notes/v0.8.0.md) | [읽기 →](./release-notes/ko/v0.8.0.md) | Adapter Expansion + Agent Room (first cut): OpenCode/Gemini/Aider scaffolds, project-level fallback overrides, OS CI matrix, `relay-baton chat`/`room` (turn-based, confirmation-first REPL). |

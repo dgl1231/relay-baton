@@ -30,16 +30,23 @@ commit/push/PR, deterministic compaction only.**
   reference + i18n parity, artifact stability guarantees, complete doctor/verify.
 - **v1.1** — Distributable: standalone single-file executables per OS, automated
   GitHub Release pipeline, README downloads, Tauri desktop shell (scaffold).
+  Shipped on tag `v1.1.3` (v1.1.0–1.1.2 were release-pipeline hotfixes; see
+  [`RELEASE.md`](./RELEASE.md) gotchas).
 
-## v1.1 — Distributable (current)
+## v1.1 — Distributable (shipped, v1.1.3)
 
 Make relay-baton something you **download and run**, not only something you
 build. The CLI stays the engine; new surfaces are thin shells over it.
 
+> ✅ **Done.** The `v1.1.3` Release carries working `relay-baton-linux-x64`,
+> `relay-baton-macos-arm64`, `relay-baton-windows-x64.exe`. Operational details
+> and the four hard-won CI gotchas live in [`RELEASE.md`](./RELEASE.md).
+
 - [x] **Standalone executables** — single-file binaries for linux-x64 /
   macos-arm64 / windows-x64 built with Node SEA (no runtime install needed).
-  Bundling (esbuild) and injection (postject) run via `npx` so the repo lockfile
-  and the build/test CI stay untouched. See [`bin/sea-config.json`](../bin/sea-config.json).
+  Bundling (esbuild) and injection (postject) use globally-installed, version-
+  pinned tools so the repo lockfile and the build/test CI stay untouched. See
+  [`bin/sea-config.json`](../bin/sea-config.json) and [`RELEASE.md`](./RELEASE.md).
 - [x] **Release pipeline** — [`.github/workflows/release.yml`](../.github/workflows/release.yml)
   builds the matrix on every `v*` tag and attaches the binaries to the GitHub
   Release (default `GITHUB_TOKEN` only; no npm publish, no secrets).
@@ -50,20 +57,60 @@ build. The CLI stays the engine; new surfaces are thin shells over it.
   `relay-baton status/budget --json`. No logic duplicated; all hard constraints
   intact. Full GUI is v1.2.
 
-## v1.2 — Desktop GUI
+## v1.2 — Desktop GUI (next)
 
-Grow the scaffold into a real, distributable desktop app — the "opencode /
-Claude Code-style UI" without re-implementing any engine logic.
+Grow the `desktop/` scaffold into a real, distributable desktop app — the
+"opencode / Claude Code-style UI" — **without re-implementing any engine logic**.
+The webview only ever calls the CLI sidecar; all business logic stays in
+`packages/core`. Same hard constraints as everywhere else: subprocess-only,
+read-only or confirmation-first, no auto commit/push/PR.
 
-- [ ] Bundle the desktop app in the Release pipeline (Tauri build job consuming
-  the same SEA sidecar binaries) → per-release `.dmg` / `.msi` / `.AppImage`.
-- [ ] Project switcher + diet selector + budget panel (mirrors the Ink TUI,
-  display-first).
-- [ ] Handoff preview pane (renders `.ai-session/handoff.md` read-only).
-- [ ] Agent Room view — confirmation-first, prompt preview before any real run
-  (same safety model as the CLI room; never an autopilot).
-- [ ] Code-signing / notarization story documented (binaries ship ad-hoc-signed
-  until then).
+Phased so each phase is shippable on its own.
+
+### Phase A — make it build & ship (foundation)
+
+- [ ] **`desktop/` builds locally.** Add `package.json` (Tauri CLI dev dep) or
+  document the `cargo tauri` path; generate real icons (`cargo tauri icon`);
+  confirm `cargo tauri dev` opens the window and the sidecar calls succeed.
+- [ ] **Sidecar staging script** — a small script that copies the right
+  `relay-baton-<triple>` binary into `desktop/src-tauri/binaries/`
+  (see [`../desktop/src-tauri/binaries/README.md`](../desktop/src-tauri/binaries/README.md)).
+- [ ] **Desktop release job** — extend [`release.yml`](../.github/workflows/release.yml)
+  with a job that, after the SEA binaries exist, runs `tauri build` per-OS and
+  attaches `.dmg` / `.msi` / `.AppImage` to the same GitHub Release.
+- [ ] README: add desktop downloads next to the CLI binary table.
+
+### Phase B — read-only dashboard (display-first, mirrors the Ink TUI)
+
+- [ ] **Project switcher** — list registry projects, switch active (calls
+  `project list` / `project switch`).
+- [ ] **Status + budget panels** — already prototyped in `ui/index.html`; polish
+  into real panels (`status --json`, `budget --json`).
+- [ ] **Diet selector** — pick caveman/balanced/rich (display + pass-through to
+  the next CLI call; no logic in the UI).
+- [ ] **Handoff preview pane** — render the latest `.ai-session/handoff.md`
+  read-only (via a CLI read command; never write from the UI).
+
+### Phase C — Agent Room view (confirmation-first, never autopilot)
+
+- [ ] **Conversation view** over `conversation.jsonl` (reuse `replay`) with the
+  labeled user / claude / codex / relay-baton roles.
+- [ ] **Prompt preview before any real run**, identical safety model to the CLI
+  room — explicit confirm, bounded `/continue --max-steps`, no unbounded loop.
+- [ ] Wire `/plan` `/execute` `/review` `/diagnose` `/handoff` as buttons that
+  shell out to the same commands.
+
+### Phase D — signing & polish
+
+- [ ] **Code-signing / notarization story documented.** Until real certs exist,
+  binaries ship ad-hoc-signed (macOS) / unsigned (Win) — document the Gatekeeper
+  / SmartScreen workaround in `RELEASE.md`.
+- [ ] Window state persistence, dark/light, basic keyboard shortcuts mirroring
+  the TUI keys.
+
+**Definition of done for v1.2:** a user can download a desktop app from the
+release page, open it, switch projects, see status/budget/handoff, and trigger a
+confirmation-first agent run — all through the CLI sidecar, zero duplicated logic.
 
 ## v1.3 — Distribution polish
 
