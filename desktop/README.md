@@ -27,6 +27,8 @@ confirmation-first and never spawns an agent itself (see
 **v1.3 direction** — add an in-app Agent Room composer/check surface and make
 session state visibly project-scoped, still through the CLI sidecar only. See
 [`docs/TASK-v1.3-desktop-chat-sessions.md`](../docs/TASK-v1.3-desktop-chat-sessions.md).
+First cut is implemented in `desktop/ui/index.html`: slash-command checks run
+through the sidecar, while agent-launching commands stay preview/confirm-first.
 
 It lives outside the pnpm workspace (`desktop/`, not `packages/`) so the
 TypeScript build and test CI are unaffected and you only need the Rust/Tauri

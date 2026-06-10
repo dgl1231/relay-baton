@@ -155,11 +155,11 @@ safety model. The current desktop timeline is read-only (`replay --json`); v1.3
 should add a composer/check surface while keeping the CLI/core as the source of
 truth. See [`TASK-v1.3-desktop-chat-sessions.md`](./TASK-v1.3-desktop-chat-sessions.md).
 
-- [ ] **Desktop conversation composer** — add an input area under the Agent Room
+- [x] **Desktop conversation composer (first cut)** — add an input area under the Agent Room
   timeline for slash-command style checks (`/status`, `/budget`, `/review`,
   `/diagnose`, `/replay`) and clearly marked preview/confirm actions for agent-
   launching commands (`/plan`, `/execute`, `/handoff`).
-- [ ] **Project-scoped session context** — make the active project/session
+- [x] **Project-scoped session context (first cut)** — make the active project/session
   explicit in the conversation panel and refresh status, budget, handoff, and
   timeline when the project changes.
 - [ ] **CLI JSON/session surfaces where needed** — add small, tested CLI JSON

@@ -9,8 +9,8 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-10 — v1.3 planning doc added for desktop in-app
-conversation/check UI and project-scoped sessions._
+_Last updated: 2026-06-10 — v1.3 first cut started: desktop Agent Room composer
+and project/session badges added._
 
 ## Where we are
 
@@ -104,11 +104,11 @@ classifier** (CLAUDE.md forbids auto-push; needs explicit human OK). Pending:
 v1.2.0-alpha.0` — the tag is what first exercises `build-desktop` in CI (watch
 all six jobs, mind the v1.1.0 YAML gotcha).
 
-**Next:** v1.3 should bring the CLI Agent Room workflow into the desktop app:
-add a composer/check surface under the read-only timeline, keep real agent
-actions confirmation-first, and make displayed session state clearly scoped to
-the selected project. The implementation work order is
-[`TASK-v1.3-desktop-chat-sessions.md`](./TASK-v1.3-desktop-chat-sessions.md).
+**Next:** harden the v1.3 desktop composer in a real Tauri window: verify
+read-only slash commands (`/status`, `/budget`, `/review`, `/diagnose`,
+`/replay`), confirm preview-only behavior for `/plan`, `/execute`, `/handoff`,
+and decide whether to add CLI-backed user-note persistence. The implementation
+work order remains [`TASK-v1.3-desktop-chat-sessions.md`](./TASK-v1.3-desktop-chat-sessions.md).
 
 Hard rule for v1.2: the GUI calls the CLI sidecar only. **No business logic in
 the webview.** Read-only or confirmation-first. (Matches `CLAUDE.md`: TUI/GUI

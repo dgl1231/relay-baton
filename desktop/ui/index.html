@@ -93,6 +93,12 @@
 
       /* conversation timeline */
       .timeline { display: flex; flex-direction: column; gap: 8px; max-height: 360px; overflow: auto; }
+      .room-head { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 10px; }
+      .badge {
+        border: 1px solid var(--border2); border-radius: 999px; padding: 3px 8px;
+        background: var(--inset); color: var(--muted); font-size: 12px;
+      }
+      .badge strong { color: var(--fg); font-weight: 600; }
       .ev { display: grid; grid-template-columns: max-content 1fr; gap: 10px; font-size: 13px; }
       .ev .who { white-space: nowrap; }
       .ev .role { font-weight: 600; }
@@ -124,6 +130,19 @@
       .confirm .run { background: var(--accent); color: #fff; }
       .confirm .copy { background: var(--border); border: 1px solid var(--border2); color: var(--fg); }
       .confirm .cancel { background: transparent; border: 1px solid var(--border2); color: var(--fg); }
+      .composer {
+        margin-top: 12px; display: grid; grid-template-columns: 1fr max-content; gap: 8px;
+      }
+      .composer input {
+        min-width: 0; background: var(--inset); color: var(--fg);
+        border: 1px solid var(--border2); border-radius: 6px; padding: 8px 10px;
+        font: inherit; font-size: 13px;
+      }
+      .hints { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+      .hints button {
+        background: var(--border); border: 1px solid var(--border2); color: var(--fg);
+        padding: 4px 8px; font-size: 12px;
+      }
 
       /* keyboard-shortcut help overlay */
       .overlay {
@@ -197,9 +216,18 @@
       </div>
       <div class="card wide">
         <h2><span data-i18n="agentRoom">agent room</span> <span class="muted" data-i18n="timelineSubtitle">— conversation timeline (read-only)</span></h2>
+        <div class="room-head">
+          <span class="badge"><span data-i18n="activeProject">project</span>: <strong id="room-project">-</strong></span>
+          <span class="badge"><span data-i18n="sessionState">session</span>: <strong id="room-session">-</strong></span>
+        </div>
         <div class="actions" id="actions"></div>
         <div class="confirm" id="confirm"></div>
         <div id="timeline" class="timeline">loading…</div>
+        <div class="composer">
+          <input id="composer" data-i18n-placeholder="composerPlaceholder" placeholder="/status, /budget, /review, /diagnose, /replay..." />
+          <button id="send" data-i18n="send">Send</button>
+        </div>
+        <div class="hints" id="hints"></div>
       </div>
     </main>
 
@@ -220,6 +248,7 @@
       const $ = (id) => document.getElementById(id);
       let currentProjects = [];
       let activeProjectId = null;
+      let currentStatus = null;
 
       const STRINGS = {
         en: {
@@ -250,7 +279,19 @@
           budget: "budget",
           handoff: "handoff",
           agentRoom: "agent room",
-          timelineSubtitle: "— conversation timeline (read-only)",
+          timelineSubtitle: "— conversation workspace",
+          activeProject: "project",
+          sessionState: "session",
+          composerPlaceholder: "/status, /budget, /review, /diagnose, /replay...",
+          send: "Send",
+          initSession: "Init session",
+          noSessionState: "no .ai-session",
+          noProjectShort: "none",
+          sessionReady: "ready",
+          previewOnly: "preview only",
+          readOnlyResult: "read-only result",
+          unsupportedCommand: "Unsupported command. Try /status, /budget, /review, /diagnose, /replay, /plan <task>, /execute, or /handoff.",
+          plainTextUnsupported: "Plain text notes need a CLI append command first. Use a slash command for now.",
           loading: "loading…",
           cwdProject: "(cwd — no registered projects)",
           unavailable: "(unavailable)",
@@ -309,7 +350,19 @@
           budget: "budget",
           handoff: "handoff",
           agentRoom: "agent room",
-          timelineSubtitle: "— 대화 타임라인 (읽기 전용)",
+          timelineSubtitle: "— 대화 작업공간",
+          activeProject: "프로젝트",
+          sessionState: "세션",
+          composerPlaceholder: "/status, /budget, /review, /diagnose, /replay...",
+          send: "전송",
+          initSession: "세션 초기화",
+          noSessionState: ".ai-session 없음",
+          noProjectShort: "없음",
+          sessionReady: "준비됨",
+          previewOnly: "미리보기 전용",
+          readOnlyResult: "읽기 전용 결과",
+          unsupportedCommand: "지원하지 않는 명령입니다. /status, /budget, /review, /diagnose, /replay, /plan <task>, /execute, /handoff 중 하나를 사용하세요.",
+          plainTextUnsupported: "일반 텍스트 기록은 CLI append 명령이 먼저 필요합니다. 지금은 slash command를 사용하세요.",
           loading: "로딩 중…",
           cwdProject: "(cwd — 등록된 프로젝트 없음)",
           unavailable: "(사용 불가)",
@@ -368,7 +421,19 @@
           budget: "budget",
           handoff: "handoff",
           agentRoom: "agent room",
-          timelineSubtitle: "— 会話タイムライン (読み取り専用)",
+          timelineSubtitle: "— 会話ワークスペース",
+          activeProject: "プロジェクト",
+          sessionState: "セッション",
+          composerPlaceholder: "/status, /budget, /review, /diagnose, /replay...",
+          send: "送信",
+          initSession: "セッション初期化",
+          noSessionState: ".ai-sessionなし",
+          noProjectShort: "なし",
+          sessionReady: "準備完了",
+          previewOnly: "プレビューのみ",
+          readOnlyResult: "読み取り専用結果",
+          unsupportedCommand: "未対応のコマンドです。/status, /budget, /review, /diagnose, /replay, /plan <task>, /execute, /handoffを使ってください。",
+          plainTextUnsupported: "通常テキストの記録には先にCLI appendコマンドが必要です。今はslash commandを使ってください。",
           loading: "読み込み中…",
           cwdProject: "(cwd — 登録プロジェクトなし)",
           unavailable: "(利用不可)",
@@ -427,7 +492,19 @@
           budget: "budget",
           handoff: "handoff",
           agentRoom: "agent room",
-          timelineSubtitle: "— 对话时间线 (只读)",
+          timelineSubtitle: "— 对话工作区",
+          activeProject: "项目",
+          sessionState: "会话",
+          composerPlaceholder: "/status, /budget, /review, /diagnose, /replay...",
+          send: "发送",
+          initSession: "初始化会话",
+          noSessionState: "无 .ai-session",
+          noProjectShort: "无",
+          sessionReady: "就绪",
+          previewOnly: "仅预览",
+          readOnlyResult: "只读结果",
+          unsupportedCommand: "不支持的命令。请使用 /status, /budget, /review, /diagnose, /replay, /plan <task>, /execute, 或 /handoff。",
+          plainTextUnsupported: "普通文本记录需要先有CLI append命令。现在请使用slash command。",
           loading: "加载中…",
           cwdProject: "(cwd — 没有注册项目)",
           unavailable: "(不可用)",
@@ -471,7 +548,9 @@
         $("lang").value = lang;
         document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
         document.querySelectorAll("[data-i18n-title]").forEach((el) => { el.title = t(el.dataset.i18nTitle); });
+        document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => { el.placeholder = t(el.dataset.i18nPlaceholder); });
         renderActions();
+        renderHints();
       }
 
       async function cli(args) {
@@ -499,6 +578,38 @@
         }
       }
 
+      function activeProject() {
+        return currentProjects.find((p) => p.id === activeProjectId) ?? null;
+      }
+
+      function updateRoomContext() {
+        const p = activeProject();
+        $("room-project").textContent = p ? p.name : t("noProjectShort");
+        $("room-session").textContent = currentStatus?.session
+          ? (currentStatus.status || t("sessionReady"))
+          : t("noSessionState");
+        const enabled = Boolean(p);
+        $("composer").disabled = !enabled;
+        $("send").disabled = !enabled;
+      }
+
+      function appendLocalEvent(role, kind, text) {
+        const el = $("timeline");
+        if (el.children.length === 1 && el.firstElementChild?.classList.contains("muted")) el.innerHTML = "";
+        const row = document.createElement("div"); row.className = "ev";
+        const who = document.createElement("div"); who.className = "who";
+        const roleEl = document.createElement("span");
+        roleEl.className = "role role-" + String(role).replace(/[^a-z-]/gi, "").toLowerCase();
+        roleEl.textContent = role;
+        const kindEl = document.createElement("div"); kindEl.className = "kind"; kindEl.textContent = kind;
+        const ts = document.createElement("div"); ts.className = "ts"; ts.textContent = new Date().toISOString();
+        who.append(roleEl, kindEl, ts);
+        const body = document.createElement("div"); body.className = "text"; body.textContent = text;
+        row.append(who, body);
+        el.appendChild(row);
+        el.scrollTop = el.scrollHeight;
+      }
+
       async function loadProjects() {
         const sel = $("project");
         try {
@@ -510,6 +621,7 @@
             sel.append(new Option(t("cwdProject"), ""));
             sel.disabled = true;
             $("remove-project").disabled = true;
+            updateRoomContext();
             return;
           }
           sel.disabled = false;
@@ -517,6 +629,7 @@
           for (const p of data.projects) {
             sel.append(new Option(p.name, p.id, false, p.id === data.activeProjectId));
           }
+          updateRoomContext();
         } catch (err) {
           currentProjects = [];
           activeProjectId = null;
@@ -524,6 +637,7 @@
           sel.append(new Option(t("unavailable"), ""));
           sel.disabled = true;
           $("remove-project").disabled = true;
+          updateRoomContext();
         }
       }
 
@@ -531,17 +645,23 @@
         const el = $("status");
         try {
           const s = await cliJson(["status", "--json"]);
+          currentStatus = s;
           kvRows(el, [
-            ["task", s.task],
-            ["status", s.status],
-            ["agents", `${s.primaryAgent} -> ${s.fallbackAgent}`],
-            ["last agent", s.lastAgent],
-            ["diet", s.tokenDietProfile],
-            ["changed files", s.changedFiles],
-            ["handoff", s.handoffExists ? "yes" : "no"],
-            ["last error", s.lastError],
+            ["task", s.session ? s.task : null],
+            ["status", s.session ? s.status : t("noSessionState")],
+            ["agents", s.session ? `${s.primaryAgent} -> ${s.fallbackAgent}` : "-"],
+            ["last agent", s.session ? s.lastAgent : "-"],
+            ["diet", s.session ? s.tokenDietProfile : "-"],
+            ["changed files", s.session ? s.changedFiles : "-"],
+            ["handoff", s.session ? (s.handoffExists ? "yes" : "no") : "-"],
+            ["last error", s.session ? s.lastError : "-"],
           ]);
-        } catch (err) { showError(el, err); }
+          updateRoomContext();
+        } catch (err) {
+          currentStatus = null;
+          updateRoomContext();
+          showError(el, err);
+        }
       }
 
       async function loadBudget() {
@@ -607,6 +727,7 @@
             row.append(who, text);
             el.appendChild(row);
           }
+          el.scrollTop = el.scrollHeight;
         } catch (err) { showError(el, err); }
       }
 
@@ -635,6 +756,27 @@
           b.title = t(a.noteKey);
           b.addEventListener("click", () => openConfirm(a));
           bar.appendChild(b);
+        }
+      }
+
+      function renderHints() {
+        const hints = $("hints");
+        if (!hints) return;
+        hints.innerHTML = "";
+        for (const cmd of ["/status", "/budget", "/review", "/diagnose", "/replay", "/plan ", "/execute", "/handoff"]) {
+          const b = document.createElement("button");
+          b.textContent = cmd.trim();
+          b.addEventListener("click", () => {
+            $("composer").value = cmd;
+            $("composer").focus();
+          });
+          hints.appendChild(b);
+        }
+        if (!currentStatus?.session) {
+          const init = document.createElement("button");
+          init.textContent = t("initSession");
+          init.addEventListener("click", initSession);
+          hints.appendChild(init);
         }
       }
 
@@ -682,6 +824,93 @@
 
       async function refresh() {
         await Promise.all([loadProjects(), loadStatus(), loadBudget(), loadHandoff(), loadTimeline()]);
+        updateRoomContext();
+        renderHints();
+      }
+
+      async function initSession() {
+        const p = activeProject();
+        if (!p) { openErrorConfirm(new Error(t("noProject"))); return; }
+        appendLocalEvent("user", "command", "relay-baton init");
+        try {
+          const out = await cli(["init", "--project", p.id]);
+          appendLocalEvent("relay-baton", "status", out.trim() || t("noOutput"));
+          await refresh();
+        } catch (err) {
+          appendLocalEvent("relay-baton", "error", String(err?.message ?? err));
+        }
+      }
+
+      async function runComposerCommand() {
+        const input = $("composer");
+        const raw = input.value.trim();
+        if (!raw) return;
+        input.value = "";
+        appendLocalEvent("user", "command", raw);
+        if (!raw.startsWith("/")) {
+          appendLocalEvent("relay-baton", "status", t("plainTextUnsupported"));
+          return;
+        }
+
+        const [cmd, ...rest] = raw.slice(1).split(/\s+/);
+        const argText = rest.join(" ").trim();
+        try {
+          switch (cmd) {
+            case "status": {
+              const s = await cliJson(["status", "--json"]);
+              currentStatus = s;
+              appendLocalEvent("relay-baton", "status", JSON.stringify(s, null, 2));
+              updateRoomContext();
+              renderHints();
+              break;
+            }
+            case "budget": {
+              const b = await cliJson(["budget", "--json"]);
+              appendLocalEvent("relay-baton", "budget", JSON.stringify(b, null, 2));
+              await loadBudget();
+              break;
+            }
+            case "review": {
+              const r = await cliJson(["review", "--json"]);
+              appendLocalEvent("relay-baton", "review", JSON.stringify(r, null, 2));
+              await loadTimeline();
+              break;
+            }
+            case "diagnose":
+            case "doctor": {
+              const out = await cli(["doctor", "--deep"]);
+              appendLocalEvent("relay-baton", "diagnose", out.trim() || t("noOutput"));
+              break;
+            }
+            case "replay": {
+              await loadTimeline();
+              appendLocalEvent("relay-baton", "status", t("readOnlyResult"));
+              break;
+            }
+            case "plan": {
+              const args = ["plan", argText || "<task>"];
+              openConfirm({ labelKey: "actionPlan", args, readonly: false, noteKey: "notePlan" });
+              appendLocalEvent("relay-baton", "prompt_preview", `${t("previewOnly")}: ${fmtCmd(args)}`);
+              break;
+            }
+            case "execute": {
+              const args = ["execute"];
+              openConfirm({ labelKey: "actionExecute", args, readonly: false, noteKey: "noteExecute" });
+              appendLocalEvent("relay-baton", "prompt_preview", `${t("previewOnly")}: ${fmtCmd(args)}`);
+              break;
+            }
+            case "handoff": {
+              const args = ["handoff", "--to", "claude", "--no-run"];
+              openConfirm({ labelKey: "actionHandoff", args, readonly: false, noteKey: "noteHandoff" });
+              appendLocalEvent("relay-baton", "prompt_preview", `${t("previewOnly")}: ${fmtCmd(args)}`);
+              break;
+            }
+            default:
+              appendLocalEvent("relay-baton", "status", t("unsupportedCommand"));
+          }
+        } catch (err) {
+          appendLocalEvent("relay-baton", "error", String(err?.message ?? err));
+        }
       }
 
       async function chooseProjectFolder() {
@@ -745,6 +974,12 @@
         catch (err) { openErrorConfirm(err); }
       });
       $("remove-project").addEventListener("click", openRemoveProjectConfirm);
+      $("send").addEventListener("click", runComposerCommand);
+      $("composer").addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        runComposerCommand();
+      });
 
       $("diet").value = localStorage.getItem("rb-diet") ?? "caveman";
       $("diet").addEventListener("change", (e) => localStorage.setItem("rb-diet", e.target.value));
