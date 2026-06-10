@@ -9,8 +9,9 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-10 — v1.3 alpha completed: desktop Agent Room composer
-persists project-scoped conversation events via the CLI sidecar._
+_Last updated: 2026-06-10 — v1.3.0-alpha.1: Agent Room UX revamp (tabs,
+full-height chat, handoff modal, slash-command palette, `?` usage guide,
+en/ko/ja/zh). Cutting the tag; the GUI is read-only / sidecar-only as ever._
 
 ## Where we are
 
