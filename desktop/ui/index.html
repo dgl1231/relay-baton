@@ -23,11 +23,15 @@
         --hot: #cf222e; --err: #cf222e; --amber: #9a6700;
         --user: #0969da; --claude: #8250df; --codex: #1a7f37;
       }
+      html, body { height: 100%; }
       body {
         margin: 0;
         font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
         background: var(--bg);
         color: var(--fg);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
       }
       header {
         padding: 14px 20px;
@@ -40,13 +44,29 @@
       header h1 { font-size: 16px; margin: 0; font-weight: 600; }
       header .tag { font-size: 12px; color: var(--muted); }
       header .spacer { flex: 1; }
-      main {
-        padding: 20px;
-        display: grid;
-        gap: 16px;
-        grid-template-columns: 1fr 1fr;
+      main { flex: 1; min-height: 0; display: flex; }
+      .view { display: none; flex: 1; min-height: 0; }
+      .view.active { display: flex; }
+      #view-dashboard {
+        padding: 20px; gap: 16px;
+        display: none; grid-template-columns: 1fr 1fr; align-content: start;
+        overflow: auto;
       }
-      @media (max-width: 760px) { main { grid-template-columns: 1fr; } }
+      #view-dashboard.active { display: grid; }
+      @media (max-width: 760px) { #view-dashboard { grid-template-columns: 1fr; } }
+      /* tabs */
+      .tabs { display: flex; gap: 4px; padding: 0 20px; border-bottom: 1px solid var(--border); }
+      .tab {
+        background: transparent; color: var(--muted); border: 0; border-bottom: 2px solid transparent;
+        border-radius: 0; padding: 10px 14px; font-size: 13px;
+      }
+      .tab:hover { background: transparent; color: var(--fg); }
+      .tab.active { color: var(--fg); border-bottom-color: var(--accent); }
+      /* agent room view — timeline fills the height */
+      #view-room { flex-direction: column; padding: 16px 20px; gap: 10px; }
+      .room-strip { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+      #view-room .timeline { flex: 1; min-height: 0; max-height: none; }
+      .hints button[title] { cursor: help; }
       .card {
         border: 1px solid var(--border);
         border-radius: 8px;
@@ -138,6 +158,20 @@
         border: 1px solid var(--border2); border-radius: 6px; padding: 8px 10px;
         font: inherit; font-size: 13px;
       }
+      .composer-wrap { position: relative; }
+      .cmd-palette {
+        display: none; position: absolute; left: 0; right: 0; bottom: 100%; margin-bottom: 6px;
+        background: var(--panel); border: 1px solid var(--border2); border-radius: 8px;
+        max-height: 280px; overflow: auto; z-index: 5; padding: 4px;
+      }
+      .cmd-palette.show { display: block; }
+      .cmd-item {
+        display: grid; grid-template-columns: 130px 1fr; gap: 10px;
+        padding: 7px 10px; border-radius: 6px; cursor: pointer; align-items: baseline;
+      }
+      .cmd-item:hover, .cmd-item.active { background: var(--border); }
+      .cmd-item .c { color: var(--accent); font-weight: 600; font-size: 13px; }
+      .cmd-item .d { color: var(--muted); font-size: 12px; line-height: 1.4; }
       .hints { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
       .hints button {
         background: var(--border); border: 1px solid var(--border2); color: var(--fg);
@@ -154,8 +188,23 @@
         background: var(--panel); border: 1px solid var(--border2);
         border-radius: 10px; padding: 20px 24px; min-width: 280px;
       }
-      .overlay h3 { margin: 0 0 12px; font-size: 14px; }
+      .overlay h3 { margin: 0 0 12px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+      .overlay h3 .spacer { flex: 1; }
       .overlay .kv { gap: 8px 18px; }
+      .handoff-box { width: min(820px, 90vw); max-height: 82vh; display: flex; flex-direction: column; }
+      .handoff-box pre.scroll { max-height: none; overflow: auto; flex: 1; }
+      .help-box { width: min(680px, 92vw); max-height: 84vh; overflow: auto; }
+      .help-box h4 { margin: 18px 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+      .help-box p { margin: 0 0 4px; font-size: 13px; line-height: 1.5; }
+      .guide-sec { margin-bottom: 6px; }
+      .guide-row { display: grid; grid-template-columns: 150px 1fr; gap: 10px; font-size: 13px; padding: 4px 0; align-items: start; }
+      .guide-row .term { color: var(--fg); font-weight: 600; }
+      .guide-row .term code, code.inline {
+        background: var(--inset); border: 1px solid var(--border2); border-radius: 4px;
+        padding: 0 5px; font-size: 12px;
+      }
+      .guide-row .desc { color: var(--muted); line-height: 1.5; }
+      @media (max-width: 560px) { .guide-row { grid-template-columns: 1fr; gap: 2px; } }
     </style>
   </head>
   <body>
@@ -181,54 +230,80 @@
         <option>off</option><option>lite</option><option>balanced</option>
         <option selected>caveman</option><option>ultra</option>
       </select>
+      <button id="open-handoff" class="ghost" data-i18n="handoff" data-i18n-title="handoffTitle">handoff</button>
       <button id="theme" class="ghost" data-i18n-title="themeTitle">◐</button>
       <button id="help" class="ghost" data-i18n-title="helpTitle">?</button>
       <button id="refresh" data-i18n="refresh">Refresh</button>
     </header>
 
+    <div class="overlay" id="handoff-overlay">
+      <div class="box handoff-box">
+        <h3>
+          <span data-i18n="handoff">handoff</span>
+          <span class="muted" id="handoff-meta"></span>
+          <span class="spacer"></span>
+          <button id="handoff-close" class="ghost" data-i18n="close">Close</button>
+        </h3>
+        <pre id="handoff" class="scroll">loading…</pre>
+      </div>
+    </div>
+
     <div class="overlay" id="overlay">
-      <div class="box">
-        <h3 data-i18n="shortcutsTitle">Keyboard shortcuts</h3>
+      <div class="box help-box">
+        <h3>
+          <span data-i18n="guideTitle">How to use relay-baton</span>
+          <span class="spacer"></span>
+          <button id="help-close" class="ghost" data-i18n="close">Close</button>
+        </h3>
+        <p class="muted" data-i18n="guideIntro">Read-only desktop window over the relay-baton CLI. It only reads/previews — it never runs an agent or writes your repo.</p>
+        <div id="guide"></div>
+        <h4 data-i18n="shortcutsTitle">Keyboard shortcuts</h4>
         <div class="kv">
           <span class="kbd">r</span><span data-i18n="shortcutRefresh">refresh everything</span>
           <span class="kbd">p</span><span data-i18n="shortcutProject">next project</span>
           <span class="kbd">d</span><span data-i18n="shortcutDiet">cycle diet profile</span>
           <span class="kbd">b</span><span data-i18n="shortcutBudget">reload budget</span>
-          <span class="kbd">h</span><span data-i18n="shortcutHandoff">reload handoff</span>
+          <span class="kbd">h</span><span data-i18n="shortcutHandoff">open handoff</span>
           <span class="kbd">t</span><span data-i18n="shortcutTheme">toggle light / dark</span>
           <span class="kbd">q</span><span data-i18n="shortcutQuit">quit window</span>
           <span class="kbd">?</span><span data-i18n="shortcutHelp">this help</span>
         </div>
       </div>
     </div>
+    <nav class="tabs">
+      <button id="tab-dashboard" class="tab active" data-i18n="tabDashboard">Dashboard</button>
+      <button id="tab-room" class="tab" data-i18n="tabRoom">Agent Room</button>
+    </nav>
     <main>
-      <div class="card">
-        <h2 data-i18n="status">status</h2>
-        <div id="status" class="kv">loading…</div>
-      </div>
-      <div class="card">
-        <h2 data-i18n="budget">budget</h2>
-        <div id="budget">loading…</div>
-      </div>
-      <div class="card wide">
-        <h2><span data-i18n="handoff">handoff</span> <span class="muted" id="handoff-meta"></span></h2>
-        <pre id="handoff" class="scroll">loading…</pre>
-      </div>
-      <div class="card wide">
-        <h2><span data-i18n="agentRoom">agent room</span> <span class="muted" data-i18n="timelineSubtitle">— conversation timeline (read-only)</span></h2>
-        <div class="room-head">
+      <section id="view-dashboard" class="active">
+        <div class="card">
+          <h2 data-i18n="status">status</h2>
+          <div id="status" class="kv">loading…</div>
+        </div>
+        <div class="card">
+          <h2 data-i18n="budget">budget</h2>
+          <div id="budget">loading…</div>
+        </div>
+      </section>
+
+      <section id="view-room" class="view">
+        <div class="room-strip">
           <span class="badge"><span data-i18n="activeProject">project</span>: <strong id="room-project">-</strong></span>
           <span class="badge"><span data-i18n="sessionState">session</span>: <strong id="room-session">-</strong></span>
+          <span class="badge"><span data-i18n="status">status</span>: <strong id="room-status-val">-</strong></span>
+          <span class="badge"><span data-i18n="budget">budget</span>: <strong id="room-budget-val">-</strong></span>
         </div>
-        <div class="actions" id="actions"></div>
         <div class="confirm" id="confirm"></div>
         <div id="timeline" class="timeline">loading…</div>
-        <div class="composer">
-          <input id="composer" data-i18n-placeholder="composerPlaceholder" placeholder="/status, /budget, /review, /diagnose, /replay..." />
-          <button id="send" data-i18n="send">Send</button>
+        <div class="composer-wrap">
+          <div id="cmd-palette" class="cmd-palette"></div>
+          <div class="composer">
+            <input id="composer" autocomplete="off" data-i18n-placeholder="composerPlaceholder" placeholder="/status, /budget, /review, /diagnose, /replay..." />
+            <button id="send" data-i18n="send">Send</button>
+          </div>
         </div>
         <div class="hints" id="hints"></div>
-      </div>
+      </section>
     </main>
 
     <script type="module">
@@ -249,6 +324,7 @@
       let currentProjects = [];
       let activeProjectId = null;
       let currentStatus = null;
+      let currentBudget = null;
 
       const STRINGS = {
         en: {
@@ -271,7 +347,8 @@
           shortcutProject: "next project",
           shortcutDiet: "cycle diet profile",
           shortcutBudget: "reload budget",
-          shortcutHandoff: "reload handoff",
+          shortcutHandoff: "open handoff",
+          handoffTitle: "open the latest handoff (read-only)",
           shortcutTheme: "toggle light / dark",
           shortcutQuit: "quit window",
           shortcutHelp: "this help",
@@ -319,6 +396,30 @@
           noteHandoff: "Generates a handoff document. Run from your terminal.",
           notePlan: "Launches the planner agent. Run from your terminal.",
           noteExecute: "Launches the executor agent. Run from your terminal.",
+          noteBudget: "Context budget usage. No model call.",
+          noteReplay: "Reload the conversation timeline. No model call.",
+          tabDashboard: "Dashboard",
+          tabRoom: "Agent Room",
+          guideTitle: "How to use relay-baton",
+          guideIntro: "A read-only desktop window over the relay-baton CLI. It only reads and previews — it never runs an agent or writes to your repo.",
+          guideSecTabs: "Tabs",
+          guideTabDash: "Session status and context-budget panels at a glance.",
+          guideTabRoom: "Conversation timeline plus a command box to drive the CLI.",
+          guideSecProject: "Projects",
+          guideProjAdd: "Pick a folder to register it as a project (native folder picker).",
+          guideProjSwitch: "Dropdown — switch the active project; all panels refresh.",
+          guideProjRemove: "Unregister the selected project (asks to confirm first).",
+          guideSecRoom: "Agent Room",
+          guideTermMessage: "Type text",
+          guideRoomMsg: "Plain text is saved to the conversation log.",
+          guideRoomRead: "Read-only commands — run instantly here, no model call.",
+          guideRoomPreview: "Preview only — shows the command to copy; the GUI never launches an agent.",
+          guideSecMore: "More",
+          guideHandoff: "Opens the latest handoff document read-only in a popup.",
+          guideDiet: "Token-diet profile passed to future agent actions (display only).",
+          guideLang: "Interface language (English / 한국어 / 日本語 / 中文).",
+          guideTheme: "Toggle light / dark.",
+          themeWord: "theme",
           readOnlySafe: "read-only — safe to run here",
           copyTerminal: "launches an agent — copy & run in your terminal",
         },
@@ -342,7 +443,8 @@
           shortcutProject: "다음 프로젝트",
           shortcutDiet: "diet profile 순환",
           shortcutBudget: "budget 다시 읽기",
-          shortcutHandoff: "handoff 다시 읽기",
+          shortcutHandoff: "handoff 열기",
+          handoffTitle: "최신 handoff 열기 (읽기 전용)",
           shortcutTheme: "라이트/다크 전환",
           shortcutQuit: "창 닫기",
           shortcutHelp: "이 도움말",
@@ -390,6 +492,30 @@
           noteHandoff: "handoff 문서를 생성합니다. 터미널에서 실행하세요.",
           notePlan: "planner agent를 실행합니다. 터미널에서 실행하세요.",
           noteExecute: "executor agent를 실행합니다. 터미널에서 실행하세요.",
+          noteBudget: "컨텍스트 budget 사용량. 모델 호출 없음.",
+          noteReplay: "대화 타임라인 다시 읽기. 모델 호출 없음.",
+          tabDashboard: "대시보드",
+          tabRoom: "에이전트 룸",
+          guideTitle: "relay-baton 사용법",
+          guideIntro: "relay-baton CLI를 감싼 읽기 전용 데스크탑 창입니다. 읽기·미리보기만 하며, agent를 실행하거나 저장소에 쓰지 않습니다.",
+          guideSecTabs: "탭",
+          guideTabDash: "세션 상태와 컨텍스트 budget 패널을 한눈에.",
+          guideTabRoom: "대화 타임라인 + CLI를 구동하는 명령 입력창.",
+          guideSecProject: "프로젝트",
+          guideProjAdd: "폴더를 선택해 프로젝트로 등록(네이티브 폴더 선택창).",
+          guideProjSwitch: "드롭다운 — 활성 프로젝트 전환, 모든 패널 갱신.",
+          guideProjRemove: "선택한 프로젝트 등록 해제(먼저 확인을 묻습니다).",
+          guideSecRoom: "에이전트 룸",
+          guideTermMessage: "텍스트 입력",
+          guideRoomMsg: "일반 텍스트는 대화 로그에 저장됩니다.",
+          guideRoomRead: "읽기 전용 명령 — 여기서 즉시 실행, 모델 호출 없음.",
+          guideRoomPreview: "미리보기 전용 — 복사할 명령만 표시, GUI는 agent를 실행하지 않음.",
+          guideSecMore: "기타",
+          guideHandoff: "최신 handoff 문서를 팝업으로 읽기 전용 표시.",
+          guideDiet: "이후 agent 동작에 전달될 token-diet 프로필(표시 전용).",
+          guideLang: "인터페이스 언어(English / 한국어 / 日本語 / 中文).",
+          guideTheme: "라이트 / 다크 전환.",
+          themeWord: "테마",
           readOnlySafe: "읽기 전용 — 여기서 실행해도 안전",
           copyTerminal: "agent 실행 — 복사해서 터미널에서 실행",
         },
@@ -413,7 +539,8 @@
           shortcutProject: "次のプロジェクト",
           shortcutDiet: "diet profileを切り替え",
           shortcutBudget: "budgetを再読み込み",
-          shortcutHandoff: "handoffを再読み込み",
+          shortcutHandoff: "handoffを開く",
+          handoffTitle: "最新のhandoffを開く（読み取り専用）",
           shortcutTheme: "ライト/ダーク切替",
           shortcutQuit: "ウィンドウを閉じる",
           shortcutHelp: "このヘルプ",
@@ -461,6 +588,30 @@
           noteHandoff: "handoff文書を生成します。ターミナルで実行してください。",
           notePlan: "planner agentを起動します。ターミナルで実行してください。",
           noteExecute: "executor agentを起動します。ターミナルで実行してください。",
+          noteBudget: "コンテキストbudget使用量。モデル呼び出しなし。",
+          noteReplay: "会話タイムラインを再読み込み。モデル呼び出しなし。",
+          tabDashboard: "ダッシュボード",
+          tabRoom: "エージェントルーム",
+          guideTitle: "relay-baton の使い方",
+          guideIntro: "relay-baton CLI をラップした読み取り専用のデスクトップ画面です。読み取りとプレビューのみで、エージェントの実行やリポジトリへの書き込みはしません。",
+          guideSecTabs: "タブ",
+          guideTabDash: "セッション状態とコンテキストbudgetパネルを一目で。",
+          guideTabRoom: "会話タイムライン + CLIを操作するコマンド入力欄。",
+          guideSecProject: "プロジェクト",
+          guideProjAdd: "フォルダを選んでプロジェクトとして登録（ネイティブのフォルダ選択）。",
+          guideProjSwitch: "ドロップダウン — アクティブなプロジェクトを切り替え、全パネル更新。",
+          guideProjRemove: "選択したプロジェクトの登録を解除（先に確認します）。",
+          guideSecRoom: "エージェントルーム",
+          guideTermMessage: "テキスト入力",
+          guideRoomMsg: "プレーンテキストは会話ログに保存されます。",
+          guideRoomRead: "読み取り専用コマンド — ここで即実行、モデル呼び出しなし。",
+          guideRoomPreview: "プレビューのみ — コピー用コマンドを表示、GUIはエージェントを起動しません。",
+          guideSecMore: "その他",
+          guideHandoff: "最新のhandoff文書をポップアップで読み取り専用表示。",
+          guideDiet: "今後のエージェント動作に渡すtoken-dietプロファイル（表示のみ）。",
+          guideLang: "インターフェース言語（English / 한국어 / 日本語 / 中文）。",
+          guideTheme: "ライト / ダーク切り替え。",
+          themeWord: "テーマ",
           readOnlySafe: "読み取り専用 — ここで実行して安全",
           copyTerminal: "agentを起動 — コピーしてターミナルで実行",
         },
@@ -484,7 +635,8 @@
           shortcutProject: "下一个项目",
           shortcutDiet: "切换diet profile",
           shortcutBudget: "重新加载budget",
-          shortcutHandoff: "重新加载handoff",
+          shortcutHandoff: "打开handoff",
+          handoffTitle: "打开最新的handoff（只读）",
           shortcutTheme: "切换明暗模式",
           shortcutQuit: "关闭窗口",
           shortcutHelp: "此帮助",
@@ -532,6 +684,30 @@
           noteHandoff: "生成handoff文档。请在终端运行。",
           notePlan: "启动planner agent。请在终端运行。",
           noteExecute: "启动executor agent。请在终端运行。",
+          noteBudget: "上下文budget用量。无模型调用。",
+          noteReplay: "重新加载对话时间线。无模型调用。",
+          tabDashboard: "仪表板",
+          tabRoom: "智能体房间",
+          guideTitle: "relay-baton 使用方法",
+          guideIntro: "封装 relay-baton CLI 的只读桌面窗口。仅读取与预览 — 绝不运行智能体或写入你的仓库。",
+          guideSecTabs: "标签页",
+          guideTabDash: "一目了然的会话状态与上下文budget面板。",
+          guideTabRoom: "对话时间线 + 驱动 CLI 的命令输入框。",
+          guideSecProject: "项目",
+          guideProjAdd: "选择文件夹将其注册为项目（原生文件夹选择）。",
+          guideProjSwitch: "下拉框 — 切换当前项目，刷新所有面板。",
+          guideProjRemove: "注销所选项目（会先确认）。",
+          guideSecRoom: "智能体房间",
+          guideTermMessage: "输入文本",
+          guideRoomMsg: "纯文本会保存到对话日志。",
+          guideRoomRead: "只读命令 — 在此即时运行，无模型调用。",
+          guideRoomPreview: "仅预览 — 显示可复制的命令；GUI 绝不启动智能体。",
+          guideSecMore: "更多",
+          guideHandoff: "以弹窗只读方式打开最新的 handoff 文档。",
+          guideDiet: "传递给后续智能体操作的 token-diet 配置（仅显示）。",
+          guideLang: "界面语言（English / 한국어 / 日本語 / 中文）。",
+          guideTheme: "切换浅色 / 深色。",
+          themeWord: "主题",
           readOnlySafe: "只读 — 可在此安全运行",
           copyTerminal: "启动agent — 复制后在终端运行",
         },
@@ -549,8 +725,49 @@
         document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
         document.querySelectorAll("[data-i18n-title]").forEach((el) => { el.title = t(el.dataset.i18nTitle); });
         document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => { el.placeholder = t(el.dataset.i18nPlaceholder); });
-        renderActions();
         renderHints();
+        renderGuide();
+      }
+
+      // The ? overlay: a short usage guide (what each control does) plus the
+      // keyboard-shortcut table. Rebuilt on language change.
+      function renderGuide() {
+        const root = $("guide");
+        if (!root) return;
+        root.innerHTML = "";
+        const sections = [
+          { h: t("guideSecTabs"), rows: [
+            { term: t("tabDashboard"), desc: t("guideTabDash") },
+            { term: t("tabRoom"), desc: t("guideTabRoom") },
+          ] },
+          { h: t("guideSecProject"), rows: [
+            { term: t("addProject"), desc: t("guideProjAdd") },
+            { term: t("project"), desc: t("guideProjSwitch") },
+            { term: t("remove"), desc: t("guideProjRemove") },
+          ] },
+          { h: t("guideSecRoom"), rows: [
+            { term: t("guideTermMessage"), desc: t("guideRoomMsg") },
+            { term: "/status /budget /review /diagnose /replay", desc: t("guideRoomRead"), code: true },
+            { term: "/plan /execute /handoff", desc: t("guideRoomPreview"), code: true },
+          ] },
+          { h: t("guideSecMore"), rows: [
+            { term: t("handoff"), desc: t("guideHandoff") },
+            { term: t("diet"), desc: t("guideDiet") },
+            { term: t("language"), desc: t("guideLang") },
+            { term: t("themeWord"), desc: t("guideTheme") },
+          ] },
+        ];
+        for (const s of sections) {
+          const h = document.createElement("h4"); h.textContent = s.h; root.appendChild(h);
+          for (const r of s.rows) {
+            const row = document.createElement("div"); row.className = "guide-row";
+            const term = document.createElement("div"); term.className = "term";
+            if (r.code) { const c = document.createElement("code"); c.className = "inline"; c.textContent = r.term; term.appendChild(c); }
+            else term.textContent = r.term;
+            const desc = document.createElement("div"); desc.className = "desc"; desc.textContent = r.desc;
+            row.append(term, desc); root.appendChild(row);
+          }
+        }
       }
 
       async function cli(args) {
@@ -588,6 +805,16 @@
         $("room-session").textContent = currentStatus?.session
           ? (currentStatus.status || t("sessionReady"))
           : t("noSessionState");
+        $("room-status-val").textContent = currentStatus?.session
+          ? `${currentStatus.status} · ${currentStatus.changedFiles ?? 0} files`
+          : "-";
+        if (currentBudget) {
+          const used = currentBudget.used?.handoff ?? 0;
+          const max = currentBudget.maxHandoffChars || 1;
+          $("room-budget-val").textContent = `${Math.min(100, Math.round((used / max) * 100))}% · ${currentBudget.activeProfile}`;
+        } else {
+          $("room-budget-val").textContent = "-";
+        }
         const enabled = Boolean(p);
         $("composer").disabled = !enabled;
         $("send").disabled = !enabled;
@@ -672,6 +899,8 @@
         const el = $("budget");
         try {
           const b = await cliJson(["budget", "--json"]);
+          currentBudget = b;
+          updateRoomContext();
           const used = b.used?.handoff ?? 0;
           const max = b.maxHandoffChars || 1;
           const pct = Math.min(100, Math.round((used / max) * 100));
@@ -735,43 +964,33 @@
         } catch (err) { showError(el, err); }
       }
 
-      // Confirmation-first action palette. Read-only / no-model commands run
-      // directly; agent-launching commands are NEVER run from the GUI — they
-      // render a copyable command preview only (the CLI/terminal stays the
-      // place where real agent runs happen, with their own confirmation).
-      const ACTIONS = [
-        { labelKey: "actionReview", args: ["review"], readonly: true, noteKey: "noteReview" },
-        { labelKey: "actionDiagnose", args: ["doctor", "--deep"], readonly: true, noteKey: "noteDiagnose" },
-        { labelKey: "actionStatus", args: ["status"], readonly: true, noteKey: "noteStatus" },
-        { labelKey: "actionHandoff", args: ["handoff", "--to", "claude", "--no-run"], readonly: false, noteKey: "noteHandoff" },
-        { labelKey: "actionPlan", args: ["plan", "<task>"], readonly: false, noteKey: "notePlan" },
-        { labelKey: "actionExecute", args: ["execute"], readonly: false, noteKey: "noteExecute" },
-      ];
-
       function fmtCmd(args) { return "relay-baton " + args.join(" "); }
 
-      function renderActions() {
-        const bar = $("actions");
-        bar.innerHTML = "";
-        for (const a of ACTIONS) {
-          const b = document.createElement("button");
-          b.textContent = t(a.labelKey);
-          if (a.readonly) b.classList.add("ro");
-          b.title = t(a.noteKey);
-          b.addEventListener("click", () => openConfirm(a));
-          bar.appendChild(b);
-        }
-      }
+      // Slash-command palette under the composer. Each hint carries a tooltip
+      // (hover) explaining what it does and whether it is read-only. Agent-
+      // launching commands (plan/execute/handoff) only ever preview — the GUI
+      // never spawns an agent; see runComposerCommand().
+      const HINTS = [
+        { cmd: "/status", noteKey: "noteStatus" },
+        { cmd: "/budget", noteKey: "noteBudget" },
+        { cmd: "/review", noteKey: "noteReview" },
+        { cmd: "/diagnose", noteKey: "noteDiagnose" },
+        { cmd: "/replay", noteKey: "noteReplay" },
+        { cmd: "/plan ", noteKey: "notePlan" },
+        { cmd: "/execute", noteKey: "noteExecute" },
+        { cmd: "/handoff", noteKey: "noteHandoff" },
+      ];
 
       function renderHints() {
         const hints = $("hints");
         if (!hints) return;
         hints.innerHTML = "";
-        for (const cmd of ["/status", "/budget", "/review", "/diagnose", "/replay", "/plan ", "/execute", "/handoff"]) {
+        for (const h of HINTS) {
           const b = document.createElement("button");
-          b.textContent = cmd.trim();
+          b.textContent = h.cmd.trim();
+          b.title = t(h.noteKey);
           b.addEventListener("click", () => {
-            $("composer").value = cmd;
+            $("composer").value = h.cmd;
             $("composer").focus();
           });
           hints.appendChild(b);
@@ -827,7 +1046,8 @@
       }
 
       async function refresh() {
-        await Promise.all([loadProjects(), loadStatus(), loadBudget(), loadHandoff(), loadTimeline()]);
+        await Promise.all([loadProjects(), loadStatus(), loadBudget(), loadTimeline()]);
+        if (handoffOverlay.classList.contains("show")) await loadHandoff();
         updateRoomContext();
         renderHints();
       }
@@ -987,10 +1207,41 @@
         catch (err) { openErrorConfirm(err); }
       });
       $("remove-project").addEventListener("click", openRemoveProjectConfirm);
+      // Slash-command palette: typing a leading "/" pops the command list above
+      // the input, each with its description. Filters by what follows the "/".
+      function renderPalette() {
+        const pal = $("cmd-palette");
+        const val = $("composer").value;
+        if (!val.startsWith("/")) { pal.classList.remove("show"); pal.innerHTML = ""; return; }
+        const q = val.slice(1).trim().toLowerCase();
+        const matches = HINTS.filter((h) => h.cmd.trim().slice(1).toLowerCase().startsWith(q));
+        pal.innerHTML = "";
+        if (matches.length === 0) { pal.classList.remove("show"); return; }
+        for (const h of matches) {
+          const item = document.createElement("div"); item.className = "cmd-item";
+          const c = document.createElement("div"); c.className = "c"; c.textContent = h.cmd.trim();
+          const d = document.createElement("div"); d.className = "d"; d.textContent = t(h.noteKey);
+          item.append(c, d);
+          item.addEventListener("mousedown", (e) => {
+            e.preventDefault(); // keep focus; beat the input blur
+            $("composer").value = h.cmd;
+            pal.classList.remove("show");
+            $("composer").focus();
+          });
+          pal.appendChild(item);
+        }
+        pal.classList.add("show");
+      }
+
       $("send").addEventListener("click", runComposerCommand);
+      $("composer").addEventListener("input", renderPalette);
+      $("composer").addEventListener("focus", renderPalette);
+      $("composer").addEventListener("blur", () => setTimeout(() => $("cmd-palette").classList.remove("show"), 120));
       $("composer").addEventListener("keydown", (e) => {
+        if (e.key === "Escape") { $("cmd-palette").classList.remove("show"); return; }
         if (e.key !== "Enter") return;
         e.preventDefault();
+        $("cmd-palette").classList.remove("show");
         runComposerCommand();
       });
 
@@ -1019,7 +1270,32 @@
       const overlay = $("overlay");
       const toggleHelp = () => overlay.classList.toggle("show");
       $("help").addEventListener("click", toggleHelp);
+      $("help-close").addEventListener("click", () => overlay.classList.remove("show"));
       overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.classList.remove("show"); });
+
+      // --- handoff modal ---
+      const handoffOverlay = $("handoff-overlay");
+      async function openHandoffModal() {
+        handoffOverlay.classList.add("show");
+        await loadHandoff();
+      }
+      $("open-handoff").addEventListener("click", openHandoffModal);
+      $("handoff-close").addEventListener("click", () => handoffOverlay.classList.remove("show"));
+      handoffOverlay.addEventListener("click", (e) => { if (e.target === handoffOverlay) handoffOverlay.classList.remove("show"); });
+
+      // --- tabs (dashboard / agent room) ---
+      function switchTab(tab) {
+        const room = tab === "room";
+        $("view-dashboard").classList.toggle("active", !room);
+        $("view-room").classList.toggle("active", room);
+        $("tab-dashboard").classList.toggle("active", !room);
+        $("tab-room").classList.toggle("active", room);
+        localStorage.setItem("rb-tab", tab);
+        if (room) $("composer").focus();
+      }
+      $("tab-dashboard").addEventListener("click", () => switchTab("dashboard"));
+      $("tab-room").addEventListener("click", () => switchTab("room"));
+      switchTab(localStorage.getItem("rb-tab") || "dashboard");
 
       // --- cycle helpers for keyboard shortcuts ---
       function cycleSelect(sel) {
@@ -1040,13 +1316,13 @@
         if (e.metaKey || e.ctrlKey || e.altKey) return;
         const tag = (e.target?.tagName || "").toLowerCase();
         if (tag === "input" || tag === "select" || tag === "textarea") return;
-        if (e.key === "Escape") { overlay.classList.remove("show"); return; }
+        if (e.key === "Escape") { overlay.classList.remove("show"); handoffOverlay.classList.remove("show"); return; }
         switch (e.key) {
           case "r": refresh(); break;
           case "p": cycleSelect($("project")); break;
           case "d": cycleSelect($("diet")); break;
           case "b": loadBudget(); break;
-          case "h": loadHandoff(); break;
+          case "h": openHandoffModal(); break;
           case "t": toggleTheme(); break;
           case "q": quitWindow(); break;
           case "?": toggleHelp(); break;
