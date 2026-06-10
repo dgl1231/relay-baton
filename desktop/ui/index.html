@@ -158,6 +158,20 @@
         border: 1px solid var(--border2); border-radius: 6px; padding: 8px 10px;
         font: inherit; font-size: 13px;
       }
+      .composer-wrap { position: relative; }
+      .cmd-palette {
+        display: none; position: absolute; left: 0; right: 0; bottom: 100%; margin-bottom: 6px;
+        background: var(--panel); border: 1px solid var(--border2); border-radius: 8px;
+        max-height: 280px; overflow: auto; z-index: 5; padding: 4px;
+      }
+      .cmd-palette.show { display: block; }
+      .cmd-item {
+        display: grid; grid-template-columns: 130px 1fr; gap: 10px;
+        padding: 7px 10px; border-radius: 6px; cursor: pointer; align-items: baseline;
+      }
+      .cmd-item:hover, .cmd-item.active { background: var(--border); }
+      .cmd-item .c { color: var(--accent); font-weight: 600; font-size: 13px; }
+      .cmd-item .d { color: var(--muted); font-size: 12px; line-height: 1.4; }
       .hints { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
       .hints button {
         background: var(--border); border: 1px solid var(--border2); color: var(--fg);
@@ -281,9 +295,12 @@
         </div>
         <div class="confirm" id="confirm"></div>
         <div id="timeline" class="timeline">loading…</div>
-        <div class="composer">
-          <input id="composer" data-i18n-placeholder="composerPlaceholder" placeholder="/status, /budget, /review, /diagnose, /replay..." />
-          <button id="send" data-i18n="send">Send</button>
+        <div class="composer-wrap">
+          <div id="cmd-palette" class="cmd-palette"></div>
+          <div class="composer">
+            <input id="composer" autocomplete="off" data-i18n-placeholder="composerPlaceholder" placeholder="/status, /budget, /review, /diagnose, /replay..." />
+            <button id="send" data-i18n="send">Send</button>
+          </div>
         </div>
         <div class="hints" id="hints"></div>
       </section>
@@ -1190,10 +1207,41 @@
         catch (err) { openErrorConfirm(err); }
       });
       $("remove-project").addEventListener("click", openRemoveProjectConfirm);
+      // Slash-command palette: typing a leading "/" pops the command list above
+      // the input, each with its description. Filters by what follows the "/".
+      function renderPalette() {
+        const pal = $("cmd-palette");
+        const val = $("composer").value;
+        if (!val.startsWith("/")) { pal.classList.remove("show"); pal.innerHTML = ""; return; }
+        const q = val.slice(1).trim().toLowerCase();
+        const matches = HINTS.filter((h) => h.cmd.trim().slice(1).toLowerCase().startsWith(q));
+        pal.innerHTML = "";
+        if (matches.length === 0) { pal.classList.remove("show"); return; }
+        for (const h of matches) {
+          const item = document.createElement("div"); item.className = "cmd-item";
+          const c = document.createElement("div"); c.className = "c"; c.textContent = h.cmd.trim();
+          const d = document.createElement("div"); d.className = "d"; d.textContent = t(h.noteKey);
+          item.append(c, d);
+          item.addEventListener("mousedown", (e) => {
+            e.preventDefault(); // keep focus; beat the input blur
+            $("composer").value = h.cmd;
+            pal.classList.remove("show");
+            $("composer").focus();
+          });
+          pal.appendChild(item);
+        }
+        pal.classList.add("show");
+      }
+
       $("send").addEventListener("click", runComposerCommand);
+      $("composer").addEventListener("input", renderPalette);
+      $("composer").addEventListener("focus", renderPalette);
+      $("composer").addEventListener("blur", () => setTimeout(() => $("cmd-palette").classList.remove("show"), 120));
       $("composer").addEventListener("keydown", (e) => {
+        if (e.key === "Escape") { $("cmd-palette").classList.remove("show"); return; }
         if (e.key !== "Enter") return;
         e.preventDefault();
+        $("cmd-palette").classList.remove("show");
         runComposerCommand();
       });
 
