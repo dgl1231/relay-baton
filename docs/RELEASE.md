@@ -58,6 +58,13 @@ These each cost a patch release (v1.1.0 → v1.1.3). Keep them in mind:
 4. **Runner queue delays are normal**, not failures. A job stuck on *"Waiting for
    a hosted runner to come online"* with `Evaluating: success() → true` is queued,
    not broken. Do not cancel.
+5. **MSI rejects non-numeric prerelease versions.** `tauri build` on Windows
+   (WiX/MSI) fails with *"optional pre-release identifier in app version must be
+   numeric-only…"* if `tauri.conf.json` `version` is e.g. `1.2.0-alpha.0`. The
+   `.dmg`/`.AppImage` targets accept it; only MSI is strict. Keep
+   **`desktop/src-tauri/tauri.conf.json` `version` a plain `x.y.z`** (the
+   installer's ProductVersion); the prerelease lives in the git tag / release
+   name, not the MSI. First hit on `v1.2.0-alpha.0` (desktop windows-x64 only).
 
 ## Requirements / settings
 
