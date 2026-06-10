@@ -14,6 +14,7 @@ Release notes are user-facing changelogs, not agent handoff material — that ro
 
 ## Versions
 
+- [v1.2.0-alpha.0](./v1.2.0-alpha.0.md) / [한국어](./ko/v1.2.0-alpha.0.md) - Desktop GUI prerelease (Phase A+B): `build-desktop` release job attaching `.dmg`/`.msi`/`.AppImage`, deterministic icon generation, sidecar staging script, read-only desktop dashboard, and CLI JSON surface (`project list/current --json`, `handoff show`). Unsigned/ad-hoc installers; GUI is read-only.
 - [v1.1.3](./v1.1.3.md) / [한국어](./ko/v1.1.3.md) - Release pipeline hotfix #3: pinned exact bundler versions (`esbuild@0.28.0`, `postject@1.0.0-alpha.6`) — `postject@^1` resolved to nothing because its "latest" is a prerelease. No behavior changes.
 - [v1.1.2](./v1.1.2.md) / [한국어](./ko/v1.1.2.md) - Release pipeline hotfix #2: `npx --yes esbuild/postject` failed with exit 127 on CI runners, so the workflow now installs them with `npm install -g` and calls them directly (recipe verified locally end-to-end). No behavior changes.
 - [v1.1.1](./v1.1.1.md) / [한국어](./ko/v1.1.1.md) - Release pipeline hotfix: fixed `release.yml` line 115 (a leading `&` in the Windows smoke-test step made the workflow invalid YAML, so no job ran for v1.1.0 and no binaries were attached). New tag re-runs the corrected pipeline. No behavior changes.

@@ -9,8 +9,8 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-10 — v1.2 Phase B (read-only dashboard) implemented;
-in-Tauri verification + first desktop release tag still pending._
+_Last updated: 2026-06-10 — cut v1.2.0-alpha.0 to exercise `build-desktop`;
+watch the Release run, then in-Tauri verification + Phase C._
 
 ## Where we are
 
