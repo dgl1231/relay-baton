@@ -23,11 +23,15 @@
         --hot: #cf222e; --err: #cf222e; --amber: #9a6700;
         --user: #0969da; --claude: #8250df; --codex: #1a7f37;
       }
+      html, body { height: 100%; }
       body {
         margin: 0;
         font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
         background: var(--bg);
         color: var(--fg);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
       }
       header {
         padding: 14px 20px;
@@ -40,13 +44,29 @@
       header h1 { font-size: 16px; margin: 0; font-weight: 600; }
       header .tag { font-size: 12px; color: var(--muted); }
       header .spacer { flex: 1; }
-      main {
-        padding: 20px;
-        display: grid;
-        gap: 16px;
-        grid-template-columns: 1fr 1fr;
+      main { flex: 1; min-height: 0; display: flex; }
+      .view { display: none; flex: 1; min-height: 0; }
+      .view.active { display: flex; }
+      #view-dashboard {
+        padding: 20px; gap: 16px;
+        display: none; grid-template-columns: 1fr 1fr; align-content: start;
+        overflow: auto;
       }
-      @media (max-width: 760px) { main { grid-template-columns: 1fr; } }
+      #view-dashboard.active { display: grid; }
+      @media (max-width: 760px) { #view-dashboard { grid-template-columns: 1fr; } }
+      /* tabs */
+      .tabs { display: flex; gap: 4px; padding: 0 20px; border-bottom: 1px solid var(--border); }
+      .tab {
+        background: transparent; color: var(--muted); border: 0; border-bottom: 2px solid transparent;
+        border-radius: 0; padding: 10px 14px; font-size: 13px;
+      }
+      .tab:hover { background: transparent; color: var(--fg); }
+      .tab.active { color: var(--fg); border-bottom-color: var(--accent); }
+      /* agent room view — timeline fills the height */
+      #view-room { flex-direction: column; padding: 16px 20px; gap: 10px; }
+      .room-strip { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+      #view-room .timeline { flex: 1; min-height: 0; max-height: none; }
+      .hints button[title] { cursor: help; }
       .card {
         border: 1px solid var(--border);
         border-radius: 8px;
@@ -217,22 +237,29 @@
         </div>
       </div>
     </div>
+    <nav class="tabs">
+      <button id="tab-dashboard" class="tab active" data-i18n="tabDashboard">Dashboard</button>
+      <button id="tab-room" class="tab" data-i18n="tabRoom">Agent Room</button>
+    </nav>
     <main>
-      <div class="card">
-        <h2 data-i18n="status">status</h2>
-        <div id="status" class="kv">loading…</div>
-      </div>
-      <div class="card">
-        <h2 data-i18n="budget">budget</h2>
-        <div id="budget">loading…</div>
-      </div>
-      <div class="card wide">
-        <h2><span data-i18n="agentRoom">agent room</span> <span class="muted" data-i18n="timelineSubtitle">— conversation timeline (read-only)</span></h2>
-        <div class="room-head">
+      <section id="view-dashboard" class="active">
+        <div class="card">
+          <h2 data-i18n="status">status</h2>
+          <div id="status" class="kv">loading…</div>
+        </div>
+        <div class="card">
+          <h2 data-i18n="budget">budget</h2>
+          <div id="budget">loading…</div>
+        </div>
+      </section>
+
+      <section id="view-room" class="view">
+        <div class="room-strip">
           <span class="badge"><span data-i18n="activeProject">project</span>: <strong id="room-project">-</strong></span>
           <span class="badge"><span data-i18n="sessionState">session</span>: <strong id="room-session">-</strong></span>
+          <span class="badge"><span data-i18n="status">status</span>: <strong id="room-status-val">-</strong></span>
+          <span class="badge"><span data-i18n="budget">budget</span>: <strong id="room-budget-val">-</strong></span>
         </div>
-        <div class="actions" id="actions"></div>
         <div class="confirm" id="confirm"></div>
         <div id="timeline" class="timeline">loading…</div>
         <div class="composer">
@@ -240,7 +267,7 @@
           <button id="send" data-i18n="send">Send</button>
         </div>
         <div class="hints" id="hints"></div>
-      </div>
+      </section>
     </main>
 
     <script type="module">
@@ -261,6 +288,7 @@
       let currentProjects = [];
       let activeProjectId = null;
       let currentStatus = null;
+      let currentBudget = null;
 
       const STRINGS = {
         en: {
@@ -332,6 +360,10 @@
           noteHandoff: "Generates a handoff document. Run from your terminal.",
           notePlan: "Launches the planner agent. Run from your terminal.",
           noteExecute: "Launches the executor agent. Run from your terminal.",
+          noteBudget: "Context budget usage. No model call.",
+          noteReplay: "Reload the conversation timeline. No model call.",
+          tabDashboard: "Dashboard",
+          tabRoom: "Agent Room",
           readOnlySafe: "read-only — safe to run here",
           copyTerminal: "launches an agent — copy & run in your terminal",
         },
@@ -404,6 +436,10 @@
           noteHandoff: "handoff 문서를 생성합니다. 터미널에서 실행하세요.",
           notePlan: "planner agent를 실행합니다. 터미널에서 실행하세요.",
           noteExecute: "executor agent를 실행합니다. 터미널에서 실행하세요.",
+          noteBudget: "컨텍스트 budget 사용량. 모델 호출 없음.",
+          noteReplay: "대화 타임라인 다시 읽기. 모델 호출 없음.",
+          tabDashboard: "대시보드",
+          tabRoom: "에이전트 룸",
           readOnlySafe: "읽기 전용 — 여기서 실행해도 안전",
           copyTerminal: "agent 실행 — 복사해서 터미널에서 실행",
         },
@@ -476,6 +512,10 @@
           noteHandoff: "handoff文書を生成します。ターミナルで実行してください。",
           notePlan: "planner agentを起動します。ターミナルで実行してください。",
           noteExecute: "executor agentを起動します。ターミナルで実行してください。",
+          noteBudget: "コンテキストbudget使用量。モデル呼び出しなし。",
+          noteReplay: "会話タイムラインを再読み込み。モデル呼び出しなし。",
+          tabDashboard: "ダッシュボード",
+          tabRoom: "エージェントルーム",
           readOnlySafe: "読み取り専用 — ここで実行して安全",
           copyTerminal: "agentを起動 — コピーしてターミナルで実行",
         },
@@ -548,6 +588,10 @@
           noteHandoff: "生成handoff文档。请在终端运行。",
           notePlan: "启动planner agent。请在终端运行。",
           noteExecute: "启动executor agent。请在终端运行。",
+          noteBudget: "上下文budget用量。无模型调用。",
+          noteReplay: "重新加载对话时间线。无模型调用。",
+          tabDashboard: "仪表板",
+          tabRoom: "智能体房间",
           readOnlySafe: "只读 — 可在此安全运行",
           copyTerminal: "启动agent — 复制后在终端运行",
         },
@@ -565,7 +609,6 @@
         document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
         document.querySelectorAll("[data-i18n-title]").forEach((el) => { el.title = t(el.dataset.i18nTitle); });
         document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => { el.placeholder = t(el.dataset.i18nPlaceholder); });
-        renderActions();
         renderHints();
       }
 
@@ -604,6 +647,16 @@
         $("room-session").textContent = currentStatus?.session
           ? (currentStatus.status || t("sessionReady"))
           : t("noSessionState");
+        $("room-status-val").textContent = currentStatus?.session
+          ? `${currentStatus.status} · ${currentStatus.changedFiles ?? 0} files`
+          : "-";
+        if (currentBudget) {
+          const used = currentBudget.used?.handoff ?? 0;
+          const max = currentBudget.maxHandoffChars || 1;
+          $("room-budget-val").textContent = `${Math.min(100, Math.round((used / max) * 100))}% · ${currentBudget.activeProfile}`;
+        } else {
+          $("room-budget-val").textContent = "-";
+        }
         const enabled = Boolean(p);
         $("composer").disabled = !enabled;
         $("send").disabled = !enabled;
@@ -688,6 +741,8 @@
         const el = $("budget");
         try {
           const b = await cliJson(["budget", "--json"]);
+          currentBudget = b;
+          updateRoomContext();
           const used = b.used?.handoff ?? 0;
           const max = b.maxHandoffChars || 1;
           const pct = Math.min(100, Math.round((used / max) * 100));
@@ -751,43 +806,33 @@
         } catch (err) { showError(el, err); }
       }
 
-      // Confirmation-first action palette. Read-only / no-model commands run
-      // directly; agent-launching commands are NEVER run from the GUI — they
-      // render a copyable command preview only (the CLI/terminal stays the
-      // place where real agent runs happen, with their own confirmation).
-      const ACTIONS = [
-        { labelKey: "actionReview", args: ["review"], readonly: true, noteKey: "noteReview" },
-        { labelKey: "actionDiagnose", args: ["doctor", "--deep"], readonly: true, noteKey: "noteDiagnose" },
-        { labelKey: "actionStatus", args: ["status"], readonly: true, noteKey: "noteStatus" },
-        { labelKey: "actionHandoff", args: ["handoff", "--to", "claude", "--no-run"], readonly: false, noteKey: "noteHandoff" },
-        { labelKey: "actionPlan", args: ["plan", "<task>"], readonly: false, noteKey: "notePlan" },
-        { labelKey: "actionExecute", args: ["execute"], readonly: false, noteKey: "noteExecute" },
-      ];
-
       function fmtCmd(args) { return "relay-baton " + args.join(" "); }
 
-      function renderActions() {
-        const bar = $("actions");
-        bar.innerHTML = "";
-        for (const a of ACTIONS) {
-          const b = document.createElement("button");
-          b.textContent = t(a.labelKey);
-          if (a.readonly) b.classList.add("ro");
-          b.title = t(a.noteKey);
-          b.addEventListener("click", () => openConfirm(a));
-          bar.appendChild(b);
-        }
-      }
+      // Slash-command palette under the composer. Each hint carries a tooltip
+      // (hover) explaining what it does and whether it is read-only. Agent-
+      // launching commands (plan/execute/handoff) only ever preview — the GUI
+      // never spawns an agent; see runComposerCommand().
+      const HINTS = [
+        { cmd: "/status", noteKey: "noteStatus" },
+        { cmd: "/budget", noteKey: "noteBudget" },
+        { cmd: "/review", noteKey: "noteReview" },
+        { cmd: "/diagnose", noteKey: "noteDiagnose" },
+        { cmd: "/replay", noteKey: "noteReplay" },
+        { cmd: "/plan ", noteKey: "notePlan" },
+        { cmd: "/execute", noteKey: "noteExecute" },
+        { cmd: "/handoff", noteKey: "noteHandoff" },
+      ];
 
       function renderHints() {
         const hints = $("hints");
         if (!hints) return;
         hints.innerHTML = "";
-        for (const cmd of ["/status", "/budget", "/review", "/diagnose", "/replay", "/plan ", "/execute", "/handoff"]) {
+        for (const h of HINTS) {
           const b = document.createElement("button");
-          b.textContent = cmd.trim();
+          b.textContent = h.cmd.trim();
+          b.title = t(h.noteKey);
           b.addEventListener("click", () => {
-            $("composer").value = cmd;
+            $("composer").value = h.cmd;
             $("composer").focus();
           });
           hints.appendChild(b);
@@ -1047,6 +1092,20 @@
       $("open-handoff").addEventListener("click", openHandoffModal);
       $("handoff-close").addEventListener("click", () => handoffOverlay.classList.remove("show"));
       handoffOverlay.addEventListener("click", (e) => { if (e.target === handoffOverlay) handoffOverlay.classList.remove("show"); });
+
+      // --- tabs (dashboard / agent room) ---
+      function switchTab(tab) {
+        const room = tab === "room";
+        $("view-dashboard").classList.toggle("active", !room);
+        $("view-room").classList.toggle("active", room);
+        $("tab-dashboard").classList.toggle("active", !room);
+        $("tab-room").classList.toggle("active", room);
+        localStorage.setItem("rb-tab", tab);
+        if (room) $("composer").focus();
+      }
+      $("tab-dashboard").addEventListener("click", () => switchTab("dashboard"));
+      $("tab-room").addEventListener("click", () => switchTab("room"));
+      switchTab(localStorage.getItem("rb-tab") || "dashboard");
 
       // --- cycle helpers for keyboard shortcuts ---
       function cycleSelect(sel) {
