@@ -291,7 +291,7 @@
           previewOnly: "preview only",
           readOnlyResult: "read-only result",
           unsupportedCommand: "Unsupported command. Try /status, /budget, /review, /diagnose, /replay, /plan <task>, /execute, or /handoff.",
-          plainTextUnsupported: "Plain text notes need a CLI append command first. Use a slash command for now.",
+          messageSaved: "Message saved to the current project session.",
           loading: "loading…",
           cwdProject: "(cwd — no registered projects)",
           unavailable: "(unavailable)",
@@ -362,7 +362,7 @@
           previewOnly: "미리보기 전용",
           readOnlyResult: "읽기 전용 결과",
           unsupportedCommand: "지원하지 않는 명령입니다. /status, /budget, /review, /diagnose, /replay, /plan <task>, /execute, /handoff 중 하나를 사용하세요.",
-          plainTextUnsupported: "일반 텍스트 기록은 CLI append 명령이 먼저 필요합니다. 지금은 slash command를 사용하세요.",
+          messageSaved: "현재 프로젝트 세션에 메시지를 저장했습니다.",
           loading: "로딩 중…",
           cwdProject: "(cwd — 등록된 프로젝트 없음)",
           unavailable: "(사용 불가)",
@@ -433,7 +433,7 @@
           previewOnly: "プレビューのみ",
           readOnlyResult: "読み取り専用結果",
           unsupportedCommand: "未対応のコマンドです。/status, /budget, /review, /diagnose, /replay, /plan <task>, /execute, /handoffを使ってください。",
-          plainTextUnsupported: "通常テキストの記録には先にCLI appendコマンドが必要です。今はslash commandを使ってください。",
+          messageSaved: "現在のプロジェクトセッションにメッセージを保存しました。",
           loading: "読み込み中…",
           cwdProject: "(cwd — 登録プロジェクトなし)",
           unavailable: "(利用不可)",
@@ -504,7 +504,7 @@
           previewOnly: "仅预览",
           readOnlyResult: "只读结果",
           unsupportedCommand: "不支持的命令。请使用 /status, /budget, /review, /diagnose, /replay, /plan <task>, /execute, 或 /handoff。",
-          plainTextUnsupported: "普通文本记录需要先有CLI append命令。现在请使用slash command。",
+          messageSaved: "消息已保存到当前项目会话。",
           loading: "加载中…",
           cwdProject: "(cwd — 没有注册项目)",
           unavailable: "(不可用)",
@@ -608,6 +608,10 @@
         row.append(who, body);
         el.appendChild(row);
         el.scrollTop = el.scrollHeight;
+      }
+
+      async function recordConversation(text, kind = "message", role = "user") {
+        return await cliJson(["conversation", "append", text, "--kind", kind, "--role", role, "--json"]);
       }
 
       async function loadProjects() {
@@ -846,15 +850,18 @@
         const raw = input.value.trim();
         if (!raw) return;
         input.value = "";
-        appendLocalEvent("user", "command", raw);
-        if (!raw.startsWith("/")) {
-          appendLocalEvent("relay-baton", "status", t("plainTextUnsupported"));
-          return;
-        }
-
-        const [cmd, ...rest] = raw.slice(1).split(/\s+/);
-        const argText = rest.join(" ").trim();
         try {
+          if (!raw.startsWith("/")) {
+            await recordConversation(raw, "message", "user");
+            await loadTimeline();
+            appendLocalEvent("relay-baton", "status", t("messageSaved"));
+            return;
+          }
+
+          const [cmd, ...rest] = raw.slice(1).split(/\s+/);
+          const argText = rest.join(" ").trim();
+          await recordConversation(raw, "command", "user");
+          await loadTimeline();
           switch (cmd) {
             case "status": {
               const s = await cliJson(["status", "--json"]);
@@ -890,19 +897,25 @@
             case "plan": {
               const args = ["plan", argText || "<task>"];
               openConfirm({ labelKey: "actionPlan", args, readonly: false, noteKey: "notePlan" });
-              appendLocalEvent("relay-baton", "prompt_preview", `${t("previewOnly")}: ${fmtCmd(args)}`);
+              const text = `${t("previewOnly")}: ${fmtCmd(args)}`;
+              await recordConversation(text, "prompt_preview", "relay-baton");
+              await loadTimeline();
               break;
             }
             case "execute": {
               const args = ["execute"];
               openConfirm({ labelKey: "actionExecute", args, readonly: false, noteKey: "noteExecute" });
-              appendLocalEvent("relay-baton", "prompt_preview", `${t("previewOnly")}: ${fmtCmd(args)}`);
+              const text = `${t("previewOnly")}: ${fmtCmd(args)}`;
+              await recordConversation(text, "prompt_preview", "relay-baton");
+              await loadTimeline();
               break;
             }
             case "handoff": {
               const args = ["handoff", "--to", "claude", "--no-run"];
               openConfirm({ labelKey: "actionHandoff", args, readonly: false, noteKey: "noteHandoff" });
-              appendLocalEvent("relay-baton", "prompt_preview", `${t("previewOnly")}: ${fmtCmd(args)}`);
+              const text = `${t("previewOnly")}: ${fmtCmd(args)}`;
+              await recordConversation(text, "prompt_preview", "relay-baton");
+              await loadTimeline();
               break;
             }
             default:

@@ -9,8 +9,8 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-10 — v1.3 first cut started: desktop Agent Room composer
-and project/session badges added._
+_Last updated: 2026-06-10 — v1.3 alpha completed: desktop Agent Room composer
+persists project-scoped conversation events via the CLI sidecar._
 
 ## Where we are
 
@@ -104,11 +104,11 @@ classifier** (CLAUDE.md forbids auto-push; needs explicit human OK). Pending:
 v1.2.0-alpha.0` — the tag is what first exercises `build-desktop` in CI (watch
 all six jobs, mind the v1.1.0 YAML gotcha).
 
-**Next:** harden the v1.3 desktop composer in a real Tauri window: verify
+**Next:** real-window QA for `v1.3.0-alpha.0`: verify composer persistence,
 read-only slash commands (`/status`, `/budget`, `/review`, `/diagnose`,
-`/replay`), confirm preview-only behavior for `/plan`, `/execute`, `/handoff`,
-and decide whether to add CLI-backed user-note persistence. The implementation
-work order remains [`TASK-v1.3-desktop-chat-sessions.md`](./TASK-v1.3-desktop-chat-sessions.md).
+`/replay`), and preview-only behavior for `/plan`, `/execute`, `/handoff`.
+The implementation work order remains
+[`TASK-v1.3-desktop-chat-sessions.md`](./TASK-v1.3-desktop-chat-sessions.md).
 
 Hard rule for v1.2: the GUI calls the CLI sidecar only. **No business logic in
 the webview.** Read-only or confirmation-first. (Matches `CLAUDE.md`: TUI/GUI

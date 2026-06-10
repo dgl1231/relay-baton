@@ -106,6 +106,11 @@ Agent Room: turn-based, confirmation-first multi-agent REPL. Option
 ### `replay [--json] [--session <id>] [--kind <kinds>] [--limit <n>]`
 Replay the recorded conversation timeline (`conversation.jsonl`), read-only.
 
+### `conversation append <text> [--role <role>] [--kind <kind>] [--json]`
+Append one event to the current project session's `conversation.jsonl`. Desktop
+uses this for composer messages and command echoes instead of writing session
+files directly. Requires an initialized `.ai-session`.
+
 ### `review [--json]`
 Deterministically review the working-tree diff against the current plan (no model
 call).

@@ -162,11 +162,11 @@ truth. See [`TASK-v1.3-desktop-chat-sessions.md`](./TASK-v1.3-desktop-chat-sessi
 - [x] **Project-scoped session context (first cut)** — make the active project/session
   explicit in the conversation panel and refresh status, budget, handoff, and
   timeline when the project changes.
-- [ ] **CLI JSON/session surfaces where needed** — add small, tested CLI JSON
+- [x] **CLI JSON/session surfaces where needed** — add small, tested CLI JSON
   commands instead of letting the webview read/write `.ai-session/` directly.
-- [ ] **i18n parity for new desktop chrome** — all new labels, empty states,
+- [x] **i18n parity for new desktop chrome** — all new labels, empty states,
   confirmation text, and command hints support `en`, `ko`, `ja`, `zh`.
-- [ ] **Preserve hard constraints** — sidecar-only, confirmation-first, no
+- [x] **Preserve hard constraints** — sidecar-only, confirmation-first, no
   direct LLM API calls, no API-key storage, no auto commit/push/PR, no daemon.
 
 ## v1.4 — Distribution polish

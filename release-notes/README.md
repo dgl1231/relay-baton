@@ -14,6 +14,7 @@ Release notes are user-facing changelogs, not agent handoff material — that ro
 
 ## Versions
 
+- [v1.3.0-alpha.0](./v1.3.0-alpha.0.md) / [한국어](./ko/v1.3.0-alpha.0.md) - Desktop conversation and project-scoped sessions: Agent Room composer, `conversation append` JSON surface, persisted messages/command echoes, and preview-only agent actions.
 - [v1.2.0-alpha.3](./v1.2.0-alpha.3.md) / [한국어](./ko/v1.2.0-alpha.3.md) - Desktop project management and i18n: add projects via folder picker, remove with confirmation, CLI JSON contract for add/remove, and English/Korean/Japanese/Simplified Chinese UI chrome.
 - [v1.2.0-alpha.2](./v1.2.0-alpha.2.md) / [한국어](./ko/v1.2.0-alpha.2.md) - Desktop sidecar fix: webview now loads Tauri APIs via `withGlobalTauri`/`window.__TAURI__` (bare ES imports don't resolve in the no-bundler frontend), so the GUI panels actually talk to the bundled CLI.
 - [v1.2.0-alpha.1](./v1.2.0-alpha.1.md) / [한국어](./ko/v1.2.0-alpha.1.md) - Desktop prerelease completed: Windows `.msi` build fix (plain semver app version) so all 6 assets ship, plus Phase D (signing docs, window-state persistence, light/dark theme, TUI-mirrored keyboard shortcuts).

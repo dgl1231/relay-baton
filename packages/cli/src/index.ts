@@ -19,6 +19,7 @@ import { compressCommand } from "./commands/compress";
 import { tuiCommand } from "./commands/tui";
 import { chatCommand } from "./commands/chat";
 import { replayCommand } from "./commands/replay";
+import { conversationAppendCommand } from "./commands/conversation";
 import { loginCommand } from "./commands/login";
 import {
   projectAddCommand,
@@ -33,7 +34,7 @@ const program = new Command();
 program
   .name("relay-baton")
   .description("Token-aware handoff harness for Codex CLI and Claude Code")
-  .version("1.2.0-alpha.3");
+  .version("1.3.0-alpha.0");
 
 function addProjectOptions(cmd: Command): Command {
   return cmd
@@ -211,6 +212,17 @@ addProjectOptions(
     .option("--kind <kinds>", "comma-separated event kinds to include")
     .option("--limit <n>", "keep only the most recent N events"),
 ).action(replayCommand);
+
+const conversation = program.command("conversation").description("Append/read Agent Room conversation events");
+addProjectOptions(
+  conversation
+    .command("append")
+    .description("Append a single conversation event to the current session")
+    .argument("<text>", "event text")
+    .option("--json", "print machine-readable JSON")
+    .option("--role <role>", "event role: user|relay-baton|codex|claude")
+    .option("--kind <kind>", "event kind, e.g. message|command|status|budget|prompt_preview"),
+).action((text, opts) => conversationAppendCommand(text, opts));
 
 program.parseAsync(process.argv).catch(err => {
   console.error(err?.stack ?? err);

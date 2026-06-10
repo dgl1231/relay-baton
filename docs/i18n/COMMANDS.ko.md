@@ -100,6 +100,11 @@ Agent Room: 턴 기반, confirmation-first 멀티 agent REPL. 옵션
 ### `replay [--json] [--session <id>] [--kind <kinds>] [--limit <n>]`
 기록된 대화 타임라인(`conversation.jsonl`) 재생, 읽기 전용.
 
+### `conversation append <text> [--role <role>] [--kind <kind>] [--json]`
+현재 project session의 `conversation.jsonl`에 이벤트 하나를 추가한다. desktop은
+session 파일을 직접 쓰지 않고 이 명령으로 composer 메시지와 command echo를 기록한다.
+초기화된 `.ai-session`이 필요하다.
+
 ### `review [--json]`
 working-tree diff를 현재 plan과 deterministic하게 검토(모델 호출 없음).
 
