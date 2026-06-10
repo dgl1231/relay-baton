@@ -230,11 +230,11 @@ pnpm relay-baton login claude
 
 ## Notas de versão
 
-**Latest:** v1.4.0-alpha.0 — [English](../../release-notes/v1.4.0-alpha.0.md) · [한국어](../../release-notes/ko/v1.4.0-alpha.0.md)
+**Latest:** v1.4.0-alpha.1 — [English](../../release-notes/v1.4.0-alpha.1.md) · [한국어](../../release-notes/ko/v1.4.0-alpha.1.md)
 
 | Versão | English | 한국어 | Resumo |
 |---|---|---|---|
-| v1.4.0-alpha.0 | [Read →](../../release-notes/v1.4.0-alpha.0.md) | [읽기 →](../../release-notes/ko/v1.4.0-alpha.0.md) | Distribution polish: one-line installers with SHA-256 verification, release SHA256SUMS/SBOM metadata, package-manager starter files, optional signing hooks, and a desktop Codex/Claude preview switcher. |
+| v1.4.0-alpha.1 | [Read →](../../release-notes/v1.4.0-alpha.1.md) | [읽기 →](../../release-notes/ko/v1.4.0-alpha.1.md) | Distribution polish: one-line installers with SHA-256 verification, release SHA256SUMS/SBOM metadata, package-manager starter files, optional signing hooks, and a desktop Codex/Claude preview switcher. |
 | v1.3.0-alpha.0 | [Read →](../../release-notes/v1.3.0-alpha.0.md) | [읽기 →](../../release-notes/ko/v1.3.0-alpha.0.md) | Desktop conversation + project-scoped sessions: Agent Room composer, persisted conversation events via `conversation append`, visible project/session context, and confirmation-first slash actions. |
 | v1.2.0-alpha.3 | [Read →](../../release-notes/v1.2.0-alpha.3.md) | [읽기 →](../../release-notes/ko/v1.2.0-alpha.3.md) | Desktop project management + i18n: add projects with the folder picker, switch/remove projects in the GUI, register non-git project folders, and switch UI chrome between English/Korean/Japanese/Simplified Chinese. |
 | v1.2.0-alpha.2 | [Read →](../../release-notes/v1.2.0-alpha.2.md) | [읽기 →](../../release-notes/ko/v1.2.0-alpha.2.md) | Desktop sidecar fix: the GUI now actually reaches the bundled CLI (`withGlobalTauri` + `window.__TAURI__`), so status/budget/handoff/timeline panels populate. |

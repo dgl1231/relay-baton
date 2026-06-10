@@ -9,7 +9,7 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-10 — v1.4.0-alpha.0 in progress: distribution polish
+_Last updated: 2026-06-10 — v1.4.0-alpha.1 in progress: distribution polish
 implemented locally (install scripts, SHA256SUMS/SBOM release-finalize job,
 Scoop/Homebrew starter files, optional signing hooks, desktop Codex/Claude
 preview switcher)._
