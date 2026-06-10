@@ -9,9 +9,9 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-10 — v1.2.0-alpha.1 ran 6/6 and the .msi launches; first
-in-window test found the webview couldn't reach the sidecar (no-bundler bare
-imports) → fixed with withGlobalTauri/window.__TAURI__, cutting v1.2.0-alpha.2._
+_Last updated: 2026-06-10 — v1.2 desktop follow-up adds GUI project
+add/remove controls and UI i18n (en/ko/ja/zh) on top of the alpha.2 sidecar
+fix._
 
 ## Where we are
 
@@ -87,6 +87,15 @@ commands (`review`, `doctor --deep`, `status`) run via the sidecar; agent-
 launching ones (`plan`/`execute`/`handoff`) are copy-only — the GUI never spawns
 an agent.
 
+**Phase B follow-up (project management + i18n) — implemented, needs Tauri
+window verification:** the dashboard can now add a project through the native
+folder picker (`tauri-plugin-dialog`) or a direct path input, remove the selected
+project with a confirmation step, and refresh all panels after add/switch/remove.
+CLI contract was extended with `project add --json` and `project remove --json`
+for clean sidecar usage. UI chrome now has a dependency-free language selector:
+English default plus Korean, Japanese, and Simplified Chinese; raw CLI output is
+still displayed as-is.
+
 **Release staged, NOT pushed:** version bumped to **v1.2.0-alpha.0** everywhere
 (packages + CLI `--version` + desktop Cargo.toml/tauri.conf.json), release notes
 (en+ko) + README badge/tables updated, commit `release: v1.2.0-alpha.0` made
@@ -96,9 +105,9 @@ classifier** (CLAUDE.md forbids auto-push; needs explicit human OK). Pending:
 v1.2.0-alpha.0` — the tag is what first exercises `build-desktop` in CI (watch
 all six jobs, mind the v1.1.0 YAML gotcha).
 
-**Next:** get the push/tag approved and watch the Release run; verify the
-dashboard inside a real Tauri window on a Rust machine; then Phase D (signing,
-window polish).
+**Next:** run the full build/test suite, verify the dashboard inside a real
+Tauri window on a Rust machine (including the folder picker permission), then
+cut the next alpha (`v1.2.0-alpha.3` or final v1.2.0) if the GUI checks pass.
 
 Hard rule for v1.2: the GUI calls the CLI sidecar only. **No business logic in
 the webview.** Read-only or confirmation-first. (Matches `CLAUDE.md`: TUI/GUI

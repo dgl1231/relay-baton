@@ -105,13 +105,15 @@ working-tree diff를 현재 plan과 deterministic하게 검토(모델 호출 없
 
 ## projects
 
-### `project add <path> [--name] [--diet] [--primary] [--fallback]`
-repository를 project로 등록.
+### `project add <path> [--name] [--diet] [--primary] [--fallback] [--json]`
+존재하는 디렉터리를 project로 등록한다. git repository가 아니어도 등록은 가능하지만,
+`run`/`handoff`처럼 git 기반 명령은 여전히 git repository가 필요하다. `--json`은
+sidecar/GUI 연동용으로 `{ added, project }`를 출력한다.
 
-### `project list [--json]` / `project current [--json]` / `project switch <name-or-id>` / `project remove <name-or-id>` / `project doctor`
+### `project list [--json]` / `project current [--json]` / `project switch <name-or-id>` / `project remove <name-or-id> [--json]` / `project doctor`
 project registry 관리(기본 `~/.relay-baton/projects.json`).
 `list --json` / `current --json`은 display surface(desktop dashboard, script)용
-machine-readable 출력.
+machine-readable 출력. `remove --json`은 `{ removed }`를 출력한다.
 
 ## TUI
 

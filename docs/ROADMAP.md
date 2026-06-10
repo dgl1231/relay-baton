@@ -95,6 +95,10 @@ Phased so each phase is shippable on its own.
 
 - [x] **Project switcher** — header dropdown fed by `project list --json` (new);
   switching calls the CLI's `project switch`, then refreshes all panels.
+- [x] **Project management controls** — header controls can add projects through
+  the native folder picker or direct path input (`project add --json`), and
+  remove the selected project with an explicit confirmation (`project remove
+  --json`). The webview still goes through the CLI sidecar only.
 - [x] **Status + budget panels** — parsed key/value panels with a budget usage
   bar (`status --json`, `budget --json`); errors render in-panel.
 - [x] **Diet selector** — off/lite/balanced/caveman/ultra dropdown; UI state
@@ -135,6 +139,10 @@ Phased so each phase is shippable on its own.
   theme toggle (CSS variables, `localStorage`); and keyboard shortcuts
   mirroring the Ink TUI keys (`r` refresh, `p` next project, `d` cycle diet,
   `b` budget, `h` handoff, `t` theme, `q` quit, `?` help overlay).
+- [x] **Desktop UI i18n** — header, buttons, panels, help overlay, empty states,
+  and confirmation copy switch between English (default), Korean, Japanese, and
+  Simplified Chinese via dependency-free strings in `ui/index.html`. CLI output
+  remains untranslated.
 
 **Definition of done for v1.2:** a user can download a desktop app from the
 release page, open it, switch projects, see status/budget/handoff, and trigger a

@@ -8,6 +8,7 @@ interface AddOpts {
   diet?: DietProfileName;
   primary?: AgentId;
   fallback?: AgentId;
+  json?: boolean;
 }
 
 const diets = new Set(["off", "lite", "balanced", "caveman", "ultra"]);
@@ -37,8 +38,8 @@ export async function projectAddCommand(projectPath: string, opts: AddOpts) {
     console.error(`[relay-baton] path does not exist: ${resolved}`);
     process.exit(2);
   }
-  if (!new GitService(resolved).isGitRepo()) {
-    console.error(`[relay-baton] not a git repository: ${resolved}`);
+  if (!fs.statSync(resolved).isDirectory()) {
+    console.error(`[relay-baton] path is not a directory: ${resolved}`);
     process.exit(2);
   }
 
@@ -52,8 +53,16 @@ export async function projectAddCommand(projectPath: string, opts: AddOpts) {
   });
 
   if (!result.added) {
+    if (opts.json) {
+      console.log(JSON.stringify({ added: false, project: result.project }, null, 2));
+      return;
+    }
     console.log("[relay-baton] project already registered:");
     printProject(result.project, true);
+    return;
+  }
+  if (opts.json) {
+    console.log(JSON.stringify({ added: true, project: result.project }, null, 2));
     return;
   }
   console.log("[relay-baton] project added:");
@@ -103,11 +112,15 @@ export async function projectCurrentCommand(opts: JsonOpts = {}) {
   printProject(active, true);
 }
 
-export async function projectRemoveCommand(nameOrId: string) {
+export async function projectRemoveCommand(nameOrId: string, opts: JsonOpts = {}) {
   const removed = new ProjectManager().removeProject(nameOrId);
   if (!removed) {
     console.error(`[relay-baton] project not found: ${nameOrId}`);
     process.exit(2);
+  }
+  if (opts.json) {
+    console.log(JSON.stringify({ removed }, null, 2));
+    return;
   }
   console.log(`[relay-baton] project removed: ${removed.name}`);
 }

@@ -2,7 +2,8 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
-import { projectListCommand, projectCurrentCommand } from "../commands/project";
+import { spawnSync } from "child_process";
+import { projectListCommand, projectCurrentCommand, projectAddCommand, projectRemoveCommand } from "../commands/project";
 
 // Point the registry at a throwaway file so these tests never touch
 // ~/.relay-baton/projects.json.
@@ -74,5 +75,38 @@ describe("project list/current --json", () => {
   it("plain list output is unchanged (human format, no JSON)", async () => {
     await projectListCommand({});
     expect(logs.join("\n")).toMatch(/no registered projects/);
+  });
+
+  it("add --json emits the added project", async () => {
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "rb-projjson-repo-"));
+    spawnSync("git", ["init"], { cwd: repo });
+
+    await projectAddCommand(repo, { json: true });
+    const parsed = JSON.parse(logs.join("\n"));
+    expect(parsed.added).toBe(true);
+    expect(parsed.project.name).toBe(path.basename(repo));
+    expect(parsed.project.path).toBe(path.resolve(repo));
+  });
+
+  it("add --json accepts a non-git project directory", async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "rb-projjson-folder-"));
+
+    await projectAddCommand(dir, { json: true });
+    const parsed = JSON.parse(logs.join("\n"));
+    expect(parsed.added).toBe(true);
+    expect(parsed.project.path).toBe(path.resolve(dir));
+  });
+
+  it("remove --json emits the removed project", async () => {
+    fs.writeFileSync(registryFile, JSON.stringify({
+      activeProjectId: "p1",
+      projects: [
+        { id: "p1", name: "alpha", path: "/tmp/alpha", createdAt: "2026-01-01T00:00:00Z", updatedAt: "2026-01-01T00:00:00Z" },
+      ],
+    }), "utf8");
+
+    await projectRemoveCommand("alpha", { json: true });
+    const parsed = JSON.parse(logs.join("\n"));
+    expect(parsed.removed.name).toBe("alpha");
   });
 });

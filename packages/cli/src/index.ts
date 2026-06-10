@@ -185,11 +185,11 @@ program
   .action((agent, opts) => loginCommand(agent, opts));
 
 const project = program.command("project").description("Manage registered projects");
-project.command("add").argument("<path>", "repository path").option("--name <name>").option("--diet <profile>").option("--primary <agent>").option("--fallback <agent>").action(projectAddCommand);
+project.command("add").argument("<path>", "repository path").option("--name <name>").option("--diet <profile>").option("--primary <agent>").option("--fallback <agent>").option("--json", "print machine-readable JSON").action(projectAddCommand);
 project.command("list").description("List registered projects").option("--json", "print machine-readable JSON").action(projectListCommand);
 project.command("switch").argument("<name-or-id>").description("Switch active project").action(projectSwitchCommand);
 project.command("current").description("Show active project").option("--json", "print machine-readable JSON").action(projectCurrentCommand);
-project.command("remove").argument("<name-or-id>").description("Remove a project").action(projectRemoveCommand);
+project.command("remove").argument("<name-or-id>").description("Remove a project").option("--json", "print machine-readable JSON").action(projectRemoveCommand);
 project.command("doctor").description("Check registered projects").action(projectDoctorCommand);
 
 addProjectOptions(program.command("tui").description("Start the relay-baton TUI")).action(tuiCommand);

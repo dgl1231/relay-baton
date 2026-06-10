@@ -112,13 +112,15 @@ call).
 
 ## Projects
 
-### `project add <path> [--name] [--diet] [--primary] [--fallback]`
-Register a repository as a project.
+### `project add <path> [--name] [--diet] [--primary] [--fallback] [--json]`
+Register an existing directory as a project. The directory does not have to be a
+git repository, though git-backed commands such as `run` and `handoff` still
+require git. `--json` emits `{ added, project }` for sidecar/GUI integrations.
 
-### `project list [--json]` / `project current [--json]` / `project switch <name-or-id>` / `project remove <name-or-id>` / `project doctor`
+### `project list [--json]` / `project current [--json]` / `project switch <name-or-id>` / `project remove <name-or-id> [--json]` / `project doctor`
 Manage the project registry (default `~/.relay-baton/projects.json`).
 `list --json` / `current --json` emit machine-readable output for display
-surfaces (desktop dashboard, scripts).
+surfaces (desktop dashboard, scripts). `remove --json` emits `{ removed }`.
 
 ## TUI
 

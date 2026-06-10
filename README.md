@@ -332,7 +332,7 @@ relay-baton tui --project relay-baton
 | `relay-baton budget` | Show context-budget usage |
 | `relay-baton compress <file>` | Deterministically compress a markdown file |
 | `relay-baton status` | Print session status |
-| `relay-baton project add <path>` | Register a git repository |
+| `relay-baton project add <path>` | Register a project directory |
 | `relay-baton project list` / `current` / `doctor` | Inspect registered projects |
 | `relay-baton project switch <name-or-id>` | Change the active project |
 | `relay-baton project remove <name-or-id>` | Unregister a project |
@@ -354,7 +354,7 @@ relay-baton project list
 relay-baton project switch relay-baton
 ```
 
-`project add` requires the path to exist and be a git repository. Duplicate paths are not added twice. A corrupt `projects.json` is backed up to `projects.json.corrupt-<timestamp>.bak` and reset to an empty registry — commands keep working. Read-only commands (`status`, `budget`, `doctor`) do not write the registry; only `run` and `handoff` update `lastUsedAt`.
+`project add` requires the path to exist and be a directory. It may be a plain, non-git project folder; git-backed commands such as `run` and `handoff` still require a git repository when executed. Duplicate paths are not added twice. A corrupt `projects.json` is backed up to `projects.json.corrupt-<timestamp>.bak` and reset to an empty registry — commands keep working. Read-only commands (`status`, `budget`, `doctor`) do not write the registry; only `run` and `handoff` update `lastUsedAt`.
 
 ## Handoff flow
 
