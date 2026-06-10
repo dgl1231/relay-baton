@@ -90,14 +90,18 @@ Phased so each phase is shippable on its own.
 
 ### Phase B — read-only dashboard (display-first, mirrors the Ink TUI)
 
-- [ ] **Project switcher** — list registry projects, switch active (calls
-  `project list` / `project switch`).
-- [ ] **Status + budget panels** — already prototyped in `ui/index.html`; polish
-  into real panels (`status --json`, `budget --json`).
-- [ ] **Diet selector** — pick caveman/balanced/rich (display + pass-through to
-  the next CLI call; no logic in the UI).
-- [ ] **Handoff preview pane** — render the latest `.ai-session/handoff.md`
-  read-only (via a CLI read command; never write from the UI).
+> Implemented in `ui/index.html` + CLI; in-window verification shares the same
+> Rust-toolchain blocker as Phase A item 1.
+
+- [x] **Project switcher** — header dropdown fed by `project list --json` (new);
+  switching calls the CLI's `project switch`, then refreshes all panels.
+- [x] **Status + budget panels** — parsed key/value panels with a budget usage
+  bar (`status --json`, `budget --json`); errors render in-panel.
+- [x] **Diet selector** — off/lite/balanced/caveman/ultra dropdown; UI state
+  only (localStorage), passed through to future confirmed agent actions
+  (Phase C) — no logic in the UI.
+- [x] **Handoff preview pane** — renders the current handoff read-only via the
+  new `handoff show --json` (the UI never touches `.ai-session/` directly).
 
 ### Phase C — Agent Room view (confirmation-first, never autopilot)
 

@@ -59,6 +59,12 @@ launch), `--allow-api-key-env`.
 ### `handoff history`
 List past handoff documents (current + timestamped backups).
 
+### `handoff show [--file <name>] [--json]`
+Print a handoff document read-only (the current `handoff.md` by default, or a
+named history file from `handoff history`). Exists so display surfaces (e.g.
+the desktop webview) read the handoff through the CLI instead of touching
+`.ai-session/` directly.
+
 ## Plan / execute
 
 ### `plan <task>`
@@ -109,8 +115,10 @@ call).
 ### `project add <path> [--name] [--diet] [--primary] [--fallback]`
 Register a repository as a project.
 
-### `project list` / `project current` / `project switch <name-or-id>` / `project remove <name-or-id>` / `project doctor`
+### `project list [--json]` / `project current [--json]` / `project switch <name-or-id>` / `project remove <name-or-id>` / `project doctor`
 Manage the project registry (default `~/.relay-baton/projects.json`).
+`list --json` / `current --json` emit machine-readable output for display
+surfaces (desktop dashboard, scripts).
 
 ## TUI
 

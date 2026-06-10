@@ -9,8 +9,8 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-10 — v1.2 Phase A items 2–4 done; desktop release job
-awaits its first tag._
+_Last updated: 2026-06-10 — v1.2 Phase B (read-only dashboard) implemented;
+in-Tauri verification + first desktop release tag still pending._
 
 ## Where we are
 
@@ -65,8 +65,23 @@ Full phased plan in [`ROADMAP.md`](./ROADMAP.md) (§ v1.2). **Phase A in progres
    next `v*` tag — watch all six jobs then.**
 4. README desktop installer table — **done** (notes unsigned/ad-hoc binaries).
 
-**Next:** cut a tag (e.g. v1.2.0-alpha or v1.2.0) to exercise `build-desktop`,
-or move on to Phase B (read-only dashboard panels) first.
+**Phase B (read-only dashboard) — implemented** (same in-Tauri verification
+blocker as Phase A item 1):
+
+- New CLI surface for the UI (tested; cli suite now 50 tests, core 180):
+  `project list --json`, `project current --json`, `handoff show
+  [--file <name>] [--json]` (read-only; `--file` only accepts names listed by
+  `handoff history` — no path traversal). Documented in `docs/COMMANDS.md`
+  (EN + KO).
+- `desktop/ui/index.html` rebuilt as the dashboard: project switcher dropdown
+  (calls `project switch`), parsed status panel, budget panel with usage bar,
+  diet selector (localStorage display-state only), read-only handoff preview
+  pane. All data flows through the sidecar CLI; the UI never reads/writes
+  `.ai-session/` itself.
+
+**Next:** cut a tag (e.g. v1.2.0-alpha) to exercise `build-desktop` + verify
+the dashboard inside a real Tauri window on a Rust machine, or proceed to
+Phase C (Agent Room view, confirmation-first).
 
 Hard rule for v1.2: the GUI calls the CLI sidecar only. **No business logic in
 the webview.** Read-only or confirmation-first. (Matches `CLAUDE.md`: TUI/GUI

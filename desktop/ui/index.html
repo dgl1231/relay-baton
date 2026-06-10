@@ -13,85 +13,227 @@
         color: #e6edf3;
       }
       header {
-        padding: 16px 20px;
+        padding: 14px 20px;
         border-bottom: 1px solid #21262d;
         display: flex;
         align-items: center;
         gap: 12px;
+        flex-wrap: wrap;
       }
       header h1 { font-size: 16px; margin: 0; font-weight: 600; }
       header .tag { font-size: 12px; color: #8b949e; }
-      main { padding: 20px; display: grid; gap: 16px; }
+      header .spacer { flex: 1; }
+      main {
+        padding: 20px;
+        display: grid;
+        gap: 16px;
+        grid-template-columns: 1fr 1fr;
+      }
+      @media (max-width: 760px) { main { grid-template-columns: 1fr; } }
       .card {
         border: 1px solid #21262d;
         border-radius: 8px;
         padding: 16px;
         background: #161b22;
+        min-width: 0;
       }
-      .card h2 { font-size: 13px; margin: 0 0 10px; color: #8b949e; text-transform: uppercase; letter-spacing: .04em; }
-      pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-size: 13px; }
+      .card.wide { grid-column: 1 / -1; }
+      .card h2 {
+        font-size: 13px; margin: 0 0 10px; color: #8b949e;
+        text-transform: uppercase; letter-spacing: .04em;
+        display: flex; align-items: center; gap: 8px;
+      }
+      pre {
+        margin: 0; white-space: pre-wrap; word-break: break-word;
+        font-size: 13px;
+      }
+      pre.scroll { max-height: 320px; overflow: auto; }
       button {
         background: #238636; color: #fff; border: 0; border-radius: 6px;
-        padding: 8px 14px; font: inherit; cursor: pointer;
+        padding: 7px 14px; font: inherit; font-size: 13px; cursor: pointer;
       }
       button:hover { background: #2ea043; }
-      .row { display: flex; gap: 8px; margin-bottom: 12px; }
-      .muted { color: #8b949e; }
+      select {
+        background: #21262d; color: #e6edf3; border: 1px solid #30363d;
+        border-radius: 6px; padding: 6px 10px; font: inherit; font-size: 13px;
+      }
+      .muted { color: #8b949e; font-size: 12px; }
+      .kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; font-size: 13px; }
+      .kv .k { color: #8b949e; }
+      .badge {
+        display: inline-block; padding: 1px 8px; border-radius: 10px;
+        font-size: 12px; background: #21262d; border: 1px solid #30363d;
+      }
+      .bar { height: 8px; background: #21262d; border-radius: 4px; overflow: hidden; margin: 4px 0 8px; }
+      .bar > div { height: 100%; background: #238636; }
+      .bar > div.hot { background: #da3633; }
+      .err { color: #f85149; }
     </style>
   </head>
   <body>
     <header>
       <h1>relay-baton</h1>
-      <span class="tag">desktop · v1.1 scaffold</span>
+      <span class="tag">desktop · read-only dashboard</span>
+      <span class="spacer"></span>
+      <label class="muted" for="project">project</label>
+      <select id="project" title="switch active project"></select>
+      <label class="muted" for="diet">diet</label>
+      <select id="diet" title="diet profile passed to the next agent action (display only here)">
+        <option>off</option><option>lite</option><option>balanced</option>
+        <option selected>caveman</option><option>ultra</option>
+      </select>
+      <button id="refresh">Refresh</button>
     </header>
     <main>
-      <div class="row">
-        <button id="refresh">Refresh</button>
-        <span class="muted" id="hint">reads the CLI sidecar — display only, never launches agents</span>
-      </div>
       <div class="card">
         <h2>status</h2>
-        <pre id="status">loading…</pre>
+        <div id="status" class="kv">loading…</div>
       </div>
       <div class="card">
         <h2>budget</h2>
-        <pre id="budget">loading…</pre>
+        <div id="budget">loading…</div>
+      </div>
+      <div class="card wide">
+        <h2>handoff <span class="muted" id="handoff-meta"></span></h2>
+        <pre id="handoff" class="scroll">loading…</pre>
       </div>
     </main>
 
     <script type="module">
-      // Tauri v2 shell plugin. Reuses the packaged CLI as a sidecar; no logic
-      // is duplicated in the UI.
+      // Display-only webview over the relay-baton CLI sidecar. Every piece of
+      // data on this page comes from a CLI call; nothing is computed here and
+      // nothing is ever written from the UI (project switch calls the CLI's
+      // own `project switch`). The diet selector is UI state only — it is
+      // passed through to future confirmed agent actions (Phase C), never
+      // acted on locally.
       let Command;
       try {
         ({ Command } = await import("@tauri-apps/plugin-shell"));
       } catch {
-        // Running in a plain browser (e.g. previewing the HTML) — degrade.
+        // Plain-browser preview — degrade gracefully.
       }
 
-      async function runCli(args, el) {
-        const node = document.getElementById(el);
-        if (!Command) {
-          node.textContent =
-            "Not running inside Tauri.\nBuild the desktop app to talk to the relay-baton sidecar.";
-          return;
+      const $ = (id) => document.getElementById(id);
+
+      async function cli(args) {
+        if (!Command) throw new Error("Not running inside Tauri. Build the desktop app to talk to the relay-baton sidecar.");
+        const out = await Command.sidecar("binaries/relay-baton", args).execute();
+        if (out.code !== 0) throw new Error((out.stderr || out.stdout || `exit ${out.code}`).trim());
+        return out.stdout;
+      }
+      const cliJson = async (args) => JSON.parse(await cli(args));
+
+      function showError(el, err) {
+        el.innerHTML = "";
+        const p = document.createElement("pre");
+        p.className = "err";
+        p.textContent = String(err?.message ?? err);
+        el.appendChild(p);
+      }
+
+      function kvRows(el, pairs) {
+        el.innerHTML = "";
+        for (const [k, v] of pairs) {
+          const dk = document.createElement("span"); dk.className = "k"; dk.textContent = k;
+          const dv = document.createElement("span"); dv.textContent = v == null ? "-" : String(v);
+          el.append(dk, dv);
         }
+      }
+
+      async function loadProjects() {
+        const sel = $("project");
         try {
-          const out = await Command.sidecar("binaries/relay-baton", args).execute();
-          node.textContent = (out.stdout || out.stderr || "").trim() || "(no output)";
+          const data = await cliJson(["project", "list", "--json"]);
+          sel.innerHTML = "";
+          if (data.projects.length === 0) {
+            sel.append(new Option("(cwd — no registered projects)", ""));
+            sel.disabled = true;
+            return;
+          }
+          sel.disabled = false;
+          for (const p of data.projects) {
+            sel.append(new Option(p.name, p.id, false, p.id === data.activeProjectId));
+          }
         } catch (err) {
-          node.textContent = "error: " + (err?.message ?? String(err));
+          sel.innerHTML = "";
+          sel.append(new Option("(unavailable)", ""));
+          sel.disabled = true;
+        }
+      }
+
+      async function loadStatus() {
+        const el = $("status");
+        try {
+          const s = await cliJson(["status", "--json"]);
+          kvRows(el, [
+            ["task", s.task],
+            ["status", s.status],
+            ["agents", `${s.primaryAgent} -> ${s.fallbackAgent}`],
+            ["last agent", s.lastAgent],
+            ["diet", s.tokenDietProfile],
+            ["changed files", s.changedFiles],
+            ["handoff", s.handoffExists ? "yes" : "no"],
+            ["last error", s.lastError],
+          ]);
+        } catch (err) { showError(el, err); }
+      }
+
+      async function loadBudget() {
+        const el = $("budget");
+        try {
+          const b = await cliJson(["budget", "--json"]);
+          const used = b.used?.handoff ?? 0;
+          const max = b.maxHandoffChars || 1;
+          const pct = Math.min(100, Math.round((used / max) * 100));
+          el.innerHTML = "";
+          const label = document.createElement("div");
+          label.className = "muted";
+          label.textContent = `handoff ${used.toLocaleString()} / ${max.toLocaleString()} chars (${pct}%) · profile ${b.activeProfile}`;
+          const bar = document.createElement("div"); bar.className = "bar";
+          const fill = document.createElement("div");
+          fill.style.width = pct + "%";
+          if (pct >= 90) fill.className = "hot";
+          bar.appendChild(fill);
+          const kv = document.createElement("div"); kv.className = "kv";
+          el.append(label, bar, kv);
+          kvRows(kv, Object.entries(b.used ?? {}).map(([k, v]) => [k, Number(v).toLocaleString() + " chars"]));
+        } catch (err) { showError(el, err); }
+      }
+
+      async function loadHandoff() {
+        const el = $("handoff");
+        const meta = $("handoff-meta");
+        try {
+          const h = await cliJson(["handoff", "show", "--json"]);
+          meta.textContent = h.exists ? h.name : "";
+          el.classList.remove("err");
+          el.textContent = h.exists ? h.content : "(no handoff yet — run `relay-baton handoff` from the CLI)";
+        } catch (err) {
+          meta.textContent = "";
+          el.classList.add("err");
+          el.textContent = String(err?.message ?? err);
         }
       }
 
       async function refresh() {
-        await Promise.all([
-          runCli(["status", "--json"], "status"),
-          runCli(["budget", "--json"], "budget"),
-        ]);
+        await Promise.all([loadProjects(), loadStatus(), loadBudget(), loadHandoff()]);
       }
 
-      document.getElementById("refresh").addEventListener("click", refresh);
+      $("project").addEventListener("change", async (e) => {
+        const id = e.target.value;
+        if (!id) return;
+        try {
+          await cli(["project", "switch", id]);
+        } catch (err) {
+          console.error(err);
+        }
+        await refresh();
+      });
+
+      $("diet").value = localStorage.getItem("rb-diet") ?? "caveman";
+      $("diet").addEventListener("change", (e) => localStorage.setItem("rb-diet", e.target.value));
+
+      $("refresh").addEventListener("click", refresh);
       refresh();
     </script>
   </body>

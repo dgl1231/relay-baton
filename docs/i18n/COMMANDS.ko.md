@@ -55,6 +55,11 @@ handoff 문서를 생성하고 선택적으로 다음 agent 실행. 옵션: `--t
 ### `handoff history`
 과거 handoff 문서 목록(현재 + 타임스탬프 백업).
 
+### `handoff show [--file <name>] [--json]`
+handoff 문서를 읽기 전용으로 출력(기본은 현재 `handoff.md`, `--file`로
+`handoff history`의 파일 이름 지정 가능). desktop webview 같은 display
+surface가 `.ai-session/`을 직접 만지지 않고 CLI를 통해 읽도록 하기 위한 명령.
+
 ## plan / execute
 
 ### `plan <task>`
@@ -103,8 +108,10 @@ working-tree diff를 현재 plan과 deterministic하게 검토(모델 호출 없
 ### `project add <path> [--name] [--diet] [--primary] [--fallback]`
 repository를 project로 등록.
 
-### `project list` / `project current` / `project switch <name-or-id>` / `project remove <name-or-id>` / `project doctor`
+### `project list [--json]` / `project current [--json]` / `project switch <name-or-id>` / `project remove <name-or-id>` / `project doctor`
 project registry 관리(기본 `~/.relay-baton/projects.json`).
+`list --json` / `current --json`은 display surface(desktop dashboard, script)용
+machine-readable 출력.
 
 ## TUI
 
