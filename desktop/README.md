@@ -13,9 +13,13 @@ This keeps every hard constraint intact:
 
 ## Status
 
-**v1.1 ships this as a scaffold** (dashboard reads `status`/`budget` via the
-sidecar). The full interactive GUI — project switcher, diet selector, handoff
-preview, Agent Room view — lands in **v1.2** (see [`docs/ROADMAP.md`](../docs/ROADMAP.md)).
+**v1.2 (alpha)** — read-only dashboard: project switcher, status + budget
+panels, diet selector, read-only handoff preview, and an Agent Room timeline
+(`replay`) with a confirmation-first action palette. Quality-of-life: persisted
+window size/position (`tauri-plugin-window-state`), a light/dark theme toggle,
+and keyboard shortcuts mirroring the Ink TUI (`r`/`p`/`d`/`b`/`h`/`t`/`q`/`?`).
+The GUI is read-only / confirmation-first and never spawns an agent itself
+(see [`docs/ROADMAP.md`](../docs/ROADMAP.md) § v1.2).
 
 It lives outside the pnpm workspace (`desktop/`, not `packages/`) so the
 TypeScript build and test CI are unaffected and you only need the Rust/Tauri

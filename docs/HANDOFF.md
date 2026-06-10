@@ -9,8 +9,9 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-10 — Phase C (agent-room view) implemented; release
-commit v1.2.0-alpha.0 staged locally, push/tag still pending approval._
+_Last updated: 2026-06-10 — v1.2.0-alpha.0 merged (PR #7) + tagged; Release
+running. Phase D (signing docs + window/theme/shortcuts) done on branch
+feat/v1.2-phase-d._
 
 ## Where we are
 

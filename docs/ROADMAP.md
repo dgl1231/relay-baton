@@ -123,11 +123,18 @@ Phased so each phase is shippable on its own.
 
 ### Phase D — signing & polish
 
-- [ ] **Code-signing / notarization story documented.** Until real certs exist,
-  binaries ship ad-hoc-signed (macOS) / unsigned (Win) — document the Gatekeeper
-  / SmartScreen workaround in `RELEASE.md`.
-- [ ] Window state persistence, dark/light, basic keyboard shortcuts mirroring
-  the TUI keys.
+> Implemented; the Tauri-side bits (window-state plugin) share the same
+> Rust-toolchain verification blocker as Phase A item 1.
+
+- [x] **Code-signing / notarization story documented** — `RELEASE.md` "Code
+  signing & notarization": current ad-hoc/unsigned state, the Gatekeeper /
+  SmartScreen workarounds, and the path to real certs (Apple notarytool /
+  Windows Authenticode) when secrets exist.
+- [x] **Window state persistence, dark/light, keyboard shortcuts** — added
+  `tauri-plugin-window-state` (remembers size/position); a persisted light/dark
+  theme toggle (CSS variables, `localStorage`); and keyboard shortcuts
+  mirroring the Ink TUI keys (`r` refresh, `p` next project, `d` cycle diet,
+  `b` budget, `h` handoff, `t` theme, `q` quit, `?` help overlay).
 
 **Definition of done for v1.2:** a user can download a desktop app from the
 release page, open it, switch projects, see status/budget/handoff, and trigger a

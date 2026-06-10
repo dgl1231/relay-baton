@@ -58,6 +58,13 @@ These each cost a patch release (v1.1.0 → v1.1.3). Keep them in mind:
 4. **Runner queue delays are normal**, not failures. A job stuck on *"Waiting for
    a hosted runner to come online"* with `Evaluating: success() → true` is queued,
    not broken. Do not cancel.
+5. **MSI rejects non-numeric prerelease versions.** `tauri build` on Windows
+   (WiX/MSI) fails with *"optional pre-release identifier in app version must be
+   numeric-only…"* if `tauri.conf.json` `version` is e.g. `1.2.0-alpha.0`. The
+   `.dmg`/`.AppImage` targets accept it; only MSI is strict. Keep
+   **`desktop/src-tauri/tauri.conf.json` `version` a plain `x.y.z`** (the
+   installer's ProductVersion); the prerelease lives in the git tag / release
+   name, not the MSI. First hit on `v1.2.0-alpha.0` (desktop windows-x64 only).
 
 ## Requirements / settings
 
@@ -88,6 +95,47 @@ chmod +x build/rb-bin && ./build/rb-bin --version   # -> x.y.z
 
 ## Desktop app (v1.2, in progress)
 
-The Tauri desktop app is **not yet** in the release pipeline. When wired up
-(v1.2), a Tauri build job will consume the same SEA binary as a sidecar and emit
-`.dmg` / `.msi` / `.AppImage`. See [`../desktop/README.md`](../desktop/README.md).
+The Tauri desktop app ships from the same `v*` tag. After `build-binaries`,
+the `build-desktop` matrix job (in [`release.yml`](../.github/workflows/release.yml))
+downloads the SEA binary, stages it as a Tauri **sidecar**
+(`npm run stage-sidecar`), generates icons (`npm run icon`), runs `tauri build`,
+and attaches the per-OS installer to the same Release:
+
+- macOS → `.dmg`
+- Windows → `.msi`
+- Linux → `.AppImage`
+
+See [`../desktop/README.md`](../desktop/README.md) for the local build path.
+
+## Code signing & notarization
+
+**Current state: installers are NOT signed with a trusted certificate.** Until
+real certs exist they ship:
+
+- **macOS** — the CLI binary is **ad-hoc-signed** (`codesign --sign -`); the
+  `.dmg` is unsigned and **not notarized**.
+- **Windows** — the `.msi` is **unsigned** (no Authenticode certificate).
+- **Linux** — `.AppImage` is unsigned (normal for AppImage).
+
+### What users see, and the workaround
+
+- **macOS Gatekeeper** — first launch is blocked ("can't be opened because Apple
+  cannot check it for malicious software"). Workaround: **right-click → Open**,
+  then confirm; or `xattr -dr com.apple.quarantine /Applications/relay-baton.app`.
+- **Windows SmartScreen** — "Windows protected your PC". Workaround: **More info
+  → Run anyway**.
+
+Document this in the release notes for every desktop release (the v1.2 notes
+already do).
+
+### Path to trusted signing (future work)
+
+- **macOS:** an Apple Developer ID Application cert + `notarytool` submission in
+  CI (needs `APPLE_CERTIFICATE`, `APPLE_ID`, `APPLE_TEAM_ID`, app-specific
+  password as repo secrets). Tauri supports this via `tauri.conf.json` →
+  `bundle.macOS.signingIdentity` + the notarize step.
+- **Windows:** an Authenticode code-signing cert (OV/EV). Tauri signs the `.msi`
+  via `bundle.windows.certificateThumbprint` / `signCommand`.
+- Until then, keep binaries ad-hoc/unsigned and rely on the documented
+  workaround. Adding secrets is the only change required — the build steps stay
+  the same.

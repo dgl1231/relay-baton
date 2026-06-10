@@ -5,23 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>relay-baton</title>
     <style>
-      :root { color-scheme: dark; }
+      :root {
+        color-scheme: dark;
+        --bg: #0d1117; --panel: #161b22; --inset: #0d1117;
+        --border: #21262d; --border2: #30363d;
+        --fg: #e6edf3; --muted: #8b949e; --faint: #6e7681;
+        --accent: #238636; --accent-hover: #2ea043;
+        --hot: #da3633; --err: #f85149; --amber: #f0b429;
+        --user: #58a6ff; --claude: #d2a8ff; --codex: #7ee787;
+      }
+      html[data-theme="light"] {
+        color-scheme: light;
+        --bg: #ffffff; --panel: #f6f8fa; --inset: #ffffff;
+        --border: #d0d7de; --border2: #d0d7de;
+        --fg: #1f2328; --muted: #636c76; --faint: #8c959f;
+        --accent: #1f883d; --accent-hover: #1a7f37;
+        --hot: #cf222e; --err: #cf222e; --amber: #9a6700;
+        --user: #0969da; --claude: #8250df; --codex: #1a7f37;
+      }
       body {
         margin: 0;
         font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-        background: #0d1117;
-        color: #e6edf3;
+        background: var(--bg);
+        color: var(--fg);
       }
       header {
         padding: 14px 20px;
-        border-bottom: 1px solid #21262d;
+        border-bottom: 1px solid var(--border);
         display: flex;
         align-items: center;
         gap: 12px;
         flex-wrap: wrap;
       }
       header h1 { font-size: 16px; margin: 0; font-weight: 600; }
-      header .tag { font-size: 12px; color: #8b949e; }
+      header .tag { font-size: 12px; color: var(--muted); }
       header .spacer { flex: 1; }
       main {
         padding: 20px;
@@ -31,15 +48,15 @@
       }
       @media (max-width: 760px) { main { grid-template-columns: 1fr; } }
       .card {
-        border: 1px solid #21262d;
+        border: 1px solid var(--border);
         border-radius: 8px;
         padding: 16px;
-        background: #161b22;
+        background: var(--panel);
         min-width: 0;
       }
       .card.wide { grid-column: 1 / -1; }
       .card h2 {
-        font-size: 13px; margin: 0 0 10px; color: #8b949e;
+        font-size: 13px; margin: 0 0 10px; color: var(--muted);
         text-transform: uppercase; letter-spacing: .04em;
         display: flex; align-items: center; gap: 8px;
       }
@@ -49,59 +66,74 @@
       }
       pre.scroll { max-height: 320px; overflow: auto; }
       button {
-        background: #238636; color: #fff; border: 0; border-radius: 6px;
+        background: var(--accent); color: #fff; border: 0; border-radius: 6px;
         padding: 7px 14px; font: inherit; font-size: 13px; cursor: pointer;
       }
-      button:hover { background: #2ea043; }
+      button:hover { background: var(--accent-hover); }
+      button.ghost { background: var(--border); color: var(--fg); border: 1px solid var(--border2); }
+      button.ghost:hover { background: var(--border2); }
       select {
-        background: #21262d; color: #e6edf3; border: 1px solid #30363d;
+        background: var(--border); color: var(--fg); border: 1px solid var(--border2);
         border-radius: 6px; padding: 6px 10px; font: inherit; font-size: 13px;
       }
-      .muted { color: #8b949e; font-size: 12px; }
-      .kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; font-size: 13px; }
-      .kv .k { color: #8b949e; }
-      .badge {
-        display: inline-block; padding: 1px 8px; border-radius: 10px;
-        font-size: 12px; background: #21262d; border: 1px solid #30363d;
+      .muted { color: var(--muted); font-size: 12px; }
+      .kbd {
+        font-size: 11px; color: var(--muted); border: 1px solid var(--border2);
+        border-radius: 4px; padding: 0 5px; background: var(--inset);
       }
-      .bar { height: 8px; background: #21262d; border-radius: 4px; overflow: hidden; margin: 4px 0 8px; }
-      .bar > div { height: 100%; background: #238636; }
-      .bar > div.hot { background: #da3633; }
-      .err { color: #f85149; }
+      .kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; font-size: 13px; }
+      .kv .k { color: var(--muted); }
+      .bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin: 4px 0 8px; }
+      .bar > div { height: 100%; background: var(--accent); }
+      .bar > div.hot { background: var(--hot); }
+      .err { color: var(--err); }
 
       /* conversation timeline */
       .timeline { display: flex; flex-direction: column; gap: 8px; max-height: 360px; overflow: auto; }
       .ev { display: grid; grid-template-columns: max-content 1fr; gap: 10px; font-size: 13px; }
       .ev .who { white-space: nowrap; }
       .ev .role { font-weight: 600; }
-      .role-user { color: #58a6ff; }
-      .role-claude { color: #d2a8ff; }
-      .role-codex { color: #7ee787; }
-      .role-relay-baton, .role-relay { color: #f0b429; }
-      .ev .kind { color: #8b949e; font-size: 11px; }
+      .role-user { color: var(--user); }
+      .role-claude { color: var(--claude); }
+      .role-codex { color: var(--codex); }
+      .role-relay-baton, .role-relay { color: var(--amber); }
+      .ev .kind { color: var(--muted); font-size: 11px; }
       .ev .text { white-space: pre-wrap; word-break: break-word; }
-      .ev .ts { color: #6e7681; font-size: 11px; }
+      .ev .ts { color: var(--faint); font-size: 11px; }
 
       /* actions toolbar + confirm modal */
       .actions { display: flex; flex-wrap: wrap; gap: 8px; }
-      .actions button { background: #21262d; border: 1px solid #30363d; }
-      .actions button:hover { background: #30363d; }
-      .actions button.ro { border-color: #2ea04366; }
+      .actions button { background: var(--border); border: 1px solid var(--border2); color: var(--fg); }
+      .actions button:hover { background: var(--border2); }
+      .actions button.ro { border-color: var(--accent); }
       .confirm {
-        margin-top: 12px; border: 1px solid #30363d; border-radius: 8px;
-        padding: 12px; background: #0d1117; display: none;
+        margin-top: 12px; border: 1px solid var(--border2); border-radius: 8px;
+        padding: 12px; background: var(--inset); display: none;
       }
       .confirm.show { display: block; }
       .confirm code {
-        display: block; background: #161b22; border: 1px solid #21262d;
+        display: block; background: var(--panel); border: 1px solid var(--border);
         border-radius: 6px; padding: 8px 10px; margin: 8px 0; font-size: 13px;
         white-space: pre-wrap; word-break: break-word;
       }
-      .confirm .warn { color: #f0b429; font-size: 12px; }
+      .confirm .warn { color: var(--amber); font-size: 12px; }
       .confirm .btns { display: flex; gap: 8px; margin-top: 8px; }
-      .confirm .run { background: #238636; }
-      .confirm .copy { background: #21262d; border: 1px solid #30363d; }
-      .confirm .cancel { background: transparent; border: 1px solid #30363d; }
+      .confirm .run { background: var(--accent); color: #fff; }
+      .confirm .copy { background: var(--border); border: 1px solid var(--border2); color: var(--fg); }
+      .confirm .cancel { background: transparent; border: 1px solid var(--border2); color: var(--fg); }
+
+      /* keyboard-shortcut help overlay */
+      .overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,.55);
+        display: none; align-items: center; justify-content: center; z-index: 10;
+      }
+      .overlay.show { display: flex; }
+      .overlay .box {
+        background: var(--panel); border: 1px solid var(--border2);
+        border-radius: 10px; padding: 20px 24px; min-width: 280px;
+      }
+      .overlay h3 { margin: 0 0 12px; font-size: 14px; }
+      .overlay .kv { gap: 8px 18px; }
     </style>
   </head>
   <body>
@@ -116,8 +148,26 @@
         <option>off</option><option>lite</option><option>balanced</option>
         <option selected>caveman</option><option>ultra</option>
       </select>
+      <button id="theme" class="ghost" title="toggle light / dark (t)">◐</button>
+      <button id="help" class="ghost" title="keyboard shortcuts (?)">?</button>
       <button id="refresh">Refresh</button>
     </header>
+
+    <div class="overlay" id="overlay">
+      <div class="box">
+        <h3>Keyboard shortcuts</h3>
+        <div class="kv">
+          <span class="kbd">r</span><span>refresh everything</span>
+          <span class="kbd">p</span><span>next project</span>
+          <span class="kbd">d</span><span>cycle diet profile</span>
+          <span class="kbd">b</span><span>reload budget</span>
+          <span class="kbd">h</span><span>reload handoff</span>
+          <span class="kbd">t</span><span>toggle light / dark</span>
+          <span class="kbd">q</span><span>quit window</span>
+          <span class="kbd">?</span><span>this help</span>
+        </div>
+      </div>
+    </div>
     <main>
       <div class="card">
         <h2>status</h2>
@@ -371,6 +421,58 @@
 
       $("diet").value = localStorage.getItem("rb-diet") ?? "caveman";
       $("diet").addEventListener("change", (e) => localStorage.setItem("rb-diet", e.target.value));
+
+      // --- theme (persisted) ---
+      function applyTheme(t) {
+        document.documentElement.setAttribute("data-theme", t);
+        localStorage.setItem("rb-theme", t);
+      }
+      function toggleTheme() {
+        applyTheme(document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light");
+      }
+      applyTheme(localStorage.getItem("rb-theme") ?? "dark");
+      $("theme").addEventListener("click", toggleTheme);
+
+      // --- help overlay ---
+      const overlay = $("overlay");
+      const toggleHelp = () => overlay.classList.toggle("show");
+      $("help").addEventListener("click", toggleHelp);
+      overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.classList.remove("show"); });
+
+      // --- cycle helpers for keyboard shortcuts ---
+      function cycleSelect(sel) {
+        if (sel.disabled || sel.options.length === 0) return;
+        sel.selectedIndex = (sel.selectedIndex + 1) % sel.options.length;
+        sel.dispatchEvent(new Event("change"));
+      }
+
+      async function quitWindow() {
+        try {
+          const { getCurrentWindow } = await import("@tauri-apps/api/window");
+          await getCurrentWindow().close();
+        } catch { /* plain browser — no-op */ }
+      }
+
+      // --- keyboard shortcuts (mirror the Ink TUI keys) ---
+      window.addEventListener("keydown", (e) => {
+        // ignore while typing in a field or with modifiers held
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        const tag = (e.target?.tagName || "").toLowerCase();
+        if (tag === "input" || tag === "select" || tag === "textarea") return;
+        if (e.key === "Escape") { overlay.classList.remove("show"); return; }
+        switch (e.key) {
+          case "r": refresh(); break;
+          case "p": cycleSelect($("project")); break;
+          case "d": cycleSelect($("diet")); break;
+          case "b": loadBudget(); break;
+          case "h": loadHandoff(); break;
+          case "t": toggleTheme(); break;
+          case "q": quitWindow(); break;
+          case "?": toggleHelp(); break;
+          default: return;
+        }
+        e.preventDefault();
+      });
 
       $("refresh").addEventListener("click", refresh);
       renderActions();
