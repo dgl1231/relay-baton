@@ -41,17 +41,27 @@ The sidecar binary is the same single-file executable produced by
 `desktop/src-tauri/binaries/relay-baton-<target-triple>` before bundling
 (Tauri's `externalBin` naming convention).
 
-## Build (requires Rust + Tauri CLI)
+## Build (requires Rust toolchain)
+
+The Tauri CLI is pinned as a dev dependency in [`package.json`](./package.json),
+so you don't need a global `cargo tauri` install — just Node + the Rust
+toolchain (`rustc` / `cargo`).
 
 ```bash
+cd desktop
+npm install          # installs the pinned @tauri-apps/cli
+
 # 1. Build + stage the CLI sidecar binary (see workflow for the SEA recipe)
 #    -> desktop/src-tauri/binaries/relay-baton-<triple>[.exe]
 
 # 2. Run / build the desktop app
-cd desktop
-cargo tauri dev      # local dev window
-cargo tauri build    # produces an installer / .app / .exe under src-tauri/target
+npm run dev          # local dev window  (= tauri dev)
+npm run build        # installer / .app / .exe under src-tauri/target (= tauri build)
 ```
 
-Icons under `src-tauri/icons/` are placeholders; run `cargo tauri icon
-<path-to-png>` to generate the real set before a production build.
+> If you prefer a global install, `cargo install tauri-cli` then `cargo tauri
+> dev` / `cargo tauri build` work the same.
+
+Icons under `src-tauri/icons/` are placeholders; run `npm run icon -- <path-to-png>`
+(or `cargo tauri icon <path-to-png>`) to generate the real set before a
+production build.

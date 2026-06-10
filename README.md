@@ -10,7 +10,7 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 [![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-[![Latest](https://img.shields.io/badge/release-v1.1.3-blue.svg)](./release-notes/v1.1.3.md)
+[![Latest](https://img.shields.io/badge/release-v1.2.0--alpha.0-blue.svg)](./release-notes/v1.2.0-alpha.0.md)
 [![Download](https://img.shields.io/badge/download-binaries-238636.svg)](https://github.com/dgl1231/relay-baton/releases/latest)
 
 **English**
@@ -59,9 +59,20 @@ chmod +x relay-baton-macos-arm64
 .\relay-baton-windows-x64.exe --version
 ```
 
-> Older versions: pick any tag on the [releases page](https://github.com/dgl1231/relay-baton/releases). Prefer to build from source instead? See [Install](#install) below.
+**Desktop app** (Tauri shell over the same CLI — see [`desktop/`](./desktop)):
+
+| OS | Installer | Get it |
+| --- | --- | --- |
+| macOS (Apple Silicon) | `relay-baton_…_aarch64.dmg` | [Latest release](https://github.com/dgl1231/relay-baton/releases/latest) |
+| Linux (x64) | `relay-baton_…_amd64.AppImage` | [Latest release](https://github.com/dgl1231/relay-baton/releases/latest) |
+| Windows (x64) | `relay-baton_…_x64_en-US.msi` | [Latest release](https://github.com/dgl1231/relay-baton/releases/latest) |
+
+> Desktop installers ship from the first tag cut after v1.1.3. Binaries are
+> ad-hoc-signed (macOS) / unsigned (Windows) for now, so expect a Gatekeeper /
+> SmartScreen prompt on first launch. The desktop GUI itself is early (v1.2 in
+> progress — see [roadmap](./docs/ROADMAP.md)).
 >
-> A **desktop GUI** (Tauri) is in progress — the v1.1 scaffold lives in [`desktop/`](./desktop); the full app ships in v1.2 (see [roadmap](./docs/ROADMAP.md)).
+> Older versions: pick any tag on the [releases page](https://github.com/dgl1231/relay-baton/releases). Prefer to build from source instead? See [Install](#install) below.
 
 ## Why this exists
 
@@ -601,10 +612,11 @@ any real run). Design only for now — **not implemented yet**. Full design:
 
 Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-notes/README.md)). They are user-facing changelogs, not agent handoff material — that role belongs to `.ai-session/handoff.md`.
 
-**Latest:** v1.1.3 — [English](./release-notes/v1.1.3.md) · [한국어](./release-notes/ko/v1.1.3.md)
+**Latest:** v1.2.0-alpha.0 — [English](./release-notes/v1.2.0-alpha.0.md) · [한국어](./release-notes/ko/v1.2.0-alpha.0.md)
 
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
+| v1.2.0-alpha.0 | [Read →](./release-notes/v1.2.0-alpha.0.md) | [읽기 →](./release-notes/ko/v1.2.0-alpha.0.md) | Desktop GUI prerelease (Phase A+B): `build-desktop` release job (.dmg/.msi/.AppImage), deterministic icons, sidecar staging, read-only dashboard, and CLI JSON surface (`project list/current --json`, `handoff show`). Unsigned installers. |
 | v1.1.3 | [Read →](./release-notes/v1.1.3.md) | [읽기 →](./release-notes/ko/v1.1.3.md) | Distributable (shipped): per-OS standalone executables (Node SEA) attached to the GitHub Release, automated `release.yml` pipeline, README downloads, Tauri desktop scaffold. (v1.1.0–1.1.2 were release-pipeline hotfixes.) |
 | v1.0.0 | [Read →](./release-notes/v1.0.0.md) | [읽기 →](./release-notes/ko/v1.0.0.md) | Stable Local Release: frozen config/session contracts, `.ai-session/` artifact validation (`doctor --deep`), full command reference (`docs/COMMANDS.md` EN+KO), finalized Agent Room set with read-only `/diagnose`. |
 | v0.9.0 | [Read →](./release-notes/v0.9.0.md) | [읽기 →](./release-notes/ko/v0.9.0.md) | Automation & Runtime (bounded): `LoopController`, `/continue --max-steps N`, `/replan`, `relay-baton replay` / room `/replay`, adaptive per-agent compression thresholds. |

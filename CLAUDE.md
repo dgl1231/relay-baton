@@ -87,6 +87,19 @@ MVP에서는 deterministic compaction만 구현한다.
 - `--full-auto`, `--ask-for-approval`, `bypassPermissions`는 사용하지 않는다.
 - Claude `--version`은 통과해도 로그인은 별도다. 처음에는 `claude` 단독 실행 후 `/login`이 필요할 수 있다.
 
+## 세션 핸드오프 규칙 (중요)
+
+이 프로젝트 자체에 relay-baton 개념을 적용한다. 세션이 바뀌어도(다른 머신/cold
+agent 포함) 작업이 이어지도록 **`docs/HANDOFF.md`를 항상 최신으로 유지한다.**
+
+- 세션 **시작 시**: `docs/HANDOFF.md`를 먼저 읽고, 이어서 `git pull` 한다.
+- 의미 있는 작업을 마칠 때마다(또는 세션 종료 전) `docs/HANDOFF.md`를 갱신한다:
+  - `_Last updated:_` 날짜
+  - "Where we are" / "Next up" 현재 상태로 교체
+  - 새로 알게 된 환경 제약(머신별 차이 포함)을 기록
+- ROADMAP 체크박스(`[ ]`/`[~]`/`[x]`)도 진행에 맞춰 갱신한다.
+- 단, 자동 commit/push/PR은 하지 않는다(사용자가 요청할 때만).
+
 ## 작업 방식
 
 큰 변경 전:

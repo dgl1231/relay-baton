@@ -60,9 +60,20 @@ export async function projectAddCommand(projectPath: string, opts: AddOpts) {
   printProject(result.project, true);
 }
 
-export async function projectListCommand() {
+export interface JsonOpts {
+  json?: boolean;
+}
+
+export async function projectListCommand(opts: JsonOpts = {}) {
   const manager = new ProjectManager();
   const data = manager.getRegistry();
+  if (opts.json) {
+    console.log(JSON.stringify({
+      activeProjectId: data.activeProjectId ?? null,
+      projects: data.projects,
+    }, null, 2));
+    return;
+  }
   if (data.projects.length === 0) {
     console.log("[relay-baton] no registered projects.");
     return;
@@ -79,8 +90,12 @@ export async function projectSwitchCommand(nameOrId: string) {
   console.log(`[relay-baton] active project: ${project.name} (${project.path})`);
 }
 
-export async function projectCurrentCommand() {
+export async function projectCurrentCommand(opts: JsonOpts = {}) {
   const active = new ProjectManager().getActiveProject();
+  if (opts.json) {
+    console.log(JSON.stringify({ active: active ?? null, cwd: process.cwd() }, null, 2));
+    return;
+  }
   if (!active) {
     console.log(`[relay-baton] no active project. Using cwd: ${process.cwd()}`);
     return;

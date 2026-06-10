@@ -69,36 +69,57 @@ Phased so each phase is shippable on its own.
 
 ### Phase A — make it build & ship (foundation)
 
-- [ ] **`desktop/` builds locally.** Add `package.json` (Tauri CLI dev dep) or
-  document the `cargo tauri` path; generate real icons (`cargo tauri icon`);
-  confirm `cargo tauri dev` opens the window and the sidecar calls succeed.
-- [ ] **Sidecar staging script** — a small script that copies the right
-  `relay-baton-<triple>` binary into `desktop/src-tauri/binaries/`
-  (see [`../desktop/src-tauri/binaries/README.md`](../desktop/src-tauri/binaries/README.md)).
-- [ ] **Desktop release job** — extend [`release.yml`](../.github/workflows/release.yml)
-  with a job that, after the SEA binaries exist, runs `tauri build` per-OS and
-  attaches `.dmg` / `.msi` / `.AppImage` to the same GitHub Release.
-- [ ] README: add desktop downloads next to the CLI binary table.
+- [~] **`desktop/` builds locally.** `desktop/package.json` pins
+  `@tauri-apps/cli` as a dev dep with `dev`/`build`/`icon` scripts (no global
+  `cargo tauri` needed); README build section updated. Real icons now generate
+  deterministically: `npm run gen-icon-source` (pure-Node PNG writer →
+  `icon-source.png`, committed) + `npm run icon` (full per-OS set, gitignored,
+  regenerated in CI). **Remaining (needs a Rust toolchain machine):** confirm
+  `npm run dev` opens the window + the sidecar calls succeed.
+- [x] **Sidecar staging script** — [`desktop/scripts/stage-sidecar.mjs`](../desktop/scripts/stage-sidecar.mjs)
+  (`npm run stage-sidecar`) maps a Release artifact / local SEA binary to the
+  Tauri target-triple name under `desktop/src-tauri/binaries/` and sets the
+  Unix exec bit. Pure Node, cross-platform. See
+  [`../desktop/src-tauri/binaries/README.md`](../desktop/src-tauri/binaries/README.md).
+- [x] **Desktop release job** — [`release.yml`](../.github/workflows/release.yml)
+  `build-desktop` job (needs `build-binaries`): downloads the SEA binary
+  artifact, stages it as the sidecar, generates icons, runs `tauri build`
+  per-OS, and attaches `.dmg` / `.msi` / `.AppImage` to the same GitHub
+  Release. Unverified in CI until the next `v*` tag.
+- [x] README: desktop installer table added next to the CLI binary table.
 
 ### Phase B — read-only dashboard (display-first, mirrors the Ink TUI)
 
-- [ ] **Project switcher** — list registry projects, switch active (calls
-  `project list` / `project switch`).
-- [ ] **Status + budget panels** — already prototyped in `ui/index.html`; polish
-  into real panels (`status --json`, `budget --json`).
-- [ ] **Diet selector** — pick caveman/balanced/rich (display + pass-through to
-  the next CLI call; no logic in the UI).
-- [ ] **Handoff preview pane** — render the latest `.ai-session/handoff.md`
-  read-only (via a CLI read command; never write from the UI).
+> Implemented in `ui/index.html` + CLI; in-window verification shares the same
+> Rust-toolchain blocker as Phase A item 1.
+
+- [x] **Project switcher** — header dropdown fed by `project list --json` (new);
+  switching calls the CLI's `project switch`, then refreshes all panels.
+- [x] **Status + budget panels** — parsed key/value panels with a budget usage
+  bar (`status --json`, `budget --json`); errors render in-panel.
+- [x] **Diet selector** — off/lite/balanced/caveman/ultra dropdown; UI state
+  only (localStorage), passed through to future confirmed agent actions
+  (Phase C) — no logic in the UI.
+- [x] **Handoff preview pane** — renders the current handoff read-only via the
+  new `handoff show --json` (the UI never touches `.ai-session/` directly).
 
 ### Phase C — Agent Room view (confirmation-first, never autopilot)
 
-- [ ] **Conversation view** over `conversation.jsonl` (reuse `replay`) with the
-  labeled user / claude / codex / relay-baton roles.
-- [ ] **Prompt preview before any real run**, identical safety model to the CLI
-  room — explicit confirm, bounded `/continue --max-steps`, no unbounded loop.
-- [ ] Wire `/plan` `/execute` `/review` `/diagnose` `/handoff` as buttons that
-  shell out to the same commands.
+> Implemented in `ui/index.html`; in-window verification shares the same
+> Rust-toolchain blocker as Phase A item 1.
+
+- [x] **Conversation view** over `conversation.jsonl` — `replay --json` feeds a
+  read-only timeline with color-labeled user / claude / codex / relay-baton
+  roles, per-event kind + timestamp.
+- [x] **Prompt preview before any real run** — a confirmation palette renders
+  the exact `relay-baton …` command before anything happens. Read-only /
+  no-model commands (`review`, `doctor --deep`, `status`) have a Run button;
+  agent-launching commands (`plan`, `execute`, `handoff`) are copy-only — the
+  GUI never spawns an agent (strongest reading of confirmation-first for the
+  alpha). Bounded `/continue --max-steps` stays a CLI concern.
+- [x] **Wire `/review` `/diagnose` `/plan` `/execute` `/handoff` as buttons** —
+  present in the action palette; read-only ones execute via the sidecar,
+  mutating ones preview the command to run in the terminal.
 
 ### Phase D — signing & polish
 

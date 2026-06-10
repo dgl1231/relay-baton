@@ -9,6 +9,7 @@ import { receiptDoneCommand, receiptSkipCommand, receiptListCommand } from "./co
 import { runCommand } from "./commands/run";
 import { handoffCommand } from "./commands/handoff";
 import { handoffHistoryCommand } from "./commands/handoffHistory";
+import { handoffShowCommand } from "./commands/handoffShow";
 import { planCommand } from "./commands/plan";
 import { executeCommand } from "./commands/execute";
 import { compressContextCommand } from "./commands/compressContext";
@@ -32,7 +33,7 @@ const program = new Command();
 program
   .name("relay-baton")
   .description("Token-aware handoff harness for Codex CLI and Claude Code")
-  .version("1.1.3");
+  .version("1.2.0-alpha.0");
 
 function addProjectOptions(cmd: Command): Command {
   return cmd
@@ -96,6 +97,15 @@ handoff
   .option("--project <name-or-id>", "registered project name or id")
   .option("--path <repoPath>", "repository path")
   .action(handoffHistoryCommand);
+
+handoff
+  .command("show")
+  .description("Print a handoff document read-only (current handoff.md by default)")
+  .option("--file <name>", "a history file name from `handoff history` instead of the current one")
+  .option("--json", "print machine-readable JSON")
+  .option("--project <name-or-id>", "registered project name or id")
+  .option("--path <repoPath>", "repository path")
+  .action(handoffShowCommand);
 
 program
   .command("plan")
@@ -176,9 +186,9 @@ program
 
 const project = program.command("project").description("Manage registered projects");
 project.command("add").argument("<path>", "repository path").option("--name <name>").option("--diet <profile>").option("--primary <agent>").option("--fallback <agent>").action(projectAddCommand);
-project.command("list").description("List registered projects").action(projectListCommand);
+project.command("list").description("List registered projects").option("--json", "print machine-readable JSON").action(projectListCommand);
 project.command("switch").argument("<name-or-id>").description("Switch active project").action(projectSwitchCommand);
-project.command("current").description("Show active project").action(projectCurrentCommand);
+project.command("current").description("Show active project").option("--json", "print machine-readable JSON").action(projectCurrentCommand);
 project.command("remove").argument("<name-or-id>").description("Remove a project").action(projectRemoveCommand);
 project.command("doctor").description("Check registered projects").action(projectDoctorCommand);
 
