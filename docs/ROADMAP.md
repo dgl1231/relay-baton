@@ -169,13 +169,25 @@ truth. See [`TASK-v1.3-desktop-chat-sessions.md`](./TASK-v1.3-desktop-chat-sessi
 - [x] **Preserve hard constraints** — sidecar-only, confirmation-first, no
   direct LLM API calls, no API-key storage, no auto commit/push/PR, no daemon.
 
-## v1.4 — Distribution polish
+## v1.4 — Distribution polish & hardening
 
+Make the (currently prerelease) builds trustworthy and effortless to install.
+Full work order: [`TASK-v1.4-distribution.md`](./TASK-v1.4-distribution.md).
+
+- [ ] **Promote v1.3.0 stable** — run the real-window QA checklist (open the
+  desktop app, add a project via folder picker, switch language, drive the
+  Agent Room composer + slash palette, confirm `/plan`/`/execute`/`/handoff`
+  preview only) on a Rust machine; if clean, cut `v1.3.0` (drop the alpha).
+- [ ] **Code signing & notarization** — sign the Windows `.msi` (Azure Trusted
+  Signing or an EV cert) and notarize the macOS `.dmg` (Developer ID +
+  `notarytool`). Wire as optional CI steps that no-op without secrets, so
+  unsigned builds keep working. Direction already in [`RELEASE.md`](./RELEASE.md)
+  → "Code signing & notarization". (No free path — needs paid certs.)
 - [ ] One-line installers (`install.sh` / `install.ps1`) that fetch the latest
   release binary and put it on PATH.
 - [ ] Optional Homebrew tap / Scoop manifest (community-maintainable).
 - [ ] Auto-update channel for the desktop app (Tauri updater, opt-in).
-- [ ] SBOM + checksums attached to each release.
+- [ ] SBOM + checksums (SHA-256) attached to each release.
 
 ## v0.6 — Trust & Verify
 

@@ -105,10 +105,12 @@ classifier** (CLAUDE.md forbids auto-push; needs explicit human OK). Pending:
 v1.2.0-alpha.0` — the tag is what first exercises `build-desktop` in CI (watch
 all six jobs, mind the v1.1.0 YAML gotcha).
 
-**Next:** real-window QA for `v1.3.0-alpha.0`: verify composer persistence,
-read-only slash commands (`/status`, `/budget`, `/review`, `/diagnose`,
-`/replay`), and preview-only behavior for `/plan`, `/execute`, `/handoff`.
-The implementation work order remains
+**Next: v1.4 — distribution polish & hardening.** Work order in
+[`TASK-v1.4-distribution.md`](./TASK-v1.4-distribution.md), summarized in
+[`ROADMAP.md`](./ROADMAP.md) § v1.4: promote v1.3.0 stable after real-window QA;
+code signing/notarization (paid certs, optional CI steps — no free path);
+one-line installers; Homebrew/Scoop; opt-in desktop auto-update; SBOM +
+SHA256SUMS. v1.3 implementation order stays in
 [`TASK-v1.3-desktop-chat-sessions.md`](./TASK-v1.3-desktop-chat-sessions.md).
 
 Hard rule for v1.2: the GUI calls the CLI sidecar only. **No business logic in
