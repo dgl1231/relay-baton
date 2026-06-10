@@ -2,5 +2,7 @@
 src-tauri/target/
 src-tauri/gen/
 
-# Staged CLI sidecar binaries (produced by the Release workflow / SEA recipe)
-src-tauri/binaries/
+# Staged CLI sidecar binaries (produced by the Release workflow / SEA recipe).
+# Keep the directory's README under version control; ignore the binaries.
+src-tauri/binaries/*
+!src-tauri/binaries/README.md

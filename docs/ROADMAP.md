@@ -74,9 +74,11 @@ Phased so each phase is shippable on its own.
   `cargo tauri` needed); README build section updated. **Still needs a Rust
   toolchain machine** to: generate real icons (`npm run icon -- <png>`) and
   confirm `npm run dev` opens the window + the sidecar calls succeed.
-- [ ] **Sidecar staging script** — a small script that copies the right
-  `relay-baton-<triple>` binary into `desktop/src-tauri/binaries/`
-  (see [`../desktop/src-tauri/binaries/README.md`](../desktop/src-tauri/binaries/README.md)).
+- [x] **Sidecar staging script** — [`desktop/scripts/stage-sidecar.mjs`](../desktop/scripts/stage-sidecar.mjs)
+  (`npm run stage-sidecar`) maps a Release artifact / local SEA binary to the
+  Tauri target-triple name under `desktop/src-tauri/binaries/` and sets the
+  Unix exec bit. Pure Node, cross-platform. See
+  [`../desktop/src-tauri/binaries/README.md`](../desktop/src-tauri/binaries/README.md).
 - [ ] **Desktop release job** — extend [`release.yml`](../.github/workflows/release.yml)
   with a job that, after the SEA binaries exist, runs `tauri build` per-OS and
   attaches `.dmg` / `.msi` / `.AppImage` to the same GitHub Release.

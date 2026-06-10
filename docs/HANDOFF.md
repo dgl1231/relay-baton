@@ -9,7 +9,7 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-10 — v1.2 Phase A started (desktop/ npm build path)._
+_Last updated: 2026-06-10 — v1.2 Phase A — sidecar staging script done._
 
 ## Where we are
 
@@ -52,10 +52,12 @@ Full phased plan in [`ROADMAP.md`](./ROADMAP.md) (§ v1.2). **Phase A in progres
    updated. **Remaining (needs a Rust toolchain machine):** generate real icons
    (`npm run icon -- <png>`) and confirm `npm run dev` opens the window + sidecar
    calls succeed. (This dev box has Node but no `cargo`/`rustc`.)
-2. Add the sidecar-staging step (copy `relay-baton-<triple>` into
-   `desktop/src-tauri/binaries/`).
-3. Add a desktop build job to `release.yml` that runs `tauri build` per OS and
-   attaches `.dmg`/`.msi`/`.AppImage` to the Release.
+2. Sidecar-staging step — **done**: `desktop/scripts/stage-sidecar.mjs`
+   (`npm run stage-sidecar`) copies `relay-baton-<triple>` into
+   `desktop/src-tauri/binaries/`. Tested for all three triples on Windows.
+3. **Next:** add a desktop build job to `release.yml` that, after the SEA
+   binaries exist, runs `tauri build` per OS and attaches `.dmg`/`.msi`/
+   `.AppImage` to the Release. Then (item 4) add desktop downloads to the README.
 
 Hard rule for v1.2: the GUI calls the CLI sidecar only. **No business logic in
 the webview.** Read-only or confirmation-first. (Matches `CLAUDE.md`: TUI/GUI
