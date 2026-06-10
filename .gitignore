@@ -11,3 +11,6 @@ coverage/
 # relay-baton session artifacts
 .ai-session/
 !.ai-session/.gitkeep
+
+# Agent scratch/skills (Codex/Claude local)
+.agents/
