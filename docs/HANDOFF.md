@@ -9,9 +9,9 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-10 — v1.2.0-alpha.0 merged (PR #7) + tagged; Release
-running. Phase D (signing docs + window/theme/shortcuts) done on branch
-feat/v1.2-phase-d._
+_Last updated: 2026-06-10 — v1.2 Phases A–D all merged. v1.2.0-alpha.0 shipped
+5/6 (Windows .msi failed → fixed, gotcha #5); cutting v1.2.0-alpha.1 for the
+full 6-asset release._
 
 ## Where we are
 
