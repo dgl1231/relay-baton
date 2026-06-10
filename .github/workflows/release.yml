@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   build-binaries:
@@ -148,6 +149,8 @@ jobs:
     needs: build-binaries
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
+    env:
+      HAS_AZURE_SIGNING: ${{ secrets.AZURE_SIGNING_ENDPOINT != '' && secrets.AZURE_SIGNING_ACCOUNT != '' && secrets.AZURE_SIGNING_CERTIFICATE_PROFILE != '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -210,7 +213,30 @@ jobs:
 
       - name: Build desktop app
         working-directory: desktop
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: npm run build
+
+      - name: Sign Windows MSI with Azure Artifact Signing
+        if: runner.os == 'Windows' && env.HAS_AZURE_SIGNING == 'true'
+        uses: azure/artifact-signing-action@v2
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: ${{ secrets.AZURE_SIGNING_ENDPOINT }}
+          signing-account-name: ${{ secrets.AZURE_SIGNING_ACCOUNT }}
+          certificate-profile-name: ${{ secrets.AZURE_SIGNING_CERTIFICATE_PROFILE }}
+          files-folder: ${{ github.workspace }}\desktop\src-tauri\target\release\bundle\msi
+          files-folder-filter: "*.msi"
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
 
       - name: Upload to GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
@@ -226,3 +252,56 @@ jobs:
         with:
           name: desktop-${{ matrix.label }}
           path: ${{ matrix.bundle-glob }}
+
+  release-finalize:
+    name: release checksums and SBOM
+    needs: [build-binaries, build-desktop]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+
+      - name: Install dependencies for SBOM
+        run: pnpm install --frozen-lockfile
+
+      - name: Download release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          mkdir -p release-assets
+          gh release download "$TAG" --dir release-assets
+          rm -f release-assets/SHA256SUMS release-assets/relay-baton.cdx.json
+
+      - name: Generate SHA256SUMS
+        run: |
+          cd release-assets
+          sha256sum * | sort -k2 > SHA256SUMS
+
+      - name: Generate CycloneDX SBOM
+        continue-on-error: true
+        run: |
+          npm install -g @cyclonedx/cyclonedx-npm
+          cyclonedx-npm --output-format JSON --output-file release-assets/relay-baton.cdx.json --ignore-npm-errors
+
+      - name: Upload release metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          files="release-assets/SHA256SUMS"
+          if [ -f release-assets/relay-baton.cdx.json ]; then
+            files="$files release-assets/relay-baton.cdx.json"
+          fi
+          gh release upload "$TAG" $files --clobber

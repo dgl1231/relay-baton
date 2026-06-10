@@ -96,6 +96,17 @@
         background: var(--border); color: var(--fg); border: 1px solid var(--border2);
         border-radius: 6px; padding: 6px 10px; font: inherit; font-size: 13px;
       }
+      .seg {
+        display: inline-flex; border: 1px solid var(--border2); border-radius: 6px;
+        overflow: hidden; background: var(--border);
+      }
+      .seg button {
+        border: 0; border-radius: 0; background: transparent; color: var(--muted);
+        padding: 6px 10px; min-width: 68px;
+      }
+      .seg button.active { background: var(--accent); color: #fff; }
+      .seg button:hover { background: var(--border2); color: var(--fg); }
+      .seg button.active:hover { background: var(--accent-hover); color: #fff; }
       button.danger { background: var(--hot); }
       button.danger:hover { background: var(--err); }
       .project-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -230,6 +241,11 @@
         <option>off</option><option>lite</option><option>balanced</option>
         <option selected>caveman</option><option>ultra</option>
       </select>
+      <span class="muted" data-i18n="targetAgent">agent</span>
+      <span class="seg" data-i18n-title="agentTitle">
+        <button id="agent-codex" type="button" data-agent="codex">Codex</button>
+        <button id="agent-claude" type="button" data-agent="claude">Claude</button>
+      </span>
       <button id="open-handoff" class="ghost" data-i18n="handoff" data-i18n-title="handoffTitle">handoff</button>
       <button id="theme" class="ghost" data-i18n-title="themeTitle">◐</button>
       <button id="help" class="ghost" data-i18n-title="helpTitle">?</button>
@@ -339,6 +355,8 @@
           languageTitle: "app language",
           diet: "diet",
           dietTitle: "diet profile passed to the next agent action (display only here)",
+          targetAgent: "agent",
+          agentTitle: "target agent for previewed plan/execute/handoff commands",
           themeTitle: "toggle light / dark (t)",
           helpTitle: "keyboard shortcuts (?)",
           refresh: "Refresh",
@@ -393,9 +411,9 @@
           noteReview: "Deterministic diff-vs-plan review. No model call.",
           noteDiagnose: "Deep environment + artifact diagnostics. No model call.",
           noteStatus: "Current session status. No model call.",
-          noteHandoff: "Generates a handoff document. Run from your terminal.",
-          notePlan: "Launches the planner agent. Run from your terminal.",
-          noteExecute: "Launches the executor agent. Run from your terminal.",
+          noteHandoff: "Preview a handoff to the selected agent. Run from your terminal.",
+          notePlan: "Preview planner agent launch with the selected agent. Run from your terminal.",
+          noteExecute: "Preview executor agent launch with the selected agent. Run from your terminal.",
           noteBudget: "Context budget usage. No model call.",
           noteReplay: "Reload the conversation timeline. No model call.",
           tabDashboard: "Dashboard",
@@ -417,6 +435,7 @@
           guideSecMore: "More",
           guideHandoff: "Opens the latest handoff document read-only in a popup.",
           guideDiet: "Token-diet profile passed to future agent actions (display only).",
+          guideAgent: "Target agent for previewed /plan, /execute, and /handoff commands only.",
           guideLang: "Interface language (English / 한국어 / 日本語 / 中文).",
           guideTheme: "Toggle light / dark.",
           themeWord: "theme",
@@ -435,6 +454,8 @@
           languageTitle: "앱 언어",
           diet: "다이어트",
           dietTitle: "다음 agent 작업에 전달될 diet profile (여기서는 표시용)",
+          targetAgent: "agent",
+          agentTitle: "미리보기되는 plan/execute/handoff 명령의 대상 agent",
           themeTitle: "라이트/다크 전환 (t)",
           helpTitle: "키보드 단축키 (?)",
           refresh: "새로고침",
@@ -489,9 +510,9 @@
           noteReview: "결정적 diff-vs-plan review. 모델 호출 없음.",
           noteDiagnose: "환경 + artifact 심층 진단. 모델 호출 없음.",
           noteStatus: "현재 세션 상태. 모델 호출 없음.",
-          noteHandoff: "handoff 문서를 생성합니다. 터미널에서 실행하세요.",
-          notePlan: "planner agent를 실행합니다. 터미널에서 실행하세요.",
-          noteExecute: "executor agent를 실행합니다. 터미널에서 실행하세요.",
+          noteHandoff: "선택한 agent로 handoff하는 명령을 미리봅니다. 터미널에서 실행하세요.",
+          notePlan: "선택한 agent로 planner 실행 명령을 미리봅니다. 터미널에서 실행하세요.",
+          noteExecute: "선택한 agent로 executor 실행 명령을 미리봅니다. 터미널에서 실행하세요.",
           noteBudget: "컨텍스트 budget 사용량. 모델 호출 없음.",
           noteReplay: "대화 타임라인 다시 읽기. 모델 호출 없음.",
           tabDashboard: "대시보드",
@@ -513,6 +534,7 @@
           guideSecMore: "기타",
           guideHandoff: "최신 handoff 문서를 팝업으로 읽기 전용 표시.",
           guideDiet: "이후 agent 동작에 전달될 token-diet 프로필(표시 전용).",
+          guideAgent: "/plan, /execute, /handoff 미리보기 명령에만 쓰이는 대상 agent.",
           guideLang: "인터페이스 언어(English / 한국어 / 日本語 / 中文).",
           guideTheme: "라이트 / 다크 전환.",
           themeWord: "테마",
@@ -531,6 +553,8 @@
           languageTitle: "アプリ言語",
           diet: "diet",
           dietTitle: "次のagent操作に渡すdiet profile (ここでは表示のみ)",
+          targetAgent: "agent",
+          agentTitle: "プレビューされるplan/execute/handoffコマンドの対象agent",
           themeTitle: "ライト/ダーク切替 (t)",
           helpTitle: "キーボードショートカット (?)",
           refresh: "更新",
@@ -585,9 +609,9 @@
           noteReview: "決定的なdiff-vs-plan review。モデル呼び出しなし。",
           noteDiagnose: "環境 + artifactの詳細診断。モデル呼び出しなし。",
           noteStatus: "現在のセッション状態。モデル呼び出しなし。",
-          noteHandoff: "handoff文書を生成します。ターミナルで実行してください。",
-          notePlan: "planner agentを起動します。ターミナルで実行してください。",
-          noteExecute: "executor agentを起動します。ターミナルで実行してください。",
+          noteHandoff: "選択したagentへのhandoffコマンドをプレビューします。ターミナルで実行してください。",
+          notePlan: "選択したagentでplanner起動コマンドをプレビューします。ターミナルで実行してください。",
+          noteExecute: "選択したagentでexecutor起動コマンドをプレビューします。ターミナルで実行してください。",
           noteBudget: "コンテキストbudget使用量。モデル呼び出しなし。",
           noteReplay: "会話タイムラインを再読み込み。モデル呼び出しなし。",
           tabDashboard: "ダッシュボード",
@@ -609,6 +633,7 @@
           guideSecMore: "その他",
           guideHandoff: "最新のhandoff文書をポップアップで読み取り専用表示。",
           guideDiet: "今後のエージェント動作に渡すtoken-dietプロファイル（表示のみ）。",
+          guideAgent: "/plan、/execute、/handoffのプレビュー対象agentのみを切り替えます。",
           guideLang: "インターフェース言語（English / 한국어 / 日本語 / 中文）。",
           guideTheme: "ライト / ダーク切り替え。",
           themeWord: "テーマ",
@@ -627,6 +652,8 @@
           languageTitle: "应用语言",
           diet: "diet",
           dietTitle: "传给下一次agent操作的diet profile (这里只显示)",
+          targetAgent: "agent",
+          agentTitle: "预览的 plan/execute/handoff 命令目标 agent",
           themeTitle: "切换明暗模式 (t)",
           helpTitle: "键盘快捷键 (?)",
           refresh: "刷新",
@@ -681,9 +708,9 @@
           noteReview: "确定性的diff-vs-plan review。无模型调用。",
           noteDiagnose: "深度环境 + artifact诊断。无模型调用。",
           noteStatus: "当前会话状态。无模型调用。",
-          noteHandoff: "生成handoff文档。请在终端运行。",
-          notePlan: "启动planner agent。请在终端运行。",
-          noteExecute: "启动executor agent。请在终端运行。",
+          noteHandoff: "预览交接给所选 agent 的命令。请在终端运行。",
+          notePlan: "预览使用所选 agent 启动 planner 的命令。请在终端运行。",
+          noteExecute: "预览使用所选 agent 启动 executor 的命令。请在终端运行。",
           noteBudget: "上下文budget用量。无模型调用。",
           noteReplay: "重新加载对话时间线。无模型调用。",
           tabDashboard: "仪表板",
@@ -705,6 +732,7 @@
           guideSecMore: "更多",
           guideHandoff: "以弹窗只读方式打开最新的 handoff 文档。",
           guideDiet: "传递给后续智能体操作的 token-diet 配置（仅显示）。",
+          guideAgent: "仅影响 /plan、/execute、/handoff 的预览目标 agent。",
           guideLang: "界面语言（English / 한국어 / 日本語 / 中文）。",
           guideTheme: "切换浅色 / 深色。",
           themeWord: "主题",
@@ -753,6 +781,7 @@
           { h: t("guideSecMore"), rows: [
             { term: t("handoff"), desc: t("guideHandoff") },
             { term: t("diet"), desc: t("guideDiet") },
+            { term: t("targetAgent"), desc: t("guideAgent") },
             { term: t("language"), desc: t("guideLang") },
             { term: t("themeWord"), desc: t("guideTheme") },
           ] },
@@ -799,6 +828,28 @@
         return currentProjects.find((p) => p.id === activeProjectId) ?? null;
       }
 
+      function selectedAgent() {
+        const saved = localStorage.getItem("rb-agent");
+        if (saved === "codex" || saved === "claude") return saved;
+        const primary = activeProject()?.primaryAgent;
+        return primary === "codex" || primary === "claude" ? primary : "claude";
+      }
+
+      function applyAgent(agent = selectedAgent()) {
+        const value = agent === "codex" ? "codex" : "claude";
+        localStorage.setItem("rb-agent", value);
+        $("agent-codex").classList.toggle("active", value === "codex");
+        $("agent-claude").classList.toggle("active", value === "claude");
+      }
+
+      function agentArgs(command, task = "") {
+        const agent = selectedAgent();
+        if (command === "handoff") return ["handoff", "--to", agent, "--no-run"];
+        if (command === "plan") return ["plan", task || "<task>", "--with", agent];
+        if (command === "execute") return ["execute", "--with", agent];
+        return [command];
+      }
+
       function updateRoomContext() {
         const p = activeProject();
         $("room-project").textContent = p ? p.name : t("noProjectShort");
@@ -818,6 +869,7 @@
         const enabled = Boolean(p);
         $("composer").disabled = !enabled;
         $("send").disabled = !enabled;
+        applyAgent();
       }
 
       function appendLocalEvent(role, kind, text) {
@@ -1115,7 +1167,7 @@
               break;
             }
             case "plan": {
-              const args = ["plan", argText || "<task>"];
+              const args = agentArgs("plan", argText);
               openConfirm({ labelKey: "actionPlan", args, readonly: false, noteKey: "notePlan" });
               const text = `${t("previewOnly")}: ${fmtCmd(args)}`;
               await recordConversation(text, "prompt_preview", "relay-baton");
@@ -1123,7 +1175,7 @@
               break;
             }
             case "execute": {
-              const args = ["execute"];
+              const args = agentArgs("execute");
               openConfirm({ labelKey: "actionExecute", args, readonly: false, noteKey: "noteExecute" });
               const text = `${t("previewOnly")}: ${fmtCmd(args)}`;
               await recordConversation(text, "prompt_preview", "relay-baton");
@@ -1131,7 +1183,7 @@
               break;
             }
             case "handoff": {
-              const args = ["handoff", "--to", "claude", "--no-run"];
+              const args = agentArgs("handoff");
               openConfirm({ labelKey: "actionHandoff", args, readonly: false, noteKey: "noteHandoff" });
               const text = `${t("previewOnly")}: ${fmtCmd(args)}`;
               await recordConversation(text, "prompt_preview", "relay-baton");
@@ -1247,6 +1299,10 @@
 
       $("diet").value = localStorage.getItem("rb-diet") ?? "caveman";
       $("diet").addEventListener("change", (e) => localStorage.setItem("rb-diet", e.target.value));
+
+      $("agent-codex").addEventListener("click", () => applyAgent("codex"));
+      $("agent-claude").addEventListener("click", () => applyAgent("claude"));
+      applyAgent();
 
       $("lang").value = localStorage.getItem("rb-lang") ?? "en";
       $("lang").addEventListener("change", (e) => {

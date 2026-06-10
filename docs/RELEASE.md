@@ -12,6 +12,7 @@ runbook — for the *why* and roadmap, see [`ROADMAP.md`](./ROADMAP.md).
 #    desktop/src-tauri/Cargo.toml, desktop/src-tauri/tauri.conf.json
 # 2. add release notes: release-notes/x.y.z.md (+ ko/x.y.z.md), index in release-notes/README.md
 # 3. update README latest badge -> x.y.z
+# 4. for Scoop/Homebrew starter files, bump version/URLs/hashes after the release assets exist
 git add -A && git commit -m "release: vX.Y.Z — <summary>"
 git push
 git tag vX.Y.Z && git push origin vX.Y.Z   # ← this triggers the build
@@ -42,6 +43,11 @@ Output assets:
 
 README "Download" links point at `releases/latest`, so they always resolve to the
 newest tag automatically.
+
+After the binary + desktop matrices complete, `release-finalize` downloads the
+release assets, writes `SHA256SUMS`, generates a best-effort CycloneDX SBOM
+(`relay-baton.cdx.json`), and uploads both back to the same Release. The
+one-line installers verify downloaded CLI binaries against `SHA256SUMS`.
 
 ## Hard-won gotchas (do not regress)
 
@@ -109,13 +115,20 @@ See [`../desktop/README.md`](../desktop/README.md) for the local build path.
 
 ## Code signing & notarization
 
-**Current state: installers are NOT signed with a trusted certificate.** Until
-real certs exist they ship:
+Signing is wired as optional CI. Unsigned builds still ship when secrets are
+absent; trusted signing requires paid provider accounts/certificates.
 
-- **macOS** — the CLI binary is **ad-hoc-signed** (`codesign --sign -`); the
-  `.dmg` is unsigned and **not notarized**.
-- **Windows** — the `.msi` is **unsigned** (no Authenticode certificate).
-- **Linux** — `.AppImage` is unsigned (normal for AppImage).
+- **macOS** — `build-desktop` passes Apple/Tauri signing environment variables
+  through to `npm run build` when these repo secrets are configured:
+  `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_SIGNING_IDENTITY`,
+  `APPLE_ID`, `APPLE_PASSWORD`, `APPLE_TEAM_ID`. Tauri handles signing and
+  notarization when the required values are present.
+- **Windows** — after `tauri build`, the Windows desktop job signs `.msi` files
+  with `azure/artifact-signing-action@v2` when Azure signing secrets are present:
+  `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`,
+  `AZURE_SIGNING_ENDPOINT`, `AZURE_SIGNING_ACCOUNT`,
+  `AZURE_SIGNING_CERTIFICATE_PROFILE`.
+- **Linux** — `.AppImage` remains unsigned, which is normal for AppImage.
 
 ### What users see, and the workaround
 
@@ -128,14 +141,16 @@ real certs exist they ship:
 Document this in the release notes for every desktop release (the v1.2 notes
 already do).
 
-### Path to trusted signing (future work)
+### Installer scripts
 
-- **macOS:** an Apple Developer ID Application cert + `notarytool` submission in
-  CI (needs `APPLE_CERTIFICATE`, `APPLE_ID`, `APPLE_TEAM_ID`, app-specific
-  password as repo secrets). Tauri supports this via `tauri.conf.json` →
-  `bundle.macOS.signingIdentity` + the notarize step.
-- **Windows:** an Authenticode code-signing cert (OV/EV). Tauri signs the `.msi`
-  via `bundle.windows.certificateThumbprint` / `signCommand`.
-- Until then, keep binaries ad-hoc/unsigned and rely on the documented
-  workaround. Adding secrets is the only change required — the build steps stay
-  the same.
+- `install/install.sh` supports Linux x64 and macOS Apple Silicon.
+- `install/install.ps1` supports Windows x64.
+- Both download from `releases/latest`, verify `SHA256SUMS`, install without
+  admin rights, and print a `relay-baton --version` next step.
+
+### Package manager starter files
+
+- `scoop/relay-baton.json` installs the Windows CLI binary.
+- `homebrew/relay-baton.rb` installs the macOS arm64 or Linux x64 CLI binary.
+- Hashes must be bumped after each release asset is uploaded. They are kept in
+  this repo as thin starter files; a separate tap/bucket can mirror them later.

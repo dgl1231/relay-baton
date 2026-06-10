@@ -31,6 +31,19 @@ claude --permission-mode acceptEdits -p "Read https://github.com/<your-org>/rela
 - 최신: <https://github.com/dgl1231/relay-baton/releases/latest>
 - 특정 버전: <https://github.com/dgl1231/relay-baton/releases> 에서 원하는 태그 선택
 
+v1.4+ 릴리즈는 `SHA256SUMS`를 첨부하므로, 아래 one-line installer가 바이너리를
+내려받고 SHA-256을 검증한 뒤 사용자 영역 PATH에 설치한다.
+
+**macOS / Linux**:
+```bash
+curl -fsSL https://raw.githubusercontent.com/dgl1231/relay-baton/main/install/install.sh | sh
+```
+
+**Windows PowerShell**:
+```powershell
+iwr https://raw.githubusercontent.com/dgl1231/relay-baton/main/install/install.ps1 -UseB | iex
+```
+
 | OS | 파일 | 실행 |
 |---|---|---|
 | macOS (Apple Silicon) | `relay-baton-macos-arm64` | `chmod +x relay-baton-macos-arm64 && ./relay-baton-macos-arm64 --version` |

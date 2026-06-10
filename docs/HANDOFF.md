@@ -9,9 +9,10 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-10 — v1.3.0-alpha.1: Agent Room UX revamp (tabs,
-full-height chat, handoff modal, slash-command palette, `?` usage guide,
-en/ko/ja/zh). Cutting the tag; the GUI is read-only / sidecar-only as ever._
+_Last updated: 2026-06-10 — v1.4.0-alpha.0 in progress: distribution polish
+implemented locally (install scripts, SHA256SUMS/SBOM release-finalize job,
+Scoop/Homebrew starter files, optional signing hooks, desktop Codex/Claude
+preview switcher)._
 
 ## Where we are
 
@@ -105,13 +106,10 @@ classifier** (CLAUDE.md forbids auto-push; needs explicit human OK). Pending:
 v1.2.0-alpha.0` — the tag is what first exercises `build-desktop` in CI (watch
 all six jobs, mind the v1.1.0 YAML gotcha).
 
-**Next: v1.4 — distribution polish & hardening.** Work order in
-[`TASK-v1.4-distribution.md`](./TASK-v1.4-distribution.md), summarized in
-[`ROADMAP.md`](./ROADMAP.md) § v1.4: promote v1.3.0 stable after real-window QA;
-code signing/notarization (paid certs, optional CI steps — no free path);
-one-line installers; Homebrew/Scoop; opt-in desktop auto-update; SBOM +
-SHA256SUMS. v1.3 implementation order stays in
-[`TASK-v1.3-desktop-chat-sessions.md`](./TASK-v1.3-desktop-chat-sessions.md).
+**Next after v1.4 alpha:** run real-window QA on a Rust/Tauri machine, then
+decide whether to promote `v1.3.0` stable or continue alpha. Paid cert secrets
+are still required for trusted Windows/macOS signing. Desktop auto-update remains
+unimplemented by design until signing/update keys exist.
 
 Hard rule for v1.2: the GUI calls the CLI sidecar only. **No business logic in
 the webview.** Read-only or confirmation-first. (Matches `CLAUDE.md`: TUI/GUI

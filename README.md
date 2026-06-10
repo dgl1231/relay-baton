@@ -10,7 +10,7 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 [![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-[![Latest](https://img.shields.io/badge/release-v1.3.0--alpha.1-blue.svg)](./release-notes/v1.3.0-alpha.1.md)
+[![Latest](https://img.shields.io/badge/release-v1.4.0--alpha.0-blue.svg)](./release-notes/v1.4.0-alpha.0.md)
 [![Download](https://img.shields.io/badge/download-binaries-238636.svg)](https://github.com/dgl1231/relay-baton/releases/latest)
 
 **English**
@@ -42,6 +42,18 @@ $ relay-baton run "refactor the upload pipeline" --diet caveman
 
 Prebuilt, single-file executables are attached to every release — no Node install required to run them.
 
+One-line CLI install (verifies `SHA256SUMS`, no admin required):
+
+```bash
+# macOS / Linux
+curl -fsSL https://raw.githubusercontent.com/dgl1231/relay-baton/main/install/install.sh | sh
+```
+
+```powershell
+# Windows PowerShell
+iwr https://raw.githubusercontent.com/dgl1231/relay-baton/main/install/install.ps1 -UseB | iex
+```
+
 | OS | Binary | Get it |
 | --- | --- | --- |
 | macOS (Apple Silicon) | `relay-baton-macos-arm64` | [Latest release](https://github.com/dgl1231/relay-baton/releases/latest) |
@@ -67,10 +79,10 @@ chmod +x relay-baton-macos-arm64
 | Linux (x64) | `relay-baton_…_amd64.AppImage` | [Latest release](https://github.com/dgl1231/relay-baton/releases/latest) |
 | Windows (x64) | `relay-baton_…_x64_en-US.msi` | [Latest release](https://github.com/dgl1231/relay-baton/releases/latest) |
 
-> Desktop installers ship from the first tag cut after v1.1.3. Binaries are
-> ad-hoc-signed (macOS) / unsigned (Windows) for now, so expect a Gatekeeper /
-> SmartScreen prompt on first launch. The desktop GUI itself is early (v1.2 in
-> progress — see [roadmap](./docs/ROADMAP.md)).
+> Desktop installers are signed/notarized only when release signing secrets are
+> configured. Unsigned fallback builds still ship, so expect Gatekeeper /
+> SmartScreen prompts on unsigned releases. `SHA256SUMS` is attached to new
+> releases for CLI installer verification.
 >
 > Older versions: pick any tag on the [releases page](https://github.com/dgl1231/relay-baton/releases). Prefer to build from source instead? See [Install](#install) below.
 
@@ -612,10 +624,11 @@ any real run). Design only for now — **not implemented yet**. Full design:
 
 Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-notes/README.md)). They are user-facing changelogs, not agent handoff material — that role belongs to `.ai-session/handoff.md`.
 
-**Latest:** v1.3.0-alpha.1 — [English](./release-notes/v1.3.0-alpha.1.md) · [한국어](./release-notes/ko/v1.3.0-alpha.1.md)
+**Latest:** v1.4.0-alpha.0 — [English](./release-notes/v1.4.0-alpha.0.md) · [한국어](./release-notes/ko/v1.4.0-alpha.0.md)
 
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
+| v1.4.0-alpha.0 | [Read →](./release-notes/v1.4.0-alpha.0.md) | [읽기 →](./release-notes/ko/v1.4.0-alpha.0.md) | Distribution polish: one-line CLI installers with SHA-256 verification, release SHA256SUMS/SBOM metadata, package-manager templates, optional signing hooks, and a desktop Codex/Claude preview switcher. |
 | v1.3.0-alpha.1 | [Read →](./release-notes/v1.3.0-alpha.1.md) | [읽기 →](./release-notes/ko/v1.3.0-alpha.1.md) | Desktop Agent Room UX revamp: tabbed dashboard/room, full-height chat, handoff modal, slash-command palette with descriptions, decluttered buttons, and a full `?` usage guide (en/ko/ja/zh). |
 | v1.3.0-alpha.0 | [Read →](./release-notes/v1.3.0-alpha.0.md) | [읽기 →](./release-notes/ko/v1.3.0-alpha.0.md) | Desktop conversation + project-scoped sessions: Agent Room composer, persisted conversation events via `conversation append`, visible project/session context, and confirmation-first slash actions. |
 | v1.2.0-alpha.3 | [Read →](./release-notes/v1.2.0-alpha.3.md) | [읽기 →](./release-notes/ko/v1.2.0-alpha.3.md) | Desktop project management + i18n: add projects with the folder picker, switch/remove projects in the GUI, register non-git project folders, and switch UI chrome between English/Korean/Japanese/Simplified Chinese. |

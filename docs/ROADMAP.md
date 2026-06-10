@@ -178,21 +178,20 @@ Full work order: [`TASK-v1.4-distribution.md`](./TASK-v1.4-distribution.md).
   desktop app, add a project via folder picker, switch language, drive the
   Agent Room composer + slash palette, confirm `/plan`/`/execute`/`/handoff`
   preview only) on a Rust machine; if clean, cut `v1.3.0` (drop the alpha).
-- [ ] **Code signing & notarization** — sign the Windows `.msi` (Azure Trusted
+- [x] **Code signing & notarization hooks** — sign the Windows `.msi` (Azure Trusted
   Signing or an EV cert) and notarize the macOS `.dmg` (Developer ID +
-  `notarytool`). Wire as optional CI steps that no-op without secrets, so
-  unsigned builds keep working. Direction already in [`RELEASE.md`](./RELEASE.md)
-  → "Code signing & notarization". (No free path — needs paid certs.)
-- [ ] **Desktop agent switcher (Codex ↔ Claude)** — a header toggle/button that
+  `notarytool`) when secrets are present. CI is wired as optional so unsigned
+  builds keep working. Actual trusted output still needs paid certs/secrets.
+- [x] **Desktop agent switcher (Codex ↔ Claude)** — a header toggle/button that
   picks which agent the Agent Room addresses, mirroring the CLI room's
   `/agent <claude|codex>`. Display + pass-through only: it sets the agent for
   the previewed `/plan` `/execute` `/handoff --to` commands; it never launches
   an agent from the GUI. Persisted like the diet selector; i18n in en/ko/ja/zh.
-- [ ] One-line installers (`install.sh` / `install.ps1`) that fetch the latest
+- [x] One-line installers (`install.sh` / `install.ps1`) that fetch the latest
   release binary and put it on PATH.
-- [ ] Optional Homebrew tap / Scoop manifest (community-maintainable).
+- [x] Optional Homebrew tap / Scoop manifest (community-maintainable).
 - [ ] Auto-update channel for the desktop app (Tauri updater, opt-in).
-- [ ] SBOM + checksums (SHA-256) attached to each release.
+- [x] SBOM + checksums (SHA-256) attached to each release.
 
 ## v0.6 — Trust & Verify
 
