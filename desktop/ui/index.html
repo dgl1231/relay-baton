@@ -196,12 +196,12 @@
       // own `project switch`). The diet selector is UI state only — it is
       // passed through to future confirmed agent actions (Phase C), never
       // acted on locally.
-      let Command;
-      try {
-        ({ Command } = await import("@tauri-apps/plugin-shell"));
-      } catch {
-        // Plain-browser preview — degrade gracefully.
-      }
+      // The frontend is plain static HTML (no bundler), so bare ES-module
+      // specifiers like "@tauri-apps/plugin-shell" can't be resolved in the
+      // webview. With `app.withGlobalTauri: true` in tauri.conf.json, the core
+      // + plugin APIs are exposed on `window.__TAURI__` instead — use those.
+      const TAURI = window.__TAURI__;
+      const Command = TAURI?.shell?.Command;
 
       const $ = (id) => document.getElementById(id);
 
@@ -448,8 +448,7 @@
 
       async function quitWindow() {
         try {
-          const { getCurrentWindow } = await import("@tauri-apps/api/window");
-          await getCurrentWindow().close();
+          await TAURI?.window?.getCurrentWindow().close();
         } catch { /* plain browser — no-op */ }
       }
 

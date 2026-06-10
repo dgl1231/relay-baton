@@ -9,9 +9,9 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-10 — v1.2 Phases A–D all merged. v1.2.0-alpha.0 shipped
-5/6 (Windows .msi failed → fixed, gotcha #5); cutting v1.2.0-alpha.1 for the
-full 6-asset release._
+_Last updated: 2026-06-10 — v1.2.0-alpha.1 ran 6/6 and the .msi launches; first
+in-window test found the webview couldn't reach the sidecar (no-bundler bare
+imports) → fixed with withGlobalTauri/window.__TAURI__, cutting v1.2.0-alpha.2._
 
 ## Where we are
 
