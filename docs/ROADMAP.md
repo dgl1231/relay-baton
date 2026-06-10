@@ -69,20 +69,24 @@ Phased so each phase is shippable on its own.
 
 ### Phase A — make it build & ship (foundation)
 
-- [~] **`desktop/` builds locally.** `desktop/package.json` now pins
-  `@tauri-apps/cli` as a dev dep with `dev`/`build`/`icon` scripts (so no global
-  `cargo tauri` needed); README build section updated. **Still needs a Rust
-  toolchain machine** to: generate real icons (`npm run icon -- <png>`) and
-  confirm `npm run dev` opens the window + the sidecar calls succeed.
+- [~] **`desktop/` builds locally.** `desktop/package.json` pins
+  `@tauri-apps/cli` as a dev dep with `dev`/`build`/`icon` scripts (no global
+  `cargo tauri` needed); README build section updated. Real icons now generate
+  deterministically: `npm run gen-icon-source` (pure-Node PNG writer →
+  `icon-source.png`, committed) + `npm run icon` (full per-OS set, gitignored,
+  regenerated in CI). **Remaining (needs a Rust toolchain machine):** confirm
+  `npm run dev` opens the window + the sidecar calls succeed.
 - [x] **Sidecar staging script** — [`desktop/scripts/stage-sidecar.mjs`](../desktop/scripts/stage-sidecar.mjs)
   (`npm run stage-sidecar`) maps a Release artifact / local SEA binary to the
   Tauri target-triple name under `desktop/src-tauri/binaries/` and sets the
   Unix exec bit. Pure Node, cross-platform. See
   [`../desktop/src-tauri/binaries/README.md`](../desktop/src-tauri/binaries/README.md).
-- [ ] **Desktop release job** — extend [`release.yml`](../.github/workflows/release.yml)
-  with a job that, after the SEA binaries exist, runs `tauri build` per-OS and
-  attaches `.dmg` / `.msi` / `.AppImage` to the same GitHub Release.
-- [ ] README: add desktop downloads next to the CLI binary table.
+- [x] **Desktop release job** — [`release.yml`](../.github/workflows/release.yml)
+  `build-desktop` job (needs `build-binaries`): downloads the SEA binary
+  artifact, stages it as the sidecar, generates icons, runs `tauri build`
+  per-OS, and attaches `.dmg` / `.msi` / `.AppImage` to the same GitHub
+  Release. Unverified in CI until the next `v*` tag.
+- [x] README: desktop installer table added next to the CLI binary table.
 
 ### Phase B — read-only dashboard (display-first, mirrors the Ink TUI)
 

@@ -9,7 +9,8 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-10 — v1.2 Phase A — sidecar staging script done._
+_Last updated: 2026-06-10 — v1.2 Phase A items 2–4 done; desktop release job
+awaits its first tag._
 
 ## Where we are
 
@@ -47,17 +48,25 @@ issues, all in `release.yml` — full detail in [`RELEASE.md`](./RELEASE.md):
 
 Full phased plan in [`ROADMAP.md`](./ROADMAP.md) (§ v1.2). **Phase A in progress:**
 
-1. Make `desktop/` build locally — **partly done**: `desktop/package.json` now
-   pins `@tauri-apps/cli` (dev dep) with `dev`/`build`/`icon` scripts, README
-   updated. **Remaining (needs a Rust toolchain machine):** generate real icons
-   (`npm run icon -- <png>`) and confirm `npm run dev` opens the window + sidecar
-   calls succeed. (This dev box has Node but no `cargo`/`rustc`.)
-2. Sidecar-staging step — **done**: `desktop/scripts/stage-sidecar.mjs`
-   (`npm run stage-sidecar`) copies `relay-baton-<triple>` into
-   `desktop/src-tauri/binaries/`. Tested for all three triples on Windows.
-3. **Next:** add a desktop build job to `release.yml` that, after the SEA
-   binaries exist, runs `tauri build` per OS and attaches `.dmg`/`.msi`/
-   `.AppImage` to the Release. Then (item 4) add desktop downloads to the README.
+1. Make `desktop/` build locally — **mostly done**: `desktop/package.json` pins
+   `@tauri-apps/cli` (dev dep, `dev`/`build`/`icon`/`gen-icon-source`/
+   `stage-sidecar` scripts); icons generate deterministically
+   (`gen-icon-source.mjs` → committed `icon-source.png` → `npm run icon`,
+   verified on this box — the npm Tauri CLI's icon command works without Rust).
+   **Remaining (needs a Rust toolchain machine):** confirm `npm run dev` opens
+   the window + sidecar calls succeed. (This dev box has Node but no `cargo`.)
+2. Sidecar-staging — **done**: `npm run stage-sidecar` (scripts/stage-sidecar.mjs)
+   copies `relay-baton-<triple>` into `desktop/src-tauri/binaries/`. Tested for
+   all three triples on Windows.
+3. Desktop release job — **done, UNVERIFIED in CI**: `build-desktop` in
+   `release.yml` (downloads SEA artifact → npm ci → icons → stage sidecar →
+   `tauri build` → attach `.dmg`/`.msi`/`.AppImage`). YAML parse-checked
+   locally (remember the v1.1.0 YAML gotcha). **It will first really run on the
+   next `v*` tag — watch all six jobs then.**
+4. README desktop installer table — **done** (notes unsigned/ad-hoc binaries).
+
+**Next:** cut a tag (e.g. v1.2.0-alpha or v1.2.0) to exercise `build-desktop`,
+or move on to Phase B (read-only dashboard panels) first.
 
 Hard rule for v1.2: the GUI calls the CLI sidecar only. **No business logic in
 the webview.** Read-only or confirmation-first. (Matches `CLAUDE.md`: TUI/GUI

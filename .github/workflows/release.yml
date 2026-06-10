@@ -132,9 +132,97 @@ jobs:
           draft: false
           fail_on_unmatched_files: true
 
-      - name: Upload build artifact (workflow_dispatch)
-        if: github.event_name == 'workflow_dispatch'
+      # Always upload as a workflow artifact too — the desktop job downloads it
+      # to stage as the Tauri sidecar.
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.asset }}
           path: dist-bin/${{ matrix.asset }}
+
+  # Build the Tauri desktop app per OS, bundling the SEA CLI binary from the
+  # job above as a sidecar. The webview holds no business logic — it only
+  # shells out to the bundled CLI (see desktop/README.md).
+  build-desktop:
+    name: desktop ${{ matrix.label }}
+    needs: build-binaries
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            label: linux-x64
+            asset: relay-baton-linux-x64
+            bundle-glob: desktop/src-tauri/target/release/bundle/appimage/*.AppImage
+          - os: macos-latest
+            label: macos-arm64
+            asset: relay-baton-macos-arm64
+            bundle-glob: desktop/src-tauri/target/release/bundle/dmg/*.dmg
+          - os: windows-latest
+            label: windows-x64
+            asset: relay-baton-windows-x64.exe
+            bundle-glob: desktop/src-tauri/target/release/bundle/msi/*.msi
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: desktop/src-tauri
+
+      # Tauri v2 Linux build prerequisites (webkit2gtk 4.1 on ubuntu-latest).
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: >-
+          sudo apt-get update && sudo apt-get install -y
+          libwebkit2gtk-4.1-dev build-essential curl wget file
+          libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+
+      - name: Download CLI binary (sidecar source)
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.asset }}
+          path: dist-bin
+
+      - name: Install desktop dependencies
+        working-directory: desktop
+        run: npm ci
+
+      - name: Generate icon set
+        working-directory: desktop
+        run: npm run icon
+
+      - name: Stage CLI sidecar
+        working-directory: desktop
+        run: npm run stage-sidecar -- --from ../dist-bin/${{ matrix.asset }}
+
+      - name: Build desktop app
+        working-directory: desktop
+        run: npm run build
+
+      - name: Upload to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.bundle-glob }}
+          draft: false
+          fail_on_unmatched_files: true
+
+      - name: Upload build artifact (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.label }}
+          path: ${{ matrix.bundle-glob }}

@@ -6,3 +6,8 @@ src-tauri/gen/
 # Keep the directory's README under version control; ignore the binaries.
 src-tauri/binaries/*
 !src-tauri/binaries/README.md
+
+# Generated icon set (derived from icon-source.png via `npm run icon`).
+# icon-source.png itself IS committed (deterministic, gen-icon-source.mjs).
+src-tauri/icons/*
+!src-tauri/icons/README.md

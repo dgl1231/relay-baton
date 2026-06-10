@@ -59,9 +59,20 @@ chmod +x relay-baton-macos-arm64
 .\relay-baton-windows-x64.exe --version
 ```
 
-> Older versions: pick any tag on the [releases page](https://github.com/dgl1231/relay-baton/releases). Prefer to build from source instead? See [Install](#install) below.
+**Desktop app** (Tauri shell over the same CLI — see [`desktop/`](./desktop)):
+
+| OS | Installer | Get it |
+| --- | --- | --- |
+| macOS (Apple Silicon) | `relay-baton_…_aarch64.dmg` | [Latest release](https://github.com/dgl1231/relay-baton/releases/latest) |
+| Linux (x64) | `relay-baton_…_amd64.AppImage` | [Latest release](https://github.com/dgl1231/relay-baton/releases/latest) |
+| Windows (x64) | `relay-baton_…_x64_en-US.msi` | [Latest release](https://github.com/dgl1231/relay-baton/releases/latest) |
+
+> Desktop installers ship from the first tag cut after v1.1.3. Binaries are
+> ad-hoc-signed (macOS) / unsigned (Windows) for now, so expect a Gatekeeper /
+> SmartScreen prompt on first launch. The desktop GUI itself is early (v1.2 in
+> progress — see [roadmap](./docs/ROADMAP.md)).
 >
-> A **desktop GUI** (Tauri) is in progress — the v1.1 scaffold lives in [`desktop/`](./desktop); the full app ships in v1.2 (see [roadmap](./docs/ROADMAP.md)).
+> Older versions: pick any tag on the [releases page](https://github.com/dgl1231/relay-baton/releases). Prefer to build from source instead? See [Install](#install) below.
 
 ## Why this exists
 

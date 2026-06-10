@@ -7,7 +7,8 @@
     "tauri": "tauri",
     "dev": "tauri dev",
     "build": "tauri build",
-    "icon": "tauri icon",
+    "gen-icon-source": "node scripts/gen-icon-source.mjs",
+    "icon": "tauri icon icon-source.png",
     "stage-sidecar": "node scripts/stage-sidecar.mjs"
   },
   "devDependencies": {
