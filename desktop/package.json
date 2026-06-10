@@ -1,6 +1,6 @@
 {
   "name": "relay-baton-desktop",
-  "version": "1.2.0-alpha.2",
+  "version": "1.2.0-alpha.3",
   "private": true,
   "description": "Desktop shell for relay-baton (Tauri sidecar over the CLI)",
   "scripts": {

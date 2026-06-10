@@ -10,7 +10,7 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 [![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-[![Latest](https://img.shields.io/badge/release-v1.2.0--alpha.2-blue.svg)](./release-notes/v1.2.0-alpha.2.md)
+[![Latest](https://img.shields.io/badge/release-v1.2.0--alpha.3-blue.svg)](./release-notes/v1.2.0-alpha.3.md)
 [![Download](https://img.shields.io/badge/download-binaries-238636.svg)](https://github.com/dgl1231/relay-baton/releases/latest)
 
 **English**
@@ -612,10 +612,11 @@ any real run). Design only for now — **not implemented yet**. Full design:
 
 Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-notes/README.md)). They are user-facing changelogs, not agent handoff material — that role belongs to `.ai-session/handoff.md`.
 
-**Latest:** v1.2.0-alpha.2 — [English](./release-notes/v1.2.0-alpha.2.md) · [한국어](./release-notes/ko/v1.2.0-alpha.2.md)
+**Latest:** v1.2.0-alpha.3 — [English](./release-notes/v1.2.0-alpha.3.md) · [한국어](./release-notes/ko/v1.2.0-alpha.3.md)
 
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
+| v1.2.0-alpha.3 | [Read →](./release-notes/v1.2.0-alpha.3.md) | [읽기 →](./release-notes/ko/v1.2.0-alpha.3.md) | Desktop project management + i18n: add/switch/remove projects in the GUI, register non-git project folders, and switch UI chrome between English/Korean/Japanese/Simplified Chinese. |
 | v1.2.0-alpha.2 | [Read →](./release-notes/v1.2.0-alpha.2.md) | [읽기 →](./release-notes/ko/v1.2.0-alpha.2.md) | Desktop sidecar fix: the GUI now actually reaches the bundled CLI (`withGlobalTauri` + `window.__TAURI__`), so status/budget/handoff/timeline panels populate. |
 | v1.2.0-alpha.1 | [Read →](./release-notes/v1.2.0-alpha.1.md) | [읽기 →](./release-notes/ko/v1.2.0-alpha.1.md) | Desktop prerelease completed: fixes the Windows `.msi` build (non-numeric prerelease) so all 6 assets ship; adds Phase D — signing docs, window-state persistence, light/dark toggle, TUI-mirrored keyboard shortcuts. |
 | v1.2.0-alpha.0 | [Read →](./release-notes/v1.2.0-alpha.0.md) | [읽기 →](./release-notes/ko/v1.2.0-alpha.0.md) | Desktop GUI prerelease (Phase A+B): `build-desktop` release job (.dmg/.msi/.AppImage), deterministic icons, sidecar staging, read-only dashboard, and CLI JSON surface (`project list/current --json`, `handoff show`). Unsigned installers. |
