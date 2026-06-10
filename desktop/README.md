@@ -24,6 +24,10 @@ Simplified Chinese), and keyboard shortcuts mirroring the Ink TUI
 confirmation-first and never spawns an agent itself (see
 [`docs/ROADMAP.md`](../docs/ROADMAP.md) § v1.2).
 
+**v1.3 direction** — add an in-app Agent Room composer/check surface and make
+session state visibly project-scoped, still through the CLI sidecar only. See
+[`docs/TASK-v1.3-desktop-chat-sessions.md`](../docs/TASK-v1.3-desktop-chat-sessions.md).
+
 It lives outside the pnpm workspace (`desktop/`, not `packages/`) so the
 TypeScript build and test CI are unaffected and you only need the Rust/Tauri
 toolchain when you actually build the app.

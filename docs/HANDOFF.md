@@ -9,9 +9,8 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-10 — v1.2 desktop follow-up adds GUI project
-add/remove controls and UI i18n (en/ko/ja/zh) on top of the alpha.2 sidecar
-fix._
+_Last updated: 2026-06-10 — v1.3 planning doc added for desktop in-app
+conversation/check UI and project-scoped sessions._
 
 ## Where we are
 
@@ -105,9 +104,11 @@ classifier** (CLAUDE.md forbids auto-push; needs explicit human OK). Pending:
 v1.2.0-alpha.0` — the tag is what first exercises `build-desktop` in CI (watch
 all six jobs, mind the v1.1.0 YAML gotcha).
 
-**Next:** run the full build/test suite, verify the dashboard inside a real
-Tauri window on a Rust machine (including the folder picker permission), then
-cut the next alpha (`v1.2.0-alpha.3` or final v1.2.0) if the GUI checks pass.
+**Next:** v1.3 should bring the CLI Agent Room workflow into the desktop app:
+add a composer/check surface under the read-only timeline, keep real agent
+actions confirmation-first, and make displayed session state clearly scoped to
+the selected project. The implementation work order is
+[`TASK-v1.3-desktop-chat-sessions.md`](./TASK-v1.3-desktop-chat-sessions.md).
 
 Hard rule for v1.2: the GUI calls the CLI sidecar only. **No business logic in
 the webview.** Read-only or confirmation-first. (Matches `CLAUDE.md`: TUI/GUI

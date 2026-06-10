@@ -11,6 +11,12 @@
 > `/replay` (read-only timeline; also `relay-baton replay`). The full
 > conversation+context **TUI panel** layout in §5 is still forward-looking.
 > See [`ROADMAP.md`](./ROADMAP.md).
+>
+> **Desktop direction for v1.3:** the Tauri app currently shows this event log
+> as a read-only timeline. The next desktop step is an in-app composer/check
+> surface plus project-scoped session context, still sidecar-only and
+> confirmation-first. See
+> [`TASK-v1.3-desktop-chat-sessions.md`](./TASK-v1.3-desktop-chat-sessions.md).
 
 ## 1. Purpose
 

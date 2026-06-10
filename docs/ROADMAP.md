@@ -148,7 +148,28 @@ Phased so each phase is shippable on its own.
 release page, open it, switch projects, see status/budget/handoff, and trigger a
 confirmation-first agent run — all through the CLI sidecar, zero duplicated logic.
 
-## v1.3 — Distribution polish
+## v1.3 — Desktop conversation + project-scoped sessions
+
+Bring the CLI Agent Room workflow into the desktop app without weakening the
+safety model. The current desktop timeline is read-only (`replay --json`); v1.3
+should add a composer/check surface while keeping the CLI/core as the source of
+truth. See [`TASK-v1.3-desktop-chat-sessions.md`](./TASK-v1.3-desktop-chat-sessions.md).
+
+- [ ] **Desktop conversation composer** — add an input area under the Agent Room
+  timeline for slash-command style checks (`/status`, `/budget`, `/review`,
+  `/diagnose`, `/replay`) and clearly marked preview/confirm actions for agent-
+  launching commands (`/plan`, `/execute`, `/handoff`).
+- [ ] **Project-scoped session context** — make the active project/session
+  explicit in the conversation panel and refresh status, budget, handoff, and
+  timeline when the project changes.
+- [ ] **CLI JSON/session surfaces where needed** — add small, tested CLI JSON
+  commands instead of letting the webview read/write `.ai-session/` directly.
+- [ ] **i18n parity for new desktop chrome** — all new labels, empty states,
+  confirmation text, and command hints support `en`, `ko`, `ja`, `zh`.
+- [ ] **Preserve hard constraints** — sidecar-only, confirmation-first, no
+  direct LLM API calls, no API-key storage, no auto commit/push/PR, no daemon.
+
+## v1.4 — Distribution polish
 
 - [ ] One-line installers (`install.sh` / `install.ps1`) that fetch the latest
   release binary and put it on PATH.
