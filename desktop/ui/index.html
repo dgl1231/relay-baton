@@ -179,6 +179,18 @@
       .overlay .kv { gap: 8px 18px; }
       .handoff-box { width: min(820px, 90vw); max-height: 82vh; display: flex; flex-direction: column; }
       .handoff-box pre.scroll { max-height: none; overflow: auto; flex: 1; }
+      .help-box { width: min(680px, 92vw); max-height: 84vh; overflow: auto; }
+      .help-box h4 { margin: 18px 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+      .help-box p { margin: 0 0 4px; font-size: 13px; line-height: 1.5; }
+      .guide-sec { margin-bottom: 6px; }
+      .guide-row { display: grid; grid-template-columns: 150px 1fr; gap: 10px; font-size: 13px; padding: 4px 0; align-items: start; }
+      .guide-row .term { color: var(--fg); font-weight: 600; }
+      .guide-row .term code, code.inline {
+        background: var(--inset); border: 1px solid var(--border2); border-radius: 4px;
+        padding: 0 5px; font-size: 12px;
+      }
+      .guide-row .desc { color: var(--muted); line-height: 1.5; }
+      @media (max-width: 560px) { .guide-row { grid-template-columns: 1fr; gap: 2px; } }
     </style>
   </head>
   <body>
@@ -223,14 +235,21 @@
     </div>
 
     <div class="overlay" id="overlay">
-      <div class="box">
-        <h3 data-i18n="shortcutsTitle">Keyboard shortcuts</h3>
+      <div class="box help-box">
+        <h3>
+          <span data-i18n="guideTitle">How to use relay-baton</span>
+          <span class="spacer"></span>
+          <button id="help-close" class="ghost" data-i18n="close">Close</button>
+        </h3>
+        <p class="muted" data-i18n="guideIntro">Read-only desktop window over the relay-baton CLI. It only reads/previews — it never runs an agent or writes your repo.</p>
+        <div id="guide"></div>
+        <h4 data-i18n="shortcutsTitle">Keyboard shortcuts</h4>
         <div class="kv">
           <span class="kbd">r</span><span data-i18n="shortcutRefresh">refresh everything</span>
           <span class="kbd">p</span><span data-i18n="shortcutProject">next project</span>
           <span class="kbd">d</span><span data-i18n="shortcutDiet">cycle diet profile</span>
           <span class="kbd">b</span><span data-i18n="shortcutBudget">reload budget</span>
-          <span class="kbd">h</span><span data-i18n="shortcutHandoff">reload handoff</span>
+          <span class="kbd">h</span><span data-i18n="shortcutHandoff">open handoff</span>
           <span class="kbd">t</span><span data-i18n="shortcutTheme">toggle light / dark</span>
           <span class="kbd">q</span><span data-i18n="shortcutQuit">quit window</span>
           <span class="kbd">?</span><span data-i18n="shortcutHelp">this help</span>
@@ -364,6 +383,26 @@
           noteReplay: "Reload the conversation timeline. No model call.",
           tabDashboard: "Dashboard",
           tabRoom: "Agent Room",
+          guideTitle: "How to use relay-baton",
+          guideIntro: "A read-only desktop window over the relay-baton CLI. It only reads and previews — it never runs an agent or writes to your repo.",
+          guideSecTabs: "Tabs",
+          guideTabDash: "Session status and context-budget panels at a glance.",
+          guideTabRoom: "Conversation timeline plus a command box to drive the CLI.",
+          guideSecProject: "Projects",
+          guideProjAdd: "Pick a folder to register it as a project (native folder picker).",
+          guideProjSwitch: "Dropdown — switch the active project; all panels refresh.",
+          guideProjRemove: "Unregister the selected project (asks to confirm first).",
+          guideSecRoom: "Agent Room",
+          guideTermMessage: "Type text",
+          guideRoomMsg: "Plain text is saved to the conversation log.",
+          guideRoomRead: "Read-only commands — run instantly here, no model call.",
+          guideRoomPreview: "Preview only — shows the command to copy; the GUI never launches an agent.",
+          guideSecMore: "More",
+          guideHandoff: "Opens the latest handoff document read-only in a popup.",
+          guideDiet: "Token-diet profile passed to future agent actions (display only).",
+          guideLang: "Interface language (English / 한국어 / 日本語 / 中文).",
+          guideTheme: "Toggle light / dark.",
+          themeWord: "theme",
           readOnlySafe: "read-only — safe to run here",
           copyTerminal: "launches an agent — copy & run in your terminal",
         },
@@ -440,6 +479,26 @@
           noteReplay: "대화 타임라인 다시 읽기. 모델 호출 없음.",
           tabDashboard: "대시보드",
           tabRoom: "에이전트 룸",
+          guideTitle: "relay-baton 사용법",
+          guideIntro: "relay-baton CLI를 감싼 읽기 전용 데스크탑 창입니다. 읽기·미리보기만 하며, agent를 실행하거나 저장소에 쓰지 않습니다.",
+          guideSecTabs: "탭",
+          guideTabDash: "세션 상태와 컨텍스트 budget 패널을 한눈에.",
+          guideTabRoom: "대화 타임라인 + CLI를 구동하는 명령 입력창.",
+          guideSecProject: "프로젝트",
+          guideProjAdd: "폴더를 선택해 프로젝트로 등록(네이티브 폴더 선택창).",
+          guideProjSwitch: "드롭다운 — 활성 프로젝트 전환, 모든 패널 갱신.",
+          guideProjRemove: "선택한 프로젝트 등록 해제(먼저 확인을 묻습니다).",
+          guideSecRoom: "에이전트 룸",
+          guideTermMessage: "텍스트 입력",
+          guideRoomMsg: "일반 텍스트는 대화 로그에 저장됩니다.",
+          guideRoomRead: "읽기 전용 명령 — 여기서 즉시 실행, 모델 호출 없음.",
+          guideRoomPreview: "미리보기 전용 — 복사할 명령만 표시, GUI는 agent를 실행하지 않음.",
+          guideSecMore: "기타",
+          guideHandoff: "최신 handoff 문서를 팝업으로 읽기 전용 표시.",
+          guideDiet: "이후 agent 동작에 전달될 token-diet 프로필(표시 전용).",
+          guideLang: "인터페이스 언어(English / 한국어 / 日本語 / 中文).",
+          guideTheme: "라이트 / 다크 전환.",
+          themeWord: "테마",
           readOnlySafe: "읽기 전용 — 여기서 실행해도 안전",
           copyTerminal: "agent 실행 — 복사해서 터미널에서 실행",
         },
@@ -516,6 +575,26 @@
           noteReplay: "会話タイムラインを再読み込み。モデル呼び出しなし。",
           tabDashboard: "ダッシュボード",
           tabRoom: "エージェントルーム",
+          guideTitle: "relay-baton の使い方",
+          guideIntro: "relay-baton CLI をラップした読み取り専用のデスクトップ画面です。読み取りとプレビューのみで、エージェントの実行やリポジトリへの書き込みはしません。",
+          guideSecTabs: "タブ",
+          guideTabDash: "セッション状態とコンテキストbudgetパネルを一目で。",
+          guideTabRoom: "会話タイムライン + CLIを操作するコマンド入力欄。",
+          guideSecProject: "プロジェクト",
+          guideProjAdd: "フォルダを選んでプロジェクトとして登録（ネイティブのフォルダ選択）。",
+          guideProjSwitch: "ドロップダウン — アクティブなプロジェクトを切り替え、全パネル更新。",
+          guideProjRemove: "選択したプロジェクトの登録を解除（先に確認します）。",
+          guideSecRoom: "エージェントルーム",
+          guideTermMessage: "テキスト入力",
+          guideRoomMsg: "プレーンテキストは会話ログに保存されます。",
+          guideRoomRead: "読み取り専用コマンド — ここで即実行、モデル呼び出しなし。",
+          guideRoomPreview: "プレビューのみ — コピー用コマンドを表示、GUIはエージェントを起動しません。",
+          guideSecMore: "その他",
+          guideHandoff: "最新のhandoff文書をポップアップで読み取り専用表示。",
+          guideDiet: "今後のエージェント動作に渡すtoken-dietプロファイル（表示のみ）。",
+          guideLang: "インターフェース言語（English / 한국어 / 日本語 / 中文）。",
+          guideTheme: "ライト / ダーク切り替え。",
+          themeWord: "テーマ",
           readOnlySafe: "読み取り専用 — ここで実行して安全",
           copyTerminal: "agentを起動 — コピーしてターミナルで実行",
         },
@@ -592,6 +671,26 @@
           noteReplay: "重新加载对话时间线。无模型调用。",
           tabDashboard: "仪表板",
           tabRoom: "智能体房间",
+          guideTitle: "relay-baton 使用方法",
+          guideIntro: "封装 relay-baton CLI 的只读桌面窗口。仅读取与预览 — 绝不运行智能体或写入你的仓库。",
+          guideSecTabs: "标签页",
+          guideTabDash: "一目了然的会话状态与上下文budget面板。",
+          guideTabRoom: "对话时间线 + 驱动 CLI 的命令输入框。",
+          guideSecProject: "项目",
+          guideProjAdd: "选择文件夹将其注册为项目（原生文件夹选择）。",
+          guideProjSwitch: "下拉框 — 切换当前项目，刷新所有面板。",
+          guideProjRemove: "注销所选项目（会先确认）。",
+          guideSecRoom: "智能体房间",
+          guideTermMessage: "输入文本",
+          guideRoomMsg: "纯文本会保存到对话日志。",
+          guideRoomRead: "只读命令 — 在此即时运行，无模型调用。",
+          guideRoomPreview: "仅预览 — 显示可复制的命令；GUI 绝不启动智能体。",
+          guideSecMore: "更多",
+          guideHandoff: "以弹窗只读方式打开最新的 handoff 文档。",
+          guideDiet: "传递给后续智能体操作的 token-diet 配置（仅显示）。",
+          guideLang: "界面语言（English / 한국어 / 日本語 / 中文）。",
+          guideTheme: "切换浅色 / 深色。",
+          themeWord: "主题",
           readOnlySafe: "只读 — 可在此安全运行",
           copyTerminal: "启动agent — 复制后在终端运行",
         },
@@ -610,6 +709,48 @@
         document.querySelectorAll("[data-i18n-title]").forEach((el) => { el.title = t(el.dataset.i18nTitle); });
         document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => { el.placeholder = t(el.dataset.i18nPlaceholder); });
         renderHints();
+        renderGuide();
+      }
+
+      // The ? overlay: a short usage guide (what each control does) plus the
+      // keyboard-shortcut table. Rebuilt on language change.
+      function renderGuide() {
+        const root = $("guide");
+        if (!root) return;
+        root.innerHTML = "";
+        const sections = [
+          { h: t("guideSecTabs"), rows: [
+            { term: t("tabDashboard"), desc: t("guideTabDash") },
+            { term: t("tabRoom"), desc: t("guideTabRoom") },
+          ] },
+          { h: t("guideSecProject"), rows: [
+            { term: t("addProject"), desc: t("guideProjAdd") },
+            { term: t("project"), desc: t("guideProjSwitch") },
+            { term: t("remove"), desc: t("guideProjRemove") },
+          ] },
+          { h: t("guideSecRoom"), rows: [
+            { term: t("guideTermMessage"), desc: t("guideRoomMsg") },
+            { term: "/status /budget /review /diagnose /replay", desc: t("guideRoomRead"), code: true },
+            { term: "/plan /execute /handoff", desc: t("guideRoomPreview"), code: true },
+          ] },
+          { h: t("guideSecMore"), rows: [
+            { term: t("handoff"), desc: t("guideHandoff") },
+            { term: t("diet"), desc: t("guideDiet") },
+            { term: t("language"), desc: t("guideLang") },
+            { term: t("themeWord"), desc: t("guideTheme") },
+          ] },
+        ];
+        for (const s of sections) {
+          const h = document.createElement("h4"); h.textContent = s.h; root.appendChild(h);
+          for (const r of s.rows) {
+            const row = document.createElement("div"); row.className = "guide-row";
+            const term = document.createElement("div"); term.className = "term";
+            if (r.code) { const c = document.createElement("code"); c.className = "inline"; c.textContent = r.term; term.appendChild(c); }
+            else term.textContent = r.term;
+            const desc = document.createElement("div"); desc.className = "desc"; desc.textContent = r.desc;
+            row.append(term, desc); root.appendChild(row);
+          }
+        }
       }
 
       async function cli(args) {
@@ -1081,6 +1222,7 @@
       const overlay = $("overlay");
       const toggleHelp = () => overlay.classList.toggle("show");
       $("help").addEventListener("click", toggleHelp);
+      $("help-close").addEventListener("click", () => overlay.classList.remove("show"));
       overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.classList.remove("show"); });
 
       // --- handoff modal ---
