@@ -14,8 +14,8 @@ This keeps every hard constraint intact:
 ## Status
 
 **v1.2 (alpha)** — desktop dashboard: project switcher plus add/remove controls
-(folder picker or direct path input), status + budget panels, diet selector,
-read-only handoff preview, and an Agent Room timeline (`replay`) with a
+(native folder picker), status + budget panels, diet selector, read-only
+handoff preview, and an Agent Room timeline (`replay`) with a
 confirmation-first action palette. Quality-of-life: persisted window
 size/position (`tauri-plugin-window-state`), a light/dark theme toggle,
 dependency-free UI language selector (English default, Korean, Japanese,

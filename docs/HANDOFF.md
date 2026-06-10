@@ -89,8 +89,8 @@ an agent.
 
 **Phase B follow-up (project management + i18n) — implemented, needs Tauri
 window verification:** the dashboard can now add a project through the native
-folder picker (`tauri-plugin-dialog`) or a direct path input, remove the selected
-project with a confirmation step, and refresh all panels after add/switch/remove.
+folder picker (`tauri-plugin-dialog`), remove the selected project with a
+confirmation step, and refresh all panels after add/switch/remove.
 CLI contract was extended with `project add --json` and `project remove --json`
 for clean sidecar usage. UI chrome now has a dependency-free language selector:
 English default plus Korean, Japanese, and Simplified Chinese; raw CLI output is

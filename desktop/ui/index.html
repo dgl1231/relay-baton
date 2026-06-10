@@ -72,11 +72,10 @@
       button:hover { background: var(--accent-hover); }
       button.ghost { background: var(--border); color: var(--fg); border: 1px solid var(--border2); }
       button.ghost:hover { background: var(--border2); }
-      select, input {
+      select {
         background: var(--border); color: var(--fg); border: 1px solid var(--border2);
         border-radius: 6px; padding: 6px 10px; font: inherit; font-size: 13px;
       }
-      input { width: min(260px, 52vw); }
       button.danger { background: var(--hot); }
       button.danger:hover { background: var(--err); }
       .project-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -149,8 +148,6 @@
       <select id="project" data-i18n-title="projectTitle"></select>
       <button id="pick-project" class="ghost" data-i18n="addProject" data-i18n-title="addProjectTitle">+ Project</button>
       <div class="project-tools">
-        <input id="project-path" data-i18n-placeholder="pathPlaceholder" placeholder="project folder path" />
-        <button id="add-path" class="ghost" data-i18n="add">Add</button>
         <button id="remove-project" class="danger" data-i18n="remove" data-i18n-title="removeProjectTitle">Remove</button>
       </div>
       <label class="muted" for="lang" data-i18n="language">language</label>
@@ -231,8 +228,6 @@
           projectTitle: "switch active project",
           addProject: "+ Project",
           addProjectTitle: "choose a project folder",
-          pathPlaceholder: "project folder path",
-          add: "Add",
           remove: "Remove",
           removeProjectTitle: "remove the selected project from the registry",
           language: "language",
@@ -259,7 +254,6 @@
           loading: "loading…",
           cwdProject: "(cwd — no registered projects)",
           unavailable: "(unavailable)",
-          emptyPath: "Enter a project folder path first.",
           noProject: "No project is selected.",
           chooseUnavailable: "Folder picker is not available in this Tauri build.",
           removeConfirmTitle: "Remove project",
@@ -293,8 +287,6 @@
           projectTitle: "활성 프로젝트 전환",
           addProject: "+ 프로젝트",
           addProjectTitle: "프로젝트 폴더 선택",
-          pathPlaceholder: "프로젝트 폴더 경로",
-          add: "추가",
           remove: "제거",
           removeProjectTitle: "선택한 프로젝트를 registry에서 제거",
           language: "언어",
@@ -321,7 +313,6 @@
           loading: "로딩 중…",
           cwdProject: "(cwd — 등록된 프로젝트 없음)",
           unavailable: "(사용 불가)",
-          emptyPath: "프로젝트 폴더 경로를 먼저 입력하세요.",
           noProject: "선택된 프로젝트가 없습니다.",
           chooseUnavailable: "이 Tauri 빌드에서는 폴더 선택기를 사용할 수 없습니다.",
           removeConfirmTitle: "프로젝트 제거",
@@ -355,8 +346,6 @@
           projectTitle: "アクティブプロジェクトを切り替え",
           addProject: "+ Project",
           addProjectTitle: "プロジェクトフォルダを選択",
-          pathPlaceholder: "プロジェクトフォルダのパス",
-          add: "追加",
           remove: "削除",
           removeProjectTitle: "選択したプロジェクトをregistryから削除",
           language: "言語",
@@ -383,7 +372,6 @@
           loading: "読み込み中…",
           cwdProject: "(cwd — 登録プロジェクトなし)",
           unavailable: "(利用不可)",
-          emptyPath: "プロジェクトフォルダのパスを入力してください。",
           noProject: "プロジェクトが選択されていません。",
           chooseUnavailable: "このTauriビルドではフォルダ選択を利用できません。",
           removeConfirmTitle: "プロジェクトを削除",
@@ -417,8 +405,6 @@
           projectTitle: "切换活动项目",
           addProject: "+ 项目",
           addProjectTitle: "选择项目文件夹",
-          pathPlaceholder: "项目文件夹路径",
-          add: "添加",
           remove: "移除",
           removeProjectTitle: "从registry移除选中的项目",
           language: "语言",
@@ -445,7 +431,6 @@
           loading: "加载中…",
           cwdProject: "(cwd — 没有注册项目)",
           unavailable: "(不可用)",
-          emptyPath: "请先输入项目文件夹路径。",
           noProject: "未选择项目。",
           chooseUnavailable: "此Tauri构建中无法使用文件夹选择器。",
           removeConfirmTitle: "移除项目",
@@ -486,7 +471,6 @@
         $("lang").value = lang;
         document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
         document.querySelectorAll("[data-i18n-title]").forEach((el) => { el.title = t(el.dataset.i18nTitle); });
-        document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => { el.placeholder = t(el.dataset.i18nPlaceholder); });
         renderActions();
       }
 
@@ -700,20 +684,14 @@
         await Promise.all([loadProjects(), loadStatus(), loadBudget(), loadHandoff(), loadTimeline()]);
       }
 
-      async function addProjectPath(projectPath) {
-        const trimmed = String(projectPath ?? "").trim();
-        if (!trimmed) throw new Error(t("emptyPath"));
-        await cliJson(["project", "add", trimmed, "--json"]);
-        $("project-path").value = "";
-        await refresh();
-      }
-
       async function chooseProjectFolder() {
         const open = TAURI?.dialog?.open;
         if (!open) throw new Error(t("chooseUnavailable"));
         const chosen = await open({ directory: true, multiple: false });
         if (!chosen) return;
-        await addProjectPath(Array.isArray(chosen) ? chosen[0] : chosen);
+        const projectPath = Array.isArray(chosen) ? chosen[0] : chosen;
+        await cliJson(["project", "add", String(projectPath), "--json"]);
+        await refresh();
       }
 
       function openRemoveProjectConfirm() {
@@ -764,15 +742,6 @@
 
       $("pick-project").addEventListener("click", async () => {
         try { await chooseProjectFolder(); }
-        catch (err) { openErrorConfirm(err); }
-      });
-      $("add-path").addEventListener("click", async () => {
-        try { await addProjectPath($("project-path").value); }
-        catch (err) { openErrorConfirm(err); }
-      });
-      $("project-path").addEventListener("keydown", async (e) => {
-        if (e.key !== "Enter") return;
-        try { await addProjectPath(e.target.value); }
         catch (err) { openErrorConfirm(err); }
       });
       $("remove-project").addEventListener("click", openRemoveProjectConfirm);

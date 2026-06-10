@@ -616,7 +616,7 @@ Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-n
 
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
-| v1.2.0-alpha.3 | [Read →](./release-notes/v1.2.0-alpha.3.md) | [읽기 →](./release-notes/ko/v1.2.0-alpha.3.md) | Desktop project management + i18n: add/switch/remove projects in the GUI, register non-git project folders, and switch UI chrome between English/Korean/Japanese/Simplified Chinese. |
+| v1.2.0-alpha.3 | [Read →](./release-notes/v1.2.0-alpha.3.md) | [읽기 →](./release-notes/ko/v1.2.0-alpha.3.md) | Desktop project management + i18n: add projects with the folder picker, switch/remove projects in the GUI, register non-git project folders, and switch UI chrome between English/Korean/Japanese/Simplified Chinese. |
 | v1.2.0-alpha.2 | [Read →](./release-notes/v1.2.0-alpha.2.md) | [읽기 →](./release-notes/ko/v1.2.0-alpha.2.md) | Desktop sidecar fix: the GUI now actually reaches the bundled CLI (`withGlobalTauri` + `window.__TAURI__`), so status/budget/handoff/timeline panels populate. |
 | v1.2.0-alpha.1 | [Read →](./release-notes/v1.2.0-alpha.1.md) | [읽기 →](./release-notes/ko/v1.2.0-alpha.1.md) | Desktop prerelease completed: fixes the Windows `.msi` build (non-numeric prerelease) so all 6 assets ship; adds Phase D — signing docs, window-state persistence, light/dark toggle, TUI-mirrored keyboard shortcuts. |
 | v1.2.0-alpha.0 | [Read →](./release-notes/v1.2.0-alpha.0.md) | [읽기 →](./release-notes/ko/v1.2.0-alpha.0.md) | Desktop GUI prerelease (Phase A+B): `build-desktop` release job (.dmg/.msi/.AppImage), deterministic icons, sidecar staging, read-only dashboard, and CLI JSON surface (`project list/current --json`, `handoff show`). Unsigned installers. |

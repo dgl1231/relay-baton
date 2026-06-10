@@ -96,9 +96,9 @@ Phased so each phase is shippable on its own.
 - [x] **Project switcher** — header dropdown fed by `project list --json` (new);
   switching calls the CLI's `project switch`, then refreshes all panels.
 - [x] **Project management controls** — header controls can add projects through
-  the native folder picker or direct path input (`project add --json`), and
-  remove the selected project with an explicit confirmation (`project remove
-  --json`). The webview still goes through the CLI sidecar only.
+  the native folder picker (`project add --json`) and remove the selected
+  project with an explicit confirmation (`project remove --json`). The webview
+  still goes through the CLI sidecar only.
 - [x] **Status + budget panels** — parsed key/value panels with a budget usage
   bar (`status --json`, `budget --json`); errors render in-panel.
 - [x] **Diet selector** — off/lite/balanced/caveman/ultra dropdown; UI state
