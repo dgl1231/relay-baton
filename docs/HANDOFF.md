@@ -3,8 +3,13 @@
 > Compact, deterministic handoff for the next session (possibly a fresh/cold
 > agent on a different machine). This is the relay-baton concept applied to the
 > project itself. Read this first, then `git pull`.
+>
+> **Keep this file alive:** update it after every meaningful chunk of work (and
+> before ending a session) — bump `_Last updated:_`, refresh "Where we are" /
+> "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
+> "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-10 — end of the v1.1 release-pipeline work._
+_Last updated: 2026-06-10 — v1.2 Phase A started (desktop/ npm build path)._
 
 ## Where we are
 
@@ -40,11 +45,16 @@ issues, all in `release.yml` — full detail in [`RELEASE.md`](./RELEASE.md):
 
 ## Next up: v1.2 — Desktop GUI
 
-Full phased plan in [`ROADMAP.md`](./ROADMAP.md) (§ v1.2). Start with **Phase A**:
+Full phased plan in [`ROADMAP.md`](./ROADMAP.md) (§ v1.2). **Phase A in progress:**
 
-1. Make `desktop/` build locally (`cargo tauri dev`), generate icons, add the
-   sidecar-staging step.
-2. Add a desktop build job to `release.yml` that runs `tauri build` per OS and
+1. Make `desktop/` build locally — **partly done**: `desktop/package.json` now
+   pins `@tauri-apps/cli` (dev dep) with `dev`/`build`/`icon` scripts, README
+   updated. **Remaining (needs a Rust toolchain machine):** generate real icons
+   (`npm run icon -- <png>`) and confirm `npm run dev` opens the window + sidecar
+   calls succeed. (This dev box has Node but no `cargo`/`rustc`.)
+2. Add the sidecar-staging step (copy `relay-baton-<triple>` into
+   `desktop/src-tauri/binaries/`).
+3. Add a desktop build job to `release.yml` that runs `tauri build` per OS and
    attaches `.dmg`/`.msi`/`.AppImage` to the Release.
 
 Hard rule for v1.2: the GUI calls the CLI sidecar only. **No business logic in
@@ -57,8 +67,12 @@ holds no business logic; no auto commit/push/PR; subprocess-only.)
   /tmp/rbshim pnpm && export PATH=/tmp/rbshim:$PATH`, or just `corepack pnpm`.
 - `npx esbuild` fails locally too — install globally
   (`npm i -g esbuild@0.28.0 postject@1.0.0-alpha.6`) and call the bin directly.
-- `gh` CLI is unusable here (its config is root-owned, 0600) — the human checks
-  Actions/Releases in the browser. Plan around not having `gh`.
+- `gh` CLI availability is **machine-specific** — re-check on each machine.
+  - On the original Linux dev box it was unusable (config root-owned, 0600), so
+    the human checked Actions/Releases in the browser.
+  - On the Windows dev box it works fine: `gh 2.91.0`, logged in as `dgl1231`
+    (token scopes `repo`, `workflow`, `read:org`, `gist`) — use `gh` directly
+    for Actions/Releases/PRs there.
 - Repo branch protection prints "Changes must be made through a pull request" on
   push, but the push still lands on `main` (confirm with `git rev-parse
   origin/main`). Tags push cleanly.

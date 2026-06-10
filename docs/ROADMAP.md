@@ -69,9 +69,11 @@ Phased so each phase is shippable on its own.
 
 ### Phase A — make it build & ship (foundation)
 
-- [ ] **`desktop/` builds locally.** Add `package.json` (Tauri CLI dev dep) or
-  document the `cargo tauri` path; generate real icons (`cargo tauri icon`);
-  confirm `cargo tauri dev` opens the window and the sidecar calls succeed.
+- [~] **`desktop/` builds locally.** `desktop/package.json` now pins
+  `@tauri-apps/cli` as a dev dep with `dev`/`build`/`icon` scripts (so no global
+  `cargo tauri` needed); README build section updated. **Still needs a Rust
+  toolchain machine** to: generate real icons (`npm run icon -- <png>`) and
+  confirm `npm run dev` opens the window + the sidecar calls succeed.
 - [ ] **Sidecar staging script** — a small script that copies the right
   `relay-baton-<triple>` binary into `desktop/src-tauri/binaries/`
   (see [`../desktop/src-tauri/binaries/README.md`](../desktop/src-tauri/binaries/README.md)).
