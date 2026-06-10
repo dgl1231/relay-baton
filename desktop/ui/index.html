@@ -68,6 +68,40 @@
       .bar > div { height: 100%; background: #238636; }
       .bar > div.hot { background: #da3633; }
       .err { color: #f85149; }
+
+      /* conversation timeline */
+      .timeline { display: flex; flex-direction: column; gap: 8px; max-height: 360px; overflow: auto; }
+      .ev { display: grid; grid-template-columns: max-content 1fr; gap: 10px; font-size: 13px; }
+      .ev .who { white-space: nowrap; }
+      .ev .role { font-weight: 600; }
+      .role-user { color: #58a6ff; }
+      .role-claude { color: #d2a8ff; }
+      .role-codex { color: #7ee787; }
+      .role-relay-baton, .role-relay { color: #f0b429; }
+      .ev .kind { color: #8b949e; font-size: 11px; }
+      .ev .text { white-space: pre-wrap; word-break: break-word; }
+      .ev .ts { color: #6e7681; font-size: 11px; }
+
+      /* actions toolbar + confirm modal */
+      .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+      .actions button { background: #21262d; border: 1px solid #30363d; }
+      .actions button:hover { background: #30363d; }
+      .actions button.ro { border-color: #2ea04366; }
+      .confirm {
+        margin-top: 12px; border: 1px solid #30363d; border-radius: 8px;
+        padding: 12px; background: #0d1117; display: none;
+      }
+      .confirm.show { display: block; }
+      .confirm code {
+        display: block; background: #161b22; border: 1px solid #21262d;
+        border-radius: 6px; padding: 8px 10px; margin: 8px 0; font-size: 13px;
+        white-space: pre-wrap; word-break: break-word;
+      }
+      .confirm .warn { color: #f0b429; font-size: 12px; }
+      .confirm .btns { display: flex; gap: 8px; margin-top: 8px; }
+      .confirm .run { background: #238636; }
+      .confirm .copy { background: #21262d; border: 1px solid #30363d; }
+      .confirm .cancel { background: transparent; border: 1px solid #30363d; }
     </style>
   </head>
   <body>
@@ -96,6 +130,12 @@
       <div class="card wide">
         <h2>handoff <span class="muted" id="handoff-meta"></span></h2>
         <pre id="handoff" class="scroll">loading…</pre>
+      </div>
+      <div class="card wide">
+        <h2>agent room <span class="muted">— conversation timeline (read-only)</span></h2>
+        <div class="actions" id="actions"></div>
+        <div class="confirm" id="confirm"></div>
+        <div id="timeline" class="timeline">loading…</div>
       </div>
     </main>
 
@@ -215,8 +255,107 @@
         }
       }
 
+      async function loadTimeline() {
+        const el = $("timeline");
+        try {
+          const r = await cliJson(["replay", "--json", "--limit", "100"]);
+          el.innerHTML = "";
+          if (!r.entries || r.entries.length === 0) {
+            const d = document.createElement("div");
+            d.className = "muted";
+            d.textContent = "(no conversation events yet — run `relay-baton chat` from the CLI)";
+            el.appendChild(d);
+            return;
+          }
+          for (const e of r.entries) {
+            const row = document.createElement("div"); row.className = "ev";
+            const who = document.createElement("div"); who.className = "who";
+            const role = document.createElement("span");
+            const roleClass = "role-" + String(e.role).replace(/[^a-z-]/gi, "").toLowerCase();
+            role.className = "role " + roleClass;
+            role.textContent = e.agent && e.agent !== e.role ? `${e.role}/${e.agent}` : e.role;
+            const kind = document.createElement("div"); kind.className = "kind"; kind.textContent = e.kind;
+            const ts = document.createElement("div"); ts.className = "ts"; ts.textContent = e.ts;
+            who.append(role, kind, ts);
+            const text = document.createElement("div"); text.className = "text"; text.textContent = e.text;
+            row.append(who, text);
+            el.appendChild(row);
+          }
+        } catch (err) { showError(el, err); }
+      }
+
+      // Confirmation-first action palette. Read-only / no-model commands run
+      // directly; agent-launching commands are NEVER run from the GUI — they
+      // render a copyable command preview only (the CLI/terminal stays the
+      // place where real agent runs happen, with their own confirmation).
+      const ACTIONS = [
+        { label: "review", args: ["review"], readonly: true, note: "Deterministic diff-vs-plan review. No model call." },
+        { label: "diagnose", args: ["doctor", "--deep"], readonly: true, note: "Deep environment + artifact diagnostics. No model call." },
+        { label: "status", args: ["status"], readonly: true, note: "Current session status. No model call." },
+        { label: "handoff", args: ["handoff", "--to", "claude", "--no-run"], readonly: false, note: "Generates a handoff document. Run from your terminal." },
+        { label: "plan", args: ["plan", "<task>"], readonly: false, note: "Launches the planner agent. Run from your terminal." },
+        { label: "execute", args: ["execute"], readonly: false, note: "Launches the executor agent. Run from your terminal." },
+      ];
+
+      function fmtCmd(args) { return "relay-baton " + args.join(" "); }
+
+      function renderActions() {
+        const bar = $("actions");
+        bar.innerHTML = "";
+        for (const a of ACTIONS) {
+          const b = document.createElement("button");
+          b.textContent = a.label;
+          if (a.readonly) b.classList.add("ro");
+          b.title = a.note;
+          b.addEventListener("click", () => openConfirm(a));
+          bar.appendChild(b);
+        }
+      }
+
+      function openConfirm(a) {
+        const box = $("confirm");
+        box.innerHTML = "";
+        box.classList.add("show");
+
+        const title = document.createElement("div");
+        title.innerHTML = a.readonly
+          ? `<span class="role role-relay">${a.label}</span> <span class="muted">read-only — safe to run here</span>`
+          : `<span class="role role-relay">${a.label}</span> <span class="warn">launches an agent — copy &amp; run in your terminal</span>`;
+
+        const code = document.createElement("code");
+        code.textContent = fmtCmd(a.args);
+
+        const note = document.createElement("div");
+        note.className = "muted"; note.textContent = a.note;
+
+        const btns = document.createElement("div"); btns.className = "btns";
+        const copy = document.createElement("button"); copy.className = "copy"; copy.textContent = "Copy";
+        copy.addEventListener("click", () => navigator.clipboard?.writeText(fmtCmd(a.args)));
+        const cancel = document.createElement("button"); cancel.className = "cancel"; cancel.textContent = "Close";
+        cancel.addEventListener("click", () => box.classList.remove("show"));
+        btns.append(copy);
+
+        if (a.readonly) {
+          const run = document.createElement("button"); run.className = "run"; run.textContent = "Run";
+          run.addEventListener("click", async () => {
+            run.disabled = true; run.textContent = "running…";
+            const out = document.createElement("pre"); out.className = "scroll";
+            try { out.textContent = (await cli(a.args)).trim() || "(no output)"; }
+            catch (err) { out.className += " err"; out.textContent = String(err?.message ?? err); }
+            box.appendChild(out);
+            run.textContent = "Run";
+            run.disabled = false;
+            loadTimeline();
+          });
+          btns.append(run);
+        }
+        btns.append(cancel);
+
+        box.append(title, code, note, btns);
+      }
+
       async function refresh() {
-        await Promise.all([loadProjects(), loadStatus(), loadBudget(), loadHandoff()]);
+        await Promise.all([loadProjects(), loadStatus(), loadBudget(), loadHandoff(), loadTimeline()]);
       }
 
       $("project").addEventListener("change", async (e) => {
@@ -234,6 +373,7 @@
       $("diet").addEventListener("change", (e) => localStorage.setItem("rb-diet", e.target.value));
 
       $("refresh").addEventListener("click", refresh);
+      renderActions();
       refresh();
     </script>
   </body>

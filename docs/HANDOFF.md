@@ -9,8 +9,8 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-10 — cut v1.2.0-alpha.0 to exercise `build-desktop`;
-watch the Release run, then in-Tauri verification + Phase C._
+_Last updated: 2026-06-10 — Phase C (agent-room view) implemented; release
+commit v1.2.0-alpha.0 staged locally, push/tag still pending approval._
 
 ## Where we are
 
@@ -79,9 +79,25 @@ blocker as Phase A item 1):
   pane. All data flows through the sidecar CLI; the UI never reads/writes
   `.ai-session/` itself.
 
-**Next:** cut a tag (e.g. v1.2.0-alpha) to exercise `build-desktop` + verify
-the dashboard inside a real Tauri window on a Rust machine, or proceed to
-Phase C (Agent Room view, confirmation-first).
+**Phase C (agent-room view) — implemented** (same in-Tauri verification
+blocker): the dashboard gained a read-only conversation timeline (`replay
+--json`, color-labeled roles) and a confirmation-first action palette. Read-only
+commands (`review`, `doctor --deep`, `status`) run via the sidecar; agent-
+launching ones (`plan`/`execute`/`handoff`) are copy-only — the GUI never spawns
+an agent.
+
+**Release staged, NOT pushed:** version bumped to **v1.2.0-alpha.0** everywhere
+(packages + CLI `--version` + desktop Cargo.toml/tauri.conf.json), release notes
+(en+ko) + README badge/tables updated, commit `release: v1.2.0-alpha.0` made
+locally. **A direct push to `main` was blocked by the harness auto-mode
+classifier** (CLAUDE.md forbids auto-push; needs explicit human OK). Pending:
+`git push origin main` then `git tag v1.2.0-alpha.0 && git push origin
+v1.2.0-alpha.0` — the tag is what first exercises `build-desktop` in CI (watch
+all six jobs, mind the v1.1.0 YAML gotcha).
+
+**Next:** get the push/tag approved and watch the Release run; verify the
+dashboard inside a real Tauri window on a Rust machine; then Phase D (signing,
+window polish).
 
 Hard rule for v1.2: the GUI calls the CLI sidecar only. **No business logic in
 the webview.** Read-only or confirmation-first. (Matches `CLAUDE.md`: TUI/GUI

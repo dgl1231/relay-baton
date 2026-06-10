@@ -105,12 +105,21 @@ Phased so each phase is shippable on its own.
 
 ### Phase C — Agent Room view (confirmation-first, never autopilot)
 
-- [ ] **Conversation view** over `conversation.jsonl` (reuse `replay`) with the
-  labeled user / claude / codex / relay-baton roles.
-- [ ] **Prompt preview before any real run**, identical safety model to the CLI
-  room — explicit confirm, bounded `/continue --max-steps`, no unbounded loop.
-- [ ] Wire `/plan` `/execute` `/review` `/diagnose` `/handoff` as buttons that
-  shell out to the same commands.
+> Implemented in `ui/index.html`; in-window verification shares the same
+> Rust-toolchain blocker as Phase A item 1.
+
+- [x] **Conversation view** over `conversation.jsonl` — `replay --json` feeds a
+  read-only timeline with color-labeled user / claude / codex / relay-baton
+  roles, per-event kind + timestamp.
+- [x] **Prompt preview before any real run** — a confirmation palette renders
+  the exact `relay-baton …` command before anything happens. Read-only /
+  no-model commands (`review`, `doctor --deep`, `status`) have a Run button;
+  agent-launching commands (`plan`, `execute`, `handoff`) are copy-only — the
+  GUI never spawns an agent (strongest reading of confirmation-first for the
+  alpha). Bounded `/continue --max-steps` stays a CLI concern.
+- [x] **Wire `/review` `/diagnose` `/plan` `/execute` `/handoff` as buttons** —
+  present in the action palette; read-only ones execute via the sidecar,
+  mutating ones preview the command to run in the terminal.
 
 ### Phase D — signing & polish
 
