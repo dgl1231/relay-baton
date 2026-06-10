@@ -183,6 +183,11 @@ Full work order: [`TASK-v1.4-distribution.md`](./TASK-v1.4-distribution.md).
   `notarytool`). Wire as optional CI steps that no-op without secrets, so
   unsigned builds keep working. Direction already in [`RELEASE.md`](./RELEASE.md)
   → "Code signing & notarization". (No free path — needs paid certs.)
+- [ ] **Desktop agent switcher (Codex ↔ Claude)** — a header toggle/button that
+  picks which agent the Agent Room addresses, mirroring the CLI room's
+  `/agent <claude|codex>`. Display + pass-through only: it sets the agent for
+  the previewed `/plan` `/execute` `/handoff --to` commands; it never launches
+  an agent from the GUI. Persisted like the diet selector; i18n in en/ko/ja/zh.
 - [ ] One-line installers (`install.sh` / `install.ps1`) that fetch the latest
   release binary and put it on PATH.
 - [ ] Optional Homebrew tap / Scoop manifest (community-maintainable).

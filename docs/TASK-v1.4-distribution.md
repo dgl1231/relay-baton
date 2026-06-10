@@ -55,6 +55,25 @@ no-op when the secrets are absent, so unsigned builds keep working.
 - Update `RELEASE.md` "Code signing & notarization" from "future work" to the
   actual wired steps once done; update the README download note.
 
+## 2b. Desktop agent switcher (Codex ↔ Claude)
+
+A header toggle/button in the desktop app to pick which agent the Agent Room is
+addressing — mirrors the CLI room's `/agent <claude|codex>`
+(`packages/core/src/room/RoomCommands.ts`). **Display + pass-through only:**
+
+- Two-state control (e.g. a segmented `Codex | Claude` button) next to the diet
+  selector; persist in `localStorage` (`rb-agent`), default the project's
+  primary agent if known, else `claude`.
+- The chosen agent feeds the **previewed** commands only:
+  `/handoff --to <agent>`, and the planner/executor hints for `/plan` /
+  `/execute`. It must NOT launch an agent from the GUI — the existing
+  preview/confirm model stays (read-only commands run; agent commands preview).
+- Optionally append a `conversation append --role <agent>`-style marker so the
+  timeline shows which agent is addressed (reuse the existing conversation
+  command; do not invent new write paths).
+- i18n: the label + tooltip in en/ko/ja/zh. Keep it sidecar-only; no business
+  logic in the webview.
+
 ## 3. One-line installers
 
 - `install/install.ps1` (Windows) and `install/install.sh` (macOS/Linux): fetch
@@ -96,6 +115,8 @@ no-op when the secrets are absent, so unsigned builds keep working.
 - [ ] `install.ps1` / `install.sh` install the CLI on a clean machine and it
       runs (`relay-baton --version`).
 - [ ] Scoop manifest + Homebrew formula install the CLI; hashes auto-track.
+- [ ] Desktop has a Codex/Claude agent switcher that only affects previewed
+      commands (never launches an agent); persisted + localized.
 - [ ] Desktop updater is opt-in and confirmation-first; no silent updates.
 - [ ] `SHA256SUMS` attached to each release; installers verify it.
 - [ ] `corepack pnpm build` + `corepack pnpm test` stay green; docs (ROADMAP,
