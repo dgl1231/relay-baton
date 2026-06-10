@@ -154,8 +154,11 @@
         background: var(--panel); border: 1px solid var(--border2);
         border-radius: 10px; padding: 20px 24px; min-width: 280px;
       }
-      .overlay h3 { margin: 0 0 12px; font-size: 14px; }
+      .overlay h3 { margin: 0 0 12px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+      .overlay h3 .spacer { flex: 1; }
       .overlay .kv { gap: 8px 18px; }
+      .handoff-box { width: min(820px, 90vw); max-height: 82vh; display: flex; flex-direction: column; }
+      .handoff-box pre.scroll { max-height: none; overflow: auto; flex: 1; }
     </style>
   </head>
   <body>
@@ -181,10 +184,23 @@
         <option>off</option><option>lite</option><option>balanced</option>
         <option selected>caveman</option><option>ultra</option>
       </select>
+      <button id="open-handoff" class="ghost" data-i18n="handoff" data-i18n-title="handoffTitle">handoff</button>
       <button id="theme" class="ghost" data-i18n-title="themeTitle">◐</button>
       <button id="help" class="ghost" data-i18n-title="helpTitle">?</button>
       <button id="refresh" data-i18n="refresh">Refresh</button>
     </header>
+
+    <div class="overlay" id="handoff-overlay">
+      <div class="box handoff-box">
+        <h3>
+          <span data-i18n="handoff">handoff</span>
+          <span class="muted" id="handoff-meta"></span>
+          <span class="spacer"></span>
+          <button id="handoff-close" class="ghost" data-i18n="close">Close</button>
+        </h3>
+        <pre id="handoff" class="scroll">loading…</pre>
+      </div>
+    </div>
 
     <div class="overlay" id="overlay">
       <div class="box">
@@ -209,10 +225,6 @@
       <div class="card">
         <h2 data-i18n="budget">budget</h2>
         <div id="budget">loading…</div>
-      </div>
-      <div class="card wide">
-        <h2><span data-i18n="handoff">handoff</span> <span class="muted" id="handoff-meta"></span></h2>
-        <pre id="handoff" class="scroll">loading…</pre>
       </div>
       <div class="card wide">
         <h2><span data-i18n="agentRoom">agent room</span> <span class="muted" data-i18n="timelineSubtitle">— conversation timeline (read-only)</span></h2>
@@ -271,7 +283,8 @@
           shortcutProject: "next project",
           shortcutDiet: "cycle diet profile",
           shortcutBudget: "reload budget",
-          shortcutHandoff: "reload handoff",
+          shortcutHandoff: "open handoff",
+          handoffTitle: "open the latest handoff (read-only)",
           shortcutTheme: "toggle light / dark",
           shortcutQuit: "quit window",
           shortcutHelp: "this help",
@@ -342,7 +355,8 @@
           shortcutProject: "다음 프로젝트",
           shortcutDiet: "diet profile 순환",
           shortcutBudget: "budget 다시 읽기",
-          shortcutHandoff: "handoff 다시 읽기",
+          shortcutHandoff: "handoff 열기",
+          handoffTitle: "최신 handoff 열기 (읽기 전용)",
           shortcutTheme: "라이트/다크 전환",
           shortcutQuit: "창 닫기",
           shortcutHelp: "이 도움말",
@@ -413,7 +427,8 @@
           shortcutProject: "次のプロジェクト",
           shortcutDiet: "diet profileを切り替え",
           shortcutBudget: "budgetを再読み込み",
-          shortcutHandoff: "handoffを再読み込み",
+          shortcutHandoff: "handoffを開く",
+          handoffTitle: "最新のhandoffを開く（読み取り専用）",
           shortcutTheme: "ライト/ダーク切替",
           shortcutQuit: "ウィンドウを閉じる",
           shortcutHelp: "このヘルプ",
@@ -484,7 +499,8 @@
           shortcutProject: "下一个项目",
           shortcutDiet: "切换diet profile",
           shortcutBudget: "重新加载budget",
-          shortcutHandoff: "重新加载handoff",
+          shortcutHandoff: "打开handoff",
+          handoffTitle: "打开最新的handoff（只读）",
           shortcutTheme: "切换明暗模式",
           shortcutQuit: "关闭窗口",
           shortcutHelp: "此帮助",
@@ -827,7 +843,8 @@
       }
 
       async function refresh() {
-        await Promise.all([loadProjects(), loadStatus(), loadBudget(), loadHandoff(), loadTimeline()]);
+        await Promise.all([loadProjects(), loadStatus(), loadBudget(), loadTimeline()]);
+        if (handoffOverlay.classList.contains("show")) await loadHandoff();
         updateRoomContext();
         renderHints();
       }
@@ -1021,6 +1038,16 @@
       $("help").addEventListener("click", toggleHelp);
       overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.classList.remove("show"); });
 
+      // --- handoff modal ---
+      const handoffOverlay = $("handoff-overlay");
+      async function openHandoffModal() {
+        handoffOverlay.classList.add("show");
+        await loadHandoff();
+      }
+      $("open-handoff").addEventListener("click", openHandoffModal);
+      $("handoff-close").addEventListener("click", () => handoffOverlay.classList.remove("show"));
+      handoffOverlay.addEventListener("click", (e) => { if (e.target === handoffOverlay) handoffOverlay.classList.remove("show"); });
+
       // --- cycle helpers for keyboard shortcuts ---
       function cycleSelect(sel) {
         if (sel.disabled || sel.options.length === 0) return;
@@ -1040,13 +1067,13 @@
         if (e.metaKey || e.ctrlKey || e.altKey) return;
         const tag = (e.target?.tagName || "").toLowerCase();
         if (tag === "input" || tag === "select" || tag === "textarea") return;
-        if (e.key === "Escape") { overlay.classList.remove("show"); return; }
+        if (e.key === "Escape") { overlay.classList.remove("show"); handoffOverlay.classList.remove("show"); return; }
         switch (e.key) {
           case "r": refresh(); break;
           case "p": cycleSelect($("project")); break;
           case "d": cycleSelect($("diet")); break;
           case "b": loadBudget(); break;
-          case "h": loadHandoff(); break;
+          case "h": openHandoffModal(); break;
           case "t": toggleTheme(); break;
           case "q": quitWindow(); break;
           case "?": toggleHelp(); break;
