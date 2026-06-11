@@ -9,10 +9,12 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-11 — `v1.5.0-alpha.1` pushed/tagged; v1.6 session
-archives feature-complete locally: `session list` + `session inspect` + `session
-resume` + desktop read-only archive panel. All v1.6 acceptance items checked.
-Committed locally, not yet tagged/released._
+_Last updated: 2026-06-11 — `v1.6.0-alpha.0` committed to `main`
+(`e3b5d54`), tagged, and pushed. v1.6 session archives feature-complete:
+`session list` + `session inspect` + `session resume` + desktop read-only
+archive panel. All v1.6 acceptance items checked. Release workflow run
+`27330492827` in progress — re-check with:
+`gh run view 27330492827 --repo dgl1231/relay-baton --json status,conclusion,jobs`._
 
 ## Where we are
 
