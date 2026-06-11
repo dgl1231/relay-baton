@@ -21,6 +21,7 @@ import { chatCommand } from "./commands/chat";
 import { replayCommand } from "./commands/replay";
 import { conversationAppendCommand } from "./commands/conversation";
 import { gitStatusCommand } from "./commands/git";
+import { sessionArchiveCommand } from "./commands/session";
 import { loginCommand } from "./commands/login";
 import {
   projectAddCommand,
@@ -203,6 +204,17 @@ git
   .option("--project <name-or-id>", "registered project name or id")
   .option("--path <repoPath>", "repository path")
   .action(gitStatusCommand);
+
+const session = program.command("session").description("Manage session archives and recovery");
+session
+  .command("archive")
+  .description("Archive the current .ai-session artifacts without modifying the source repo")
+  .option("--json", "print machine-readable JSON")
+  .option("--dry-run", "show what would be archived without writing")
+  .option("--out <dir>", "archive root directory (default: ~/.relay-baton/session-archives)")
+  .option("--project <name-or-id>", "registered project name or id")
+  .option("--path <repoPath>", "repository path")
+  .action(sessionArchiveCommand);
 
 addProjectOptions(program.command("tui").description("Start the relay-baton TUI")).action(tuiCommand);
 

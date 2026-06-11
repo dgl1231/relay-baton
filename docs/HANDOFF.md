@@ -9,25 +9,29 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-11 — v1.4/v1.5 cleanup in progress after
-`v1.5.0-alpha.0`: desktop updater hooks/UI are being wired as the final v1.4
-deferred item; v1.5 git tracking has already shipped._
+_Last updated: 2026-06-11 — `v1.5.0-alpha.1` pushed/tagged; v1.6 session
+archives first cut implemented locally and ready for Claude continuation._
 
 ## Where we are
 
-- **v1.5 alpha is SHIPPED** on tag **`v1.5.0-alpha.0`**. It added read-only git
+- **v1.5 alpha is SHIPPED** on tags **`v1.5.0-alpha.0`** and
+  **`v1.5.0-alpha.1`**. `alpha.0` added read-only git
   tracking, session baselines, desktop Git panel, Agent Room `/git`, and bounded
-  git summaries in status/review/handoff surfaces.
-- **v1.4 alpha is SHIPPED** on tag **`v1.4.0-alpha.1`**. Its remaining deferred
-  item was the desktop auto-update channel; that is now being finished as an
-  opt-in/manual Tauri updater path.
+  git summaries in status/review/handoff surfaces. `alpha.1` closed the v1.4
+  deferred desktop updater item with opt-in/manual checks and signed-updater
+  artifact support when secrets exist.
+- **v1.4 alpha is SHIPPED** on tag **`v1.4.0-alpha.1`**. Its deferred updater
+  item is resolved in `v1.5.0-alpha.1`.
 - **v1.1 is SHIPPED** on tag **`v1.1.3`**. The GitHub Release carries three
   working standalone binaries:
   - `relay-baton-linux-x64`
   - `relay-baton-macos-arm64`
   - `relay-baton-windows-x64.exe`
-- Current release workflow for `v1.5.0-alpha.0` was green across CLI, desktop,
-  checksums, and SBOM. README "Download" links point at `releases/latest`.
+- Current release workflow for `v1.5.0-alpha.1` was started after tag push.
+  At the time this handoff was written, CLI binary jobs and macOS desktop had
+  passed; Linux/Windows desktop were still running. Re-check with:
+  `gh run view 27326048647 --repo dgl1231/relay-baton --json status,conclusion,jobs`.
+  README "Download" links point at `releases/latest`.
 
 ## What v1.1 delivered
 
@@ -50,7 +54,7 @@ issues, all in `release.yml` — full detail in [`RELEASE.md`](./RELEASE.md):
 3. v1.1.2 — `postject@^1` doesn't exist (its "latest" is a prerelease) → ETARGET.
 4. v1.1.3 — pinned exact `esbuild@0.28.0` + `postject@1.0.0-alpha.6`. ✅
 
-## Current cleanup: finish v1.4, then re-close v1.5
+## Current cleanup: v1.5 closed
 
 v1.5 feature work has shipped and all acceptance criteria in
 [`TASK-v1.5-git-tracking.md`](./TASK-v1.5-git-tracking.md) are checked:
@@ -70,14 +74,43 @@ The v1.4 deferred updater item is being closed with:
 - CI enables updater artifacts only when Tauri updater signing secrets exist.
 - `latest.json` is generated only when signed updater artifacts are present.
 
-## Next after v1.5
+## v1.6 first cut now in progress
 
-Do not start v1.6 until the v1.4/v1.5 cleanup commit is pushed/tagged or the
-user explicitly asks to keep it local. Likely v1.6 candidates:
+Work order: [`TASK-v1.6-session-archives.md`](./TASK-v1.6-session-archives.md).
+
+Implemented locally after `v1.5.0-alpha.1`:
+
+- `packages/core/src/session/SessionArchiver.ts`
+- `relay-baton session archive`
+- `--json`, `--dry-run`, and `--out <dir>`
+- `manifest.json` with file size and SHA-256 per archived file
+- tests in core + CLI
+- command docs in EN + KO
+
+Validation already run:
+
+```bash
+corepack pnpm build
+corepack pnpm test
+node packages/cli/dist/index.js session archive --dry-run --json --path .
+git diff --check
+```
+
+Next recommended v1.6 work:
+
+1. `relay-baton session list --json`
+2. `relay-baton session inspect <archive> --json`
+3. resume diagnostics
+4. desktop read-only archive panel through the CLI sidecar
+
+## Next after v1.6 first cut
+
+Do not start broader v1.7 work until v1.6 list/inspect/resume diagnostics are
+done or intentionally deferred. Likely follow-ups:
 
 - Real-window QA / stable promotion cleanup for desktop releases.
 - A deeper Git tracking follow-up only if the user wants it, still read-only.
-- Session archive/recovery work from `docs/ROADMAP.md`.
+- Session archive/recovery continuation from `docs/ROADMAP.md`.
 
 Hard rule remains: GUI calls the CLI sidecar only. **No business logic in the
 webview.** Read-only or confirmation-first. No auto commit/push/PR unless the

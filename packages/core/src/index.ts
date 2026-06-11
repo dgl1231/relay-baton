@@ -7,6 +7,7 @@ export * from "./session/SessionMetaSchema";
 export * from "./session/ArtifactValidator";
 export * from "./session/SessionState";
 export * from "./session/SessionManager";
+export * from "./session/SessionArchiver";
 export * from "./git/GitService";
 export * from "./git/RepoMapGenerator";
 export * from "./agents/AgentAdapter";

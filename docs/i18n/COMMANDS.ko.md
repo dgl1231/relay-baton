@@ -27,6 +27,14 @@ harness다. Codex CLI를 먼저 실행하고, fallback을 감지하고, Claude C
 ### `status [--json]`
 현재 세션 상태(`session.json` 요약) 표시.
 
+### `session archive [--json] [--dry-run] [--out <dir>]`
+현재 `.ai-session/` artifact를 source repository를 수정하지 않고 local
+relay-baton archive directory로 보관한다.
+
+v1.6 첫 cut은 directory archive와 file size/SHA-256 checksum을 담은
+`manifest.json`을 쓴다. prune/delete/zip/upload/source project mutation은 하지
+않는다.
+
 ### `doctor [--deep]`
 로컬 환경 점검: git, agent CLI, auth env 존재 여부(값은 출력 안 함),
 `.ai-session`. `--deep`는 추가로 **config 계약**(`validateConfig`)과 **아티팩트

@@ -220,9 +220,10 @@ without ever performing git writes. Full work order:
 Make relay-baton better at preserving completed work and resuming interrupted
 work, especially across multiple projects and desktop sessions.
 
-- [ ] **Session archive command** — `relay-baton session archive` packages the
+- [x] **Session archive command (first cut)** — `relay-baton session archive` packages the
   bounded `.ai-session/` artifacts into a timestamped archive under a local
-  relay-baton data directory. Keep source files untouched.
+  relay-baton data directory. Keep source files untouched. Directory archive
+  only for now; zip/bundle UX remains follow-up.
 - [ ] **Session list/open/export** — CLI JSON surfaces for recent sessions by
   project, plus desktop panels to browse and export them.
 - [ ] **Resume diagnostics** — detect stale, incomplete, or mismatched session

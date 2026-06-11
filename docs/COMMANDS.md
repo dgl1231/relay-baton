@@ -29,6 +29,14 @@ existing files).
 ### `status [--json]`
 Show the current session status (`session.json` summary).
 
+### `session archive [--json] [--dry-run] [--out <dir>]`
+Archive the current `.ai-session/` artifacts into a local relay-baton archive
+directory without modifying the source repository.
+
+The v1.6 first cut writes a directory archive plus `manifest.json` with file
+sizes and SHA-256 checksums. It does not prune, delete, zip, upload, or mutate
+the source project.
+
 ### `doctor [--deep]`
 Check the local environment: git, agent CLIs, auth env presence (values never
 printed), `.ai-session`. With `--deep`, also validates the **config contract**
