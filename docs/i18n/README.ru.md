@@ -231,7 +231,7 @@ pnpm relay-baton login claude
 
 ## Заметки о релизах
 
-**Latest:** v1.5.0-alpha.0 — [English](../../release-notes/v1.5.0-alpha.0.md) · [한국어](../../release-notes/ko/v1.5.0-alpha.0.md)
+**Latest:** v1.5.0-alpha.1 — [English](../../release-notes/v1.5.0-alpha.1.md) · [한국어](../../release-notes/ko/v1.5.0-alpha.1.md)
 
 | Версия | English | 한국어 | Кратко |
 |---|---|---|---|

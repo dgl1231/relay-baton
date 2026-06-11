@@ -14,6 +14,7 @@ Release notes are user-facing changelogs, not agent handoff material — that ro
 
 ## Versions
 
+- [v1.5.0-alpha.1](./v1.5.0-alpha.1.md) / [한국어](./ko/v1.5.0-alpha.1.md) - Distribution cleanup: opt-in/manual desktop updater wiring, signed updater artifact/latest.json release support, v1.4 deferred-item closure, and v1.6-to-v2.0 roadmap.
 - [v1.5.0-alpha.0](./v1.5.0-alpha.0.md) / [한국어](./ko/v1.5.0-alpha.0.md) - Git tracking first cut: read-only `relay-baton git status --json`, non-git project fallback, desktop Git panel, and `/git` in Agent Room.
 - [v1.4.0-alpha.1](./v1.4.0-alpha.1.md) / [한국어](./ko/v1.4.0-alpha.1.md) - Distribution polish: one-line installers with SHA-256 verification, release SHA256SUMS/SBOM metadata, package-manager starter files, optional signing hooks, and a desktop Codex/Claude preview switcher.
 - [v1.3.0-alpha.1](./v1.3.0-alpha.1.md) / [한국어](./ko/v1.3.0-alpha.1.md) - Desktop Agent Room UX revamp: tabbed dashboard/room layout, full-height chat timeline, handoff modal, slash-command palette with descriptions, hover tooltips, and an expanded `?` usage guide. Localized en/ko/ja/zh.

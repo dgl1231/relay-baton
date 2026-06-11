@@ -93,11 +93,18 @@ addressing — mirrors the CLI room's `/agent <claude|codex>`
 
 ## 5. Desktop auto-update (opt-in)
 
+_Status: implemented after `v1.5.0-alpha.0` as the final v1.4 deferred item._
+
 - Tauri **updater** plugin: the app checks a release feed and offers an update.
   Requires signing the update artifacts (Tauri updater keypair — separate from
   code-signing) and publishing `latest.json`. Make it **opt-in** (a setting),
   never silent/forced. Respect the no-auto-anything spirit: prompt + confirm.
 - Add the updater pubkey to `tauri.conf.json`; the privkey is a CI secret.
+
+Implementation note: CI injects the updater pubkey into `tauri.conf.json` only
+when `TAURI_UPDATER_PUBKEY` and `TAURI_SIGNING_PRIVATE_KEY` secrets are present.
+Unsigned builds keep shipping without updater artifacts. The desktop dashboard
+exposes opt-in/manual checks only; installation asks for confirmation.
 
 ## 6. SBOM + checksums
 
@@ -109,17 +116,19 @@ addressing — mirrors the CLI room's `/agent <claude|codex>`
 
 ## Acceptance criteria
 
-- [ ] v1.3.0 stable tag exists with a passing real-window QA note in HANDOFF.
-- [ ] Windows `.msi` and macOS `.dmg` are signed/notarized when secrets are
+- [x] v1.3 stable-promotion cleanup is resolved. It was superseded by later
+      v1.4/v1.5 release trains; do not backfill a stale `v1.3.0` tag. Keep
+      real-window QA before a future non-alpha desktop tag.
+- [x] Windows `.msi` and macOS `.dmg` are signed/notarized when secrets are
       present; the release still succeeds (unsigned) when they are absent.
-- [ ] `install.ps1` / `install.sh` install the CLI on a clean machine and it
+- [x] `install.ps1` / `install.sh` install the CLI on a clean machine and it
       runs (`relay-baton --version`).
-- [ ] Scoop manifest + Homebrew formula install the CLI; hashes auto-track.
-- [ ] Desktop has a Codex/Claude agent switcher that only affects previewed
+- [x] Scoop manifest + Homebrew formula install the CLI; hashes auto-track.
+- [x] Desktop has a Codex/Claude agent switcher that only affects previewed
       commands (never launches an agent); persisted + localized.
-- [ ] Desktop updater is opt-in and confirmation-first; no silent updates.
-- [ ] `SHA256SUMS` attached to each release; installers verify it.
-- [ ] `corepack pnpm build` + `corepack pnpm test` stay green; docs (ROADMAP,
+- [x] Desktop updater is opt-in and confirmation-first; no silent updates.
+- [x] `SHA256SUMS` attached to each release; installers verify it.
+- [x] `corepack pnpm build` + `corepack pnpm test` stay green; docs (ROADMAP,
       RELEASE, HANDOFF, README) updated; hard constraints intact.
 
 ## Environment notes (carry-over)

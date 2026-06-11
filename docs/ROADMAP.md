@@ -32,6 +32,14 @@ commit/push/PR, deterministic compaction only.**
   GitHub Release pipeline, README downloads, Tauri desktop shell (scaffold).
   Shipped on tag `v1.1.3` (v1.1.0–1.1.2 were release-pipeline hotfixes; see
   [`RELEASE.md`](./RELEASE.md) gotchas).
+- **v1.2** — Desktop GUI: project switcher/management, status/budget/handoff
+  panels, Agent Room preview surface, desktop i18n.
+- **v1.3** — Desktop conversation + project-scoped sessions: Agent Room composer,
+  project/session context, slash-command checks.
+- **v1.4** — Distribution polish: optional signing/notarization hooks, desktop
+  agent switcher, installers, package-manager manifests, checksums, SBOM.
+- **v1.5** — Git tracking & session insight: read-only git status snapshots,
+  session baselines, review/status/handoff git context.
 
 ## v1.1 — Distributable (shipped, v1.1.3)
 
@@ -57,7 +65,7 @@ build. The CLI stays the engine; new surfaces are thin shells over it.
   `relay-baton status/budget --json`. No logic duplicated; all hard constraints
   intact. Full GUI is v1.2.
 
-## v1.2 — Desktop GUI (next)
+## v1.2 — Desktop GUI (shipped)
 
 Grow the `desktop/` scaffold into a real, distributable desktop app — the
 "opencode / Claude Code-style UI" — **without re-implementing any engine logic**.
@@ -174,10 +182,10 @@ truth. See [`TASK-v1.3-desktop-chat-sessions.md`](./TASK-v1.3-desktop-chat-sessi
 Make the (currently prerelease) builds trustworthy and effortless to install.
 Full work order: [`TASK-v1.4-distribution.md`](./TASK-v1.4-distribution.md).
 
-- [ ] **Promote v1.3.0 stable** — run the real-window QA checklist (open the
-  desktop app, add a project via folder picker, switch language, drive the
-  Agent Room composer + slash palette, confirm `/plan`/`/execute`/`/handoff`
-  preview only) on a Rust machine; if clean, cut `v1.3.0` (drop the alpha).
+- [x] **Promote v1.3.0 stable** — superseded by later desktop release trains:
+  v1.4/v1.5 tags have shipped from `main` with passing release workflows. A
+  separate backfilled `v1.3.0` stable tag is no longer useful; keep real-window
+  QA as the check before any future non-alpha desktop tag.
 - [x] **Code signing & notarization hooks** — sign the Windows `.msi` (Azure Trusted
   Signing or an EV cert) and notarize the macOS `.dmg` (Developer ID +
   `notarytool`) when secrets are present. CI is wired as optional so unsigned
@@ -190,7 +198,7 @@ Full work order: [`TASK-v1.4-distribution.md`](./TASK-v1.4-distribution.md).
 - [x] One-line installers (`install.sh` / `install.ps1`) that fetch the latest
   release binary and put it on PATH.
 - [x] Optional Homebrew tap / Scoop manifest (community-maintainable).
-- [ ] Auto-update channel for the desktop app (Tauri updater, opt-in).
+- [x] Auto-update channel for the desktop app (Tauri updater, opt-in).
 - [x] SBOM + checksums (SHA-256) attached to each release.
 
 ## v1.5 — Git tracking & session insight
@@ -206,6 +214,97 @@ without ever performing git writes. Full work order:
   start and show whether the working tree changed since then.
 - [x] **Review/handoff integration** — include bounded git tracking fields in
   review/status/handoff surfaces while keeping full diffs as file references.
+
+## v1.6 — Session archives & recovery
+
+Make relay-baton better at preserving completed work and resuming interrupted
+work, especially across multiple projects and desktop sessions.
+
+- [ ] **Session archive command** — `relay-baton session archive` packages the
+  bounded `.ai-session/` artifacts into a timestamped archive under a local
+  relay-baton data directory. Keep source files untouched.
+- [ ] **Session list/open/export** — CLI JSON surfaces for recent sessions by
+  project, plus desktop panels to browse and export them.
+- [ ] **Resume diagnostics** — detect stale, incomplete, or mismatched session
+  artifacts and suggest the safest next command (`status`, `review`, `handoff`,
+  `replay`, or `verify`).
+- [ ] **Prune policy** — configurable retention by age/count, disabled by
+  default, with dry-run output first.
+- [ ] **Archive integrity checks** — checksum manifest for archived artifacts;
+  never include secrets or full dependency folders.
+
+## v1.7 — Guarded execution workflow
+
+Tighten the plan/execute loop so longer agent work remains auditable without
+turning relay-baton into autopilot.
+
+- [ ] **Execution checkpoints** — append-only checkpoints after each bounded
+  execute step: command preview, changed files, git summary, budget, result.
+- [ ] **Stop-condition policy** — project-configurable caps for max steps,
+  max changed files, max budget, and required human confirmation.
+- [ ] **Risk classifier (deterministic)** — flag risky surfaces such as package
+  installs, file deletion, release edits, env/config changes, and generated
+  binary changes. No model calls.
+- [ ] **Desktop checkpoint view** — show the current step, last result, and
+  blocked reason; mutating agent commands remain preview/copy-first.
+- [ ] **Better receipts** — compact execution receipts suitable for handoff,
+  archive, and review.
+
+## v1.8 — Project intelligence & workspace map
+
+Improve repo understanding with deterministic, bounded metadata so handoffs are
+more useful without pasting the whole repository.
+
+- [ ] **Workspace map v2** — detect package managers, app entry points, test
+  commands, build commands, docs, AGENTS files, and likely ownership boundaries.
+- [ ] **Project profile hints** — optional per-project hints for command
+  defaults, excluded paths, language/framework tags, and preferred verification.
+- [ ] **Dependency and script inventory** — bounded summaries of package scripts,
+  workspace packages, CI workflows, and release files.
+- [ ] **Desktop project inspector** — read-only view of repo map, configured
+  commands, current session artifacts, and git tracking.
+- [ ] **No semantic indexing yet** — keep this deterministic; embeddings,
+  vector stores, and exact tokenizers remain out of scope.
+
+## v1.9 — Team handoff package
+
+Make relay-baton artifacts easier to share with another human or another local
+agent setup while preserving the local-only safety model.
+
+- [ ] **Portable handoff bundle** — `relay-baton handoff bundle` creates a
+  small archive containing handoff, compact state, repo map, receipts, git
+  summary, and referenced artifacts.
+- [ ] **Import/inspect bundle** — validate a bundle and print what it contains
+  without applying changes.
+- [ ] **Redaction pass** — deterministic checks for obvious secrets, absolute
+  home paths, API keys, and oversized logs before export.
+- [ ] **Markdown report** — human-readable status report for PR comments,
+  issue updates, or team chat, generated from existing artifacts only.
+- [ ] **Desktop export flow** — export/copy bundle/report from the project
+  session view; no cloud upload.
+
+## v2.0 — Stable desktop + local handoff platform
+
+Define the next stability line: relay-baton remains local-first, subprocess-only,
+and deterministic, but the desktop app becomes a first-class daily workflow
+instead of a thin release shell.
+
+- [ ] **Stable desktop contract** — desktop UI covers project management,
+  status/budget, git tracking, session archives, replay, handoff preview, and
+  guarded command preview with i18n parity.
+- [ ] **Stable artifact schema v2** — versioned contracts for session archives,
+  checkpoints, git baselines, handoff bundles, and conversation events.
+- [ ] **Upgrade/migration checks** — `doctor --deep` detects old artifact
+  schemas and provides safe migration or read-only compatibility guidance.
+- [ ] **Installer/update story finalized** — signed builds when credentials
+  exist, checksums/SBOM always, and opt-in desktop update channel if the updater
+  has proven reliable.
+- [ ] **Public docs pass** — docs for install, quickstart, desktop workflow,
+  CLI workflow, project registry, session archive, git tracking, and safety
+  model are complete in English and Korean.
+- [ ] **Hard constraints reaffirmed** — no direct LLM API client, no API-key
+  storage, no auto commit/push/PR, no daemon requirement, no real-time chat
+  platform, no semantic/vector indexing by default.
 
 ## v0.6 — Trust & Verify
 

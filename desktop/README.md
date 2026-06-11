@@ -30,6 +30,12 @@ through `relay-baton conversation append` into the active project's
 `conversation.jsonl`; slash-command checks run through the sidecar; and
 agent-launching commands stay preview/confirm-first.
 
+**v1.4/v1.5 (alpha)** — distribution hardening plus session insight: optional
+signing/notarization hooks, one-line installers, checksums/SBOM, a Codex/Claude
+preview target switcher, read-only git tracking, and an opt-in/manual Tauri
+updater surface. Update checks never run until the user enables them and clicks
+**Check updates**.
+
 It lives outside the pnpm workspace (`desktop/`, not `packages/`) so the
 TypeScript build and test CI are unaffected and you only need the Rust/Tauri
 toolchain when you actually build the app.

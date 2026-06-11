@@ -9,22 +9,25 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-11 — v1.5.0-alpha.0 in progress: git tracking first
-cut implemented locally (`relay-baton git status --json`, `.ai-session/git-baseline.json`,
-desktop Git panel, Agent Room `/git`, and `docs/TASK-v1.5-git-tracking.md`)._
+_Last updated: 2026-06-11 — v1.4/v1.5 cleanup in progress after
+`v1.5.0-alpha.0`: desktop updater hooks/UI are being wired as the final v1.4
+deferred item; v1.5 git tracking has already shipped._
 
 ## Where we are
 
-- **v1.4 alpha is SHIPPED** on tag **`v1.4.0-alpha.1`**. v1.5 work is now
-  starting locally with read-only git tracking.
+- **v1.5 alpha is SHIPPED** on tag **`v1.5.0-alpha.0`**. It added read-only git
+  tracking, session baselines, desktop Git panel, Agent Room `/git`, and bounded
+  git summaries in status/review/handoff surfaces.
+- **v1.4 alpha is SHIPPED** on tag **`v1.4.0-alpha.1`**. Its remaining deferred
+  item was the desktop auto-update channel; that is now being finished as an
+  opt-in/manual Tauri updater path.
 - **v1.1 is SHIPPED** on tag **`v1.1.3`**. The GitHub Release carries three
   working standalone binaries:
   - `relay-baton-linux-x64`
   - `relay-baton-macos-arm64`
   - `relay-baton-windows-x64.exe`
-- All three matrix jobs are green. README "Download" links point at
-  `releases/latest`, so they resolve to v1.1.3 automatically.
-- `main` HEAD = the `v1.1.3` commit. Working tree should be clean.
+- Current release workflow for `v1.5.0-alpha.0` was green across CLI, desktop,
+  checksums, and SBOM. README "Download" links point at `releases/latest`.
 
 ## What v1.1 delivered
 
@@ -47,9 +50,9 @@ issues, all in `release.yml` — full detail in [`RELEASE.md`](./RELEASE.md):
 3. v1.1.2 — `postject@^1` doesn't exist (its "latest" is a prerelease) → ETARGET.
 4. v1.1.3 — pinned exact `esbuild@0.28.0` + `postject@1.0.0-alpha.6`. ✅
 
-## Next up: v1.5 release finalization
+## Current cleanup: finish v1.4, then re-close v1.5
 
-v1.5 feature work is implemented locally and all acceptance criteria in
+v1.5 feature work has shipped and all acceptance criteria in
 [`TASK-v1.5-git-tracking.md`](./TASK-v1.5-git-tracking.md) are checked:
 
 - `relay-baton git status` / `relay-baton git status --json`
@@ -59,22 +62,22 @@ v1.5 feature work is implemented locally and all acceptance criteria in
 - bounded git summaries in `status --json`, `review --json`, and generated handoffs
 - desktop Git panel and Agent Room `/git`
 
-Remaining before calling v1.5 shipped:
+The v1.4 deferred updater item is being closed with:
 
-1. Review the local diff once more.
-2. Commit the v1.5 changes.
-3. Push `main` only with explicit human approval.
-4. Tag `v1.5.0-alpha.0` and watch the Release workflow.
+- Tauri updater/process plugins wired in the desktop shell.
+- Dashboard update card with opt-in/manual check.
+- Install still requires explicit confirmation; no silent updates.
+- CI enables updater artifacts only when Tauri updater signing secrets exist.
+- `latest.json` is generated only when signed updater artifacts are present.
 
 ## Next after v1.5
 
-Do not start v1.6 until v1.5 is committed/tagged or the user explicitly asks to
-keep it local. Likely v1.6 candidates:
+Do not start v1.6 until the v1.4/v1.5 cleanup commit is pushed/tagged or the
+user explicitly asks to keep it local. Likely v1.6 candidates:
 
-- Desktop auto-update, opt-in and confirmation-first, from the v1.4 deferred
-  item.
 - Real-window QA / stable promotion cleanup for desktop releases.
 - A deeper Git tracking follow-up only if the user wants it, still read-only.
+- Session archive/recovery work from `docs/ROADMAP.md`.
 
 Hard rule remains: GUI calls the CLI sidecar only. **No business logic in the
 webview.** Read-only or confirmation-first. No auto commit/push/PR unless the
@@ -107,5 +110,5 @@ commit, push, then `git tag vX.Y.Z && git push origin vX.Y.Z`.
 ```bash
 corepack pnpm install --frozen-lockfile
 corepack pnpm build
-corepack pnpm test      # expect 7 files / 39 tests passing
+corepack pnpm test
 ```

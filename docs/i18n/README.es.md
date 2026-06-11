@@ -231,7 +231,7 @@ Que `claude --version` funcione **no** significa estar logueado. Si ves "Not log
 
 ## Notas de versión
 
-**Latest:** v1.5.0-alpha.0 — [English](../../release-notes/v1.5.0-alpha.0.md) · [한국어](../../release-notes/ko/v1.5.0-alpha.0.md)
+**Latest:** v1.5.0-alpha.1 — [English](../../release-notes/v1.5.0-alpha.1.md) · [한국어](../../release-notes/ko/v1.5.0-alpha.1.md)
 
 | Versión | English | 한국어 | Resumen |
 |---|---|---|---|

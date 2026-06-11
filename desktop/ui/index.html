@@ -121,6 +121,9 @@
       .bar > div { height: 100%; background: var(--accent); }
       .bar > div.hot { background: var(--hot); }
       .err { color: var(--err); }
+      .check-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; }
+      .check-row input { margin: 0; }
+      .card-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 
       /* conversation timeline */
       .timeline { display: flex; flex-direction: column; gap: 8px; max-height: 360px; overflow: auto; }
@@ -304,6 +307,17 @@
           <h2 data-i18n="git">git</h2>
           <div id="git" class="kv">loading…</div>
         </div>
+        <div class="card wide">
+          <h2 data-i18n="updates">updates</h2>
+          <div class="check-row">
+            <input id="updates-opt-in" type="checkbox" />
+            <label for="updates-opt-in" data-i18n="updatesOptIn">Opt in to manual desktop update checks</label>
+          </div>
+          <div class="card-actions">
+            <button id="check-updates" class="ghost" data-i18n="checkUpdates">Check updates</button>
+            <span id="updates-status" class="muted" data-i18n="updatesOff">Update checks are off.</span>
+          </div>
+        </div>
       </section>
 
       <section id="view-room" class="view">
@@ -379,6 +393,18 @@
           status: "status",
           budget: "budget",
           git: "git",
+          updates: "updates",
+          updatesOptIn: "Opt in to manual desktop update checks",
+          updatesOff: "Update checks are off.",
+          updatesReady: "Update checks are enabled. Nothing runs automatically.",
+          checkUpdates: "Check updates",
+          checkingUpdates: "checking…",
+          noUpdate: "No update available.",
+          updateAvailable: "Update available",
+          updateConfirm: "Download and install this update now? The app may restart after installation.",
+          updateInstalling: "Installing update…",
+          updateInstalled: "Update installed. Relaunching…",
+          updateUnavailable: "Updater is not available in this build.",
           handoff: "handoff",
           agentRoom: "agent room",
           timelineSubtitle: "— conversation workspace",
@@ -445,6 +471,7 @@
           guideHandoff: "Opens the latest handoff document read-only in a popup.",
           guideDiet: "Token-diet profile passed to future agent actions (display only).",
           guideAgent: "Target agent for previewed /plan, /execute, and /handoff commands only.",
+          guideUpdates: "Desktop update checks are opt-in and manual. Installation asks for confirmation.",
           guideLang: "Interface language (English / 한국어 / 日本語 / 中文).",
           guideTheme: "Toggle light / dark.",
           themeWord: "theme",
@@ -481,6 +508,18 @@
           status: "상태",
           budget: "budget",
           git: "git",
+          updates: "업데이트",
+          updatesOptIn: "수동 데스크톱 업데이트 확인 켜기",
+          updatesOff: "업데이트 확인이 꺼져 있습니다.",
+          updatesReady: "업데이트 확인이 켜졌습니다. 자동으로 실행되는 작업은 없습니다.",
+          checkUpdates: "업데이트 확인",
+          checkingUpdates: "확인 중…",
+          noUpdate: "사용 가능한 업데이트가 없습니다.",
+          updateAvailable: "업데이트 있음",
+          updateConfirm: "지금 이 업데이트를 다운로드하고 설치할까요? 설치 후 앱이 재시작될 수 있습니다.",
+          updateInstalling: "업데이트 설치 중…",
+          updateInstalled: "업데이트 설치 완료. 재시작 중…",
+          updateUnavailable: "이 빌드에서는 updater를 사용할 수 없습니다.",
           handoff: "handoff",
           agentRoom: "agent room",
           timelineSubtitle: "— 대화 작업공간",
@@ -547,6 +586,7 @@
           guideHandoff: "최신 handoff 문서를 팝업으로 읽기 전용 표시.",
           guideDiet: "이후 agent 동작에 전달될 token-diet 프로필(표시 전용).",
           guideAgent: "/plan, /execute, /handoff 미리보기 명령에만 쓰이는 대상 agent.",
+          guideUpdates: "데스크톱 업데이트 확인은 opt-in + 수동입니다. 설치 전에 확인을 묻습니다.",
           guideLang: "인터페이스 언어(English / 한국어 / 日本語 / 中文).",
           guideTheme: "라이트 / 다크 전환.",
           themeWord: "테마",
@@ -583,6 +623,18 @@
           status: "状態",
           budget: "budget",
           git: "git",
+          updates: "アップデート",
+          updatesOptIn: "手動のデスクトップ更新チェックを有効化",
+          updatesOff: "更新チェックはオフです。",
+          updatesReady: "更新チェックは有効です。自動実行はありません。",
+          checkUpdates: "更新を確認",
+          checkingUpdates: "確認中…",
+          noUpdate: "利用可能な更新はありません。",
+          updateAvailable: "更新があります",
+          updateConfirm: "この更新を今すぐダウンロードしてインストールしますか？インストール後にアプリが再起動する場合があります。",
+          updateInstalling: "更新をインストール中…",
+          updateInstalled: "更新をインストールしました。再起動中…",
+          updateUnavailable: "このビルドではupdaterを利用できません。",
           handoff: "handoff",
           agentRoom: "agent room",
           timelineSubtitle: "— 会話ワークスペース",
@@ -649,6 +701,7 @@
           guideHandoff: "最新のhandoff文書をポップアップで読み取り専用表示。",
           guideDiet: "今後のエージェント動作に渡すtoken-dietプロファイル（表示のみ）。",
           guideAgent: "/plan、/execute、/handoffのプレビュー対象agentのみを切り替えます。",
+          guideUpdates: "デスクトップ更新チェックはopt-inかつ手動です。インストール前に確認します。",
           guideLang: "インターフェース言語（English / 한국어 / 日本語 / 中文）。",
           guideTheme: "ライト / ダーク切り替え。",
           themeWord: "テーマ",
@@ -685,6 +738,18 @@
           status: "状态",
           budget: "budget",
           git: "git",
+          updates: "更新",
+          updatesOptIn: "启用手动桌面更新检查",
+          updatesOff: "更新检查已关闭。",
+          updatesReady: "更新检查已启用。不会自动运行任何操作。",
+          checkUpdates: "检查更新",
+          checkingUpdates: "检查中…",
+          noUpdate: "没有可用更新。",
+          updateAvailable: "发现更新",
+          updateConfirm: "现在下载并安装此更新吗？安装后应用可能会重启。",
+          updateInstalling: "正在安装更新…",
+          updateInstalled: "更新已安装。正在重启…",
+          updateUnavailable: "此构建中无法使用 updater。",
           handoff: "handoff",
           agentRoom: "agent room",
           timelineSubtitle: "— 对话工作区",
@@ -751,6 +816,7 @@
           guideHandoff: "以弹窗只读方式打开最新的 handoff 文档。",
           guideDiet: "传递给后续智能体操作的 token-diet 配置（仅显示）。",
           guideAgent: "仅影响 /plan、/execute、/handoff 的预览目标 agent。",
+          guideUpdates: "桌面更新检查是 opt-in 且手动触发的。安装前会再次确认。",
           guideLang: "界面语言（English / 한국어 / 日本語 / 中文）。",
           guideTheme: "切换浅色 / 深色。",
           themeWord: "主题",
@@ -773,6 +839,7 @@
         document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => { el.placeholder = t(el.dataset.i18nPlaceholder); });
         renderHints();
         renderGuide();
+        syncUpdatesOptIn();
       }
 
       // The ? overlay: a short usage guide (what each control does) plus the
@@ -800,6 +867,7 @@
             { term: t("handoff"), desc: t("guideHandoff") },
             { term: t("diet"), desc: t("guideDiet") },
             { term: t("targetAgent"), desc: t("guideAgent") },
+            { term: t("updates"), desc: t("guideUpdates") },
             { term: t("language"), desc: t("guideLang") },
             { term: t("themeWord"), desc: t("guideTheme") },
           ] },
@@ -1024,6 +1092,58 @@
           currentGit = null;
           updateRoomContext();
           showError(el, err);
+        }
+      }
+
+      function setUpdatesStatus(text, error = false) {
+        const el = $("updates-status");
+        el.textContent = text;
+        el.classList.toggle("err", error);
+      }
+
+      function syncUpdatesOptIn() {
+        const enabled = localStorage.getItem("rb-updates-opt-in") === "true";
+        const checkbox = $("updates-opt-in");
+        const button = $("check-updates");
+        if (!checkbox || !button) return;
+        checkbox.checked = enabled;
+        button.disabled = !enabled;
+        if (!enabled) setUpdatesStatus(t("updatesOff"));
+        else if (!$("updates-status").textContent || $("updates-status").textContent === t("updatesOff")) {
+          setUpdatesStatus(t("updatesReady"));
+        }
+      }
+
+      async function checkForDesktopUpdate() {
+        if (localStorage.getItem("rb-updates-opt-in") !== "true") {
+          syncUpdatesOptIn();
+          return;
+        }
+        const updater = TAURI?.updater;
+        if (!updater?.check) {
+          setUpdatesStatus(t("updateUnavailable"), true);
+          return;
+        }
+        const button = $("check-updates");
+        button.disabled = true;
+        setUpdatesStatus(t("checkingUpdates"));
+        try {
+          const update = await updater.check();
+          if (!update) {
+            setUpdatesStatus(t("noUpdate"));
+            return;
+          }
+          const version = update.version ? ` ${update.version}` : "";
+          setUpdatesStatus(`${t("updateAvailable")}${version}`);
+          if (!confirm(`${t("updateAvailable")}${version}\n\n${t("updateConfirm")}`)) return;
+          setUpdatesStatus(t("updateInstalling"));
+          await update.downloadAndInstall();
+          setUpdatesStatus(t("updateInstalled"));
+          await TAURI?.process?.relaunch?.();
+        } catch (err) {
+          setUpdatesStatus(String(err?.message ?? err), true);
+        } finally {
+          button.disabled = localStorage.getItem("rb-updates-opt-in") !== "true";
         }
       }
 
@@ -1368,6 +1488,13 @@
       $("agent-codex").addEventListener("click", () => applyAgent("codex"));
       $("agent-claude").addEventListener("click", () => applyAgent("claude"));
       applyAgent();
+
+      $("updates-opt-in").addEventListener("change", (e) => {
+        localStorage.setItem("rb-updates-opt-in", e.target.checked ? "true" : "false");
+        syncUpdatesOptIn();
+      });
+      $("check-updates").addEventListener("click", checkForDesktopUpdate);
+      syncUpdatesOptIn();
 
       $("lang").value = localStorage.getItem("rb-lang") ?? "en";
       $("lang").addEventListener("change", (e) => {

@@ -49,6 +49,11 @@ release assets, writes `SHA256SUMS`, generates a best-effort CycloneDX SBOM
 (`relay-baton.cdx.json`), and uploads both back to the same Release. The
 one-line installers verify downloaded CLI binaries against `SHA256SUMS`.
 
+When Tauri updater signing secrets are configured, the desktop matrix also
+creates signed updater artifacts and `release-finalize` publishes `latest.json`
+for the desktop app's manual update check. Without those secrets, updater
+artifacts are skipped and the normal unsigned desktop installers still ship.
+
 ## Hard-won gotchas (do not regress)
 
 These each cost a patch release (v1.1.0 → v1.1.3). Keep them in mind:
@@ -129,6 +134,35 @@ absent; trusted signing requires paid provider accounts/certificates.
   `AZURE_SIGNING_ENDPOINT`, `AZURE_SIGNING_ACCOUNT`,
   `AZURE_SIGNING_CERTIFICATE_PROFILE`.
 - **Linux** — `.AppImage` remains unsigned, which is normal for AppImage.
+
+## Desktop updater
+
+The desktop updater is opt-in and confirmation-first:
+
+- The app never checks for updates until the user enables update checks in the
+  desktop dashboard.
+- The user must click **Check updates** manually.
+- If an update exists, the app asks for confirmation before download/install.
+- No silent or forced update path is wired.
+
+Updater release assets are generated only when both of these repo secrets are
+present:
+
+- `TAURI_UPDATER_PUBKEY` — public key copied into the CI-generated
+  `tauri.conf.json` updater config for that build.
+- `TAURI_SIGNING_PRIVATE_KEY` — private key content or path used by Tauri to
+  sign updater artifacts. Optional password: `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`.
+
+The workflow then uploads platform updater signatures/artifacts and generates a
+static `latest.json` at:
+
+```text
+https://github.com/dgl1231/relay-baton/releases/latest/download/latest.json
+```
+
+If these secrets are absent, the dashboard shows updater checks as unavailable
+for that build. This keeps the regular release path green while leaving the
+trusted update channel ready for signed builds.
 
 ### What users see, and the workaround
 

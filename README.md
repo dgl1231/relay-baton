@@ -10,7 +10,7 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 [![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-[![Latest](https://img.shields.io/badge/release-v1.5.0--alpha.0-blue.svg)](./release-notes/v1.5.0-alpha.0.md)
+[![Latest](https://img.shields.io/badge/release-v1.5.0--alpha.1-blue.svg)](./release-notes/v1.5.0-alpha.1.md)
 [![Download](https://img.shields.io/badge/download-binaries-238636.svg)](https://github.com/dgl1231/relay-baton/releases/latest)
 
 **English**
@@ -83,6 +83,9 @@ chmod +x relay-baton-macos-arm64
 > configured. Unsigned fallback builds still ship, so expect Gatekeeper /
 > SmartScreen prompts on unsigned releases. `SHA256SUMS` is attached to new
 > releases for CLI installer verification.
+> Desktop update checks are opt-in and manual. Signed updater artifacts and
+> `latest.json` are published only when Tauri updater signing secrets are
+> configured for a release.
 >
 > Older versions: pick any tag on the [releases page](https://github.com/dgl1231/relay-baton/releases). Prefer to build from source instead? See [Install](#install) below.
 
@@ -624,10 +627,11 @@ any real run). Design only for now — **not implemented yet**. Full design:
 
 Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-notes/README.md)). They are user-facing changelogs, not agent handoff material — that role belongs to `.ai-session/handoff.md`.
 
-**Latest:** v1.5.0-alpha.0 — [English](./release-notes/v1.5.0-alpha.0.md) · [한국어](./release-notes/ko/v1.5.0-alpha.0.md)
+**Latest:** v1.5.0-alpha.1 — [English](./release-notes/v1.5.0-alpha.1.md) · [한국어](./release-notes/ko/v1.5.0-alpha.1.md)
 
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
+| v1.5.0-alpha.1 | [Read →](./release-notes/v1.5.0-alpha.1.md) | [읽기 →](./release-notes/ko/v1.5.0-alpha.1.md) | Distribution cleanup: opt-in/manual desktop updater wiring, signed updater artifact/latest.json release support, v1.4 deferred-item closure, and v1.6-to-v2.0 roadmap. |
 | v1.5.0-alpha.0 | [Read →](./release-notes/v1.5.0-alpha.0.md) | [읽기 →](./release-notes/ko/v1.5.0-alpha.0.md) | Git tracking first cut: read-only `relay-baton git status --json`, non-git project fallback, desktop Git panel, and `/git` in Agent Room. |
 | v1.4.0-alpha.1 | [Read →](./release-notes/v1.4.0-alpha.1.md) | [읽기 →](./release-notes/ko/v1.4.0-alpha.1.md) | Distribution polish: one-line CLI installers with SHA-256 verification, release SHA256SUMS/SBOM metadata, package-manager templates, optional signing hooks, and a desktop Codex/Claude preview switcher. |
 | v1.3.0-alpha.1 | [Read →](./release-notes/v1.3.0-alpha.1.md) | [읽기 →](./release-notes/ko/v1.3.0-alpha.1.md) | Desktop Agent Room UX revamp: tabbed dashboard/room, full-height chat, handoff modal, slash-command palette with descriptions, decluttered buttons, and a full `?` usage guide (en/ko/ja/zh). |

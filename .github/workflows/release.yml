@@ -152,6 +152,7 @@ jobs:
     env:
       HAS_AZURE_SIGNING: ${{ secrets.AZURE_SIGNING_ENDPOINT != '' && secrets.AZURE_SIGNING_ACCOUNT != '' && secrets.AZURE_SIGNING_CERTIFICATE_PROFILE != '' }}
       HAS_APPLE_SIGNING: ${{ secrets.APPLE_CERTIFICATE != '' && secrets.APPLE_CERTIFICATE_PASSWORD != '' && secrets.APPLE_SIGNING_IDENTITY != '' && secrets.APPLE_ID != '' && secrets.APPLE_PASSWORD != '' && secrets.APPLE_TEAM_ID != '' }}
+      HAS_TAURI_UPDATER_SIGNING: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY != '' && secrets.TAURI_UPDATER_PUBKEY != '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -160,14 +161,19 @@ jobs:
             label: linux-x64
             asset: relay-baton-linux-x64
             bundle-glob: desktop/src-tauri/target/release/bundle/appimage/*.AppImage
+            updater-glob: desktop/src-tauri/target/release/bundle/appimage/*.AppImage.sig
           - os: macos-latest
             label: macos-arm64
             asset: relay-baton-macos-arm64
             bundle-glob: desktop/src-tauri/target/release/bundle/dmg/*.dmg
+            updater-glob: |
+              desktop/src-tauri/target/release/bundle/macos/*.tar.gz
+              desktop/src-tauri/target/release/bundle/macos/*.tar.gz.sig
           - os: windows-latest
             label: windows-x64
             asset: relay-baton-windows-x64.exe
             bundle-glob: desktop/src-tauri/target/release/bundle/msi/*.msi
+            updater-glob: desktop/src-tauri/target/release/bundle/msi/*.msi.sig
 
     steps:
       - name: Checkout
@@ -212,9 +218,36 @@ jobs:
         working-directory: desktop
         run: npm run stage-sidecar -- --from ../dist-bin/${{ matrix.asset }}
 
+      - name: Enable desktop updater artifacts
+        if: env.HAS_TAURI_UPDATER_SIGNING == 'true'
+        working-directory: desktop/src-tauri
+        env:
+          TAURI_UPDATER_PUBKEY: ${{ secrets.TAURI_UPDATER_PUBKEY }}
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = 'tauri.conf.json';
+          const config = JSON.parse(fs.readFileSync(path, 'utf8'));
+          config.bundle = config.bundle || {};
+          config.bundle.createUpdaterArtifacts = true;
+          config.plugins = config.plugins || {};
+          config.plugins.updater = {
+            pubkey: process.env.TAURI_UPDATER_PUBKEY,
+            endpoints: [
+              'https://github.com/dgl1231/relay-baton/releases/latest/download/latest.json'
+            ],
+            windows: { installMode: 'passive' }
+          };
+          fs.writeFileSync(path, JSON.stringify(config, null, 2) + '\n');
+          NODE
+
       - name: Build desktop app
         if: runner.os != 'macOS' || env.HAS_APPLE_SIGNING != 'true'
         working-directory: desktop
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: npm run build
 
       - name: Build desktop app (signed macOS)
@@ -227,6 +260,8 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: npm run build
 
       - name: Sign Windows MSI with Azure Artifact Signing
@@ -250,6 +285,14 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ matrix.bundle-glob }}
+          draft: false
+          fail_on_unmatched_files: true
+
+      - name: Upload updater artifacts to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/') && env.HAS_TAURI_UPDATER_SIGNING == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.updater-glob }}
           draft: false
           fail_on_unmatched_files: true
 
@@ -289,7 +332,7 @@ jobs:
         run: |
           mkdir -p release-assets
           gh release download "$TAG" --dir release-assets
-          rm -f release-assets/SHA256SUMS release-assets/relay-baton.cdx.json
+          rm -f release-assets/SHA256SUMS release-assets/relay-baton.cdx.json release-assets/latest.json
 
       - name: Generate SHA256SUMS
         run: |
@@ -302,6 +345,12 @@ jobs:
           npm install -g @cyclonedx/cyclonedx-npm
           cyclonedx-npm --output-format JSON --output-file release-assets/relay-baton.cdx.json --ignore-npm-errors
 
+      - name: Generate Tauri updater manifest
+        env:
+          TAG: ${{ github.ref_name }}
+          REPOSITORY: ${{ github.repository }}
+        run: node .github/scripts/generate-tauri-latest-json.mjs
+
       - name: Upload release metadata
         env:
           GH_TOKEN: ${{ github.token }}
@@ -310,5 +359,8 @@ jobs:
           files="release-assets/SHA256SUMS"
           if [ -f release-assets/relay-baton.cdx.json ]; then
             files="$files release-assets/relay-baton.cdx.json"
+          fi
+          if [ -f release-assets/latest.json ]; then
+            files="$files release-assets/latest.json"
           fi
           gh release upload "$TAG" $files --clobber

@@ -230,7 +230,7 @@ pnpm relay-baton login claude
 
 ## 릴리즈 노트
 
-**최신:** v1.5.0-alpha.0 — [English](../../release-notes/v1.5.0-alpha.0.md) · [한국어](../../release-notes/ko/v1.5.0-alpha.0.md)
+**최신:** v1.5.0-alpha.1 — [English](../../release-notes/v1.5.0-alpha.1.md) · [한국어](../../release-notes/ko/v1.5.0-alpha.1.md)
 
 | 버전 | English | 한국어 | 한 줄 요약 |
 |---|---|---|---|
