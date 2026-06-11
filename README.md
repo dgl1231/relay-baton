@@ -10,7 +10,7 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 [![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-[![Latest](https://img.shields.io/badge/release-v1.5.0--alpha.1-blue.svg)](./release-notes/v1.5.0-alpha.1.md)
+[![Latest](https://img.shields.io/badge/release-v1.6.0--alpha.0-blue.svg)](./release-notes/v1.6.0-alpha.0.md)
 [![Download](https://img.shields.io/badge/download-binaries-238636.svg)](https://github.com/dgl1231/relay-baton/releases/latest)
 
 **English**
@@ -627,10 +627,11 @@ any real run). Design only for now — **not implemented yet**. Full design:
 
 Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-notes/README.md)). They are user-facing changelogs, not agent handoff material — that role belongs to `.ai-session/handoff.md`.
 
-**Latest:** v1.5.0-alpha.1 — [English](./release-notes/v1.5.0-alpha.1.md) · [한국어](./release-notes/ko/v1.5.0-alpha.1.md)
+**Latest:** v1.6.0-alpha.0 — [English](./release-notes/v1.6.0-alpha.0.md) · [한국어](./release-notes/ko/v1.6.0-alpha.0.md)
 
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
+| v1.6.0-alpha.0 | [Read →](./release-notes/v1.6.0-alpha.0.md) | [읽기 →](./release-notes/ko/v1.6.0-alpha.0.md) | Session archives, recovery, and desktop browsing: read-only `session list`/`inspect`/`resume` with manifest + SHA-256 integrity and stale/incomplete diagnosis, plus a desktop session-archive panel and Agent Room `/sessions` `/inspect` `/resume`. |
 | v1.5.0-alpha.1 | [Read →](./release-notes/v1.5.0-alpha.1.md) | [읽기 →](./release-notes/ko/v1.5.0-alpha.1.md) | Distribution cleanup: opt-in/manual desktop updater wiring, signed updater artifact/latest.json release support, v1.4 deferred-item closure, and v1.6-to-v2.0 roadmap. |
 | v1.5.0-alpha.0 | [Read →](./release-notes/v1.5.0-alpha.0.md) | [읽기 →](./release-notes/ko/v1.5.0-alpha.0.md) | Git tracking first cut: read-only `relay-baton git status --json`, non-git project fallback, desktop Git panel, and `/git` in Agent Room. |
 | v1.4.0-alpha.1 | [Read →](./release-notes/v1.4.0-alpha.1.md) | [읽기 →](./release-notes/ko/v1.4.0-alpha.1.md) | Distribution polish: one-line CLI installers with SHA-256 verification, release SHA256SUMS/SBOM metadata, package-manager templates, optional signing hooks, and a desktop Codex/Claude preview switcher. |
