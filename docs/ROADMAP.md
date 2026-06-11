@@ -224,15 +224,21 @@ work, especially across multiple projects and desktop sessions.
   bounded `.ai-session/` artifacts into a timestamped archive under a local
   relay-baton data directory. Keep source files untouched. Directory archive
   only for now; zip/bundle UX remains follow-up.
-- [ ] **Session list/open/export** — CLI JSON surfaces for recent sessions by
-  project, plus desktop panels to browse and export them.
-- [ ] **Resume diagnostics** — detect stale, incomplete, or mismatched session
-  artifacts and suggest the safest next command (`status`, `review`, `handoff`,
-  `replay`, or `verify`).
+- [~] **Session list/open/export** — `relay-baton session list --json` and
+  `relay-baton session inspect <archive> --json` read archives newest-first and
+  validate manifest/file integrity (read-only). Desktop dashboard now has a
+  read-only session-archive panel (list + inspect + resume) through the CLI
+  sidecar. Export remains follow-up.
+- [x] **Resume diagnostics** — `relay-baton session resume [--json]` classifies
+  the session as missing/incomplete/stale/ok from required-file presence,
+  `session.json` validity, git baseline drift, and `updatedAt` age, then suggests
+  the safest next command (`init`, `status`, `replay`, `review`, `handoff`,
+  `session archive`). Read-only.
 - [ ] **Prune policy** — configurable retention by age/count, disabled by
   default, with dry-run output first.
-- [ ] **Archive integrity checks** — checksum manifest for archived artifacts;
-  never include secrets or full dependency folders.
+- [~] **Archive integrity checks** — `manifest.json` records per-file size +
+  SHA-256; `session inspect` verifies presence/size/hash and flags
+  missing/corrupt files. Documented + tested.
 
 ## v1.7 — Guarded execution workflow
 

@@ -35,6 +35,25 @@ v1.6 첫 cut은 directory archive와 file size/SHA-256 checksum을 담은
 `manifest.json`을 쓴다. prune/delete/zip/upload/source project mutation은 하지
 않는다.
 
+### `session list [--json] [--out <dir>]`
+archive root(기본 `~/.relay-baton/session-archives`) 아래의 보관 세션을 최신순으로
+나열한다. read-only: 각 `manifest.json`을 읽어 id, file 수, 총 bytes, `createdAt`을
+보고한다. manifest가 없거나 깨진 archive는 `valid: false`로 표시한다. archive root가
+없으면 깔끔하게 degrade한다.
+
+### `session inspect <archive> [--json] [--out <dir>]`
+id나 path로 지정한 archive 하나를 `manifest.json` 기준으로 검증한다. `repoRoot`,
+`createdAt`, file 수, 총 bytes, file별 무결성(존재 + size + SHA-256)을 보고한다.
+`missing`/`corrupt` 목록과 `intact` 플래그로 결과를 요약한다. read-only: 복사/적용/
+복원은 하지 않는다.
+
+### `session resume [--json] [--stale-hours <n>]`
+현재 `.ai-session`을 진단하고 가장 안전한 다음 명령을 제안한다. 필수 파일 존재 여부,
+`session.json` 유효성/schema, git baseline drift, `updatedAt` 경과시간(기본 stale
+임계 24h)을 보고 세션을 `missing`/`incomplete`/`stale`/`ok`로 분류한다. read-only:
+읽고 추천만 하며 제안한 명령을 실행하지 않는다. 대표 제안: `init`(재scaffold),
+`status`/`replay`(컨텍스트 재개), `review`/`handoff`/`session archive`(stale).
+
 ### `doctor [--deep]`
 로컬 환경 점검: git, agent CLI, auth env 존재 여부(값은 출력 안 함),
 `.ai-session`. `--deep`는 추가로 **config 계약**(`validateConfig`)과 **아티팩트

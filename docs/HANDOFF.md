@@ -10,7 +10,9 @@
 > "세션 핸드오프 규칙".
 
 _Last updated: 2026-06-11 — `v1.5.0-alpha.1` pushed/tagged; v1.6 session
-archives first cut implemented locally and ready for Claude continuation._
+archives feature-complete locally: `session list` + `session inspect` + `session
+resume` + desktop read-only archive panel. All v1.6 acceptance items checked.
+Committed locally, not yet tagged/released._
 
 ## Where we are
 
@@ -80,28 +82,39 @@ Work order: [`TASK-v1.6-session-archives.md`](./TASK-v1.6-session-archives.md).
 
 Implemented locally after `v1.5.0-alpha.1`:
 
-- `packages/core/src/session/SessionArchiver.ts`
-- `relay-baton session archive`
-- `--json`, `--dry-run`, and `--out <dir>`
+- `packages/core/src/session/SessionArchiver.ts` (`session archive`)
+- `packages/core/src/session/SessionArchiveStore.ts` (`list` + `inspect`)
+- `packages/core/src/session/ResumeDiagnostics.ts` (`resume`)
+- `relay-baton session archive` (`--json`, `--dry-run`, `--out <dir>`)
+- `relay-baton session list [--json] [--out <dir>]` — newest-first, graceful
+  when archive root missing, flags invalid manifests
+- `relay-baton session inspect <archive> [--json] [--out <dir>]` — per-file
+  presence/size/SHA-256 verification, `missing`/`corrupt`/`intact` summary
+- `relay-baton session resume [--json] [--stale-hours <n>]` — classifies
+  missing/incomplete/stale/ok, suggests safe next command, read-only
+- desktop dashboard "session archives" card + Agent Room `/sessions`,
+  `/inspect <id>`, `/resume` — all through the CLI sidecar, no direct
+  archive/`.ai-session` reads from the webview (`desktop/ui/index.html`)
 - `manifest.json` with file size and SHA-256 per archived file
-- tests in core + CLI
+- tests: core `SessionArchiveStore.test.ts` (5), `ResumeDiagnostics.test.ts` (4),
+  CLI `sessionArchive.test.ts`
 - command docs in EN + KO
 
 Validation already run:
 
 ```bash
-corepack pnpm build
-corepack pnpm test
-node packages/cli/dist/index.js session archive --dry-run --json --path .
-git diff --check
+corepack pnpm build   # green
+corepack pnpm test    # 188 core + 60 cli pass
+node packages/cli/dist/index.js session archive --path .
+node packages/cli/dist/index.js session list
+node packages/cli/dist/index.js session inspect <id>
 ```
 
-Next recommended v1.6 work:
+v1.6 is feature-complete. Next recommended work:
 
-1. `relay-baton session list --json`
-2. `relay-baton session inspect <archive> --json`
-3. resume diagnostics
-4. desktop read-only archive panel through the CLI sidecar
+1. Cut a `v1.6` (alpha) release per `RELEASE.md` when ready — bump versions,
+   add release notes (en+ko) + index, README badge, commit, tag, push.
+2. later only: prune (dry-run first, disabled by default), zip/export.
 
 ## Next after v1.6 first cut
 

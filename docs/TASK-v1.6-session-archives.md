@@ -78,11 +78,11 @@ All passed. `git diff --check` only emitted line-ending warnings on Windows.
 ## Acceptance criteria for v1.6
 
 - [x] First-cut `session archive` command exists and is tested.
-- [ ] `session list --json` lists archives.
-- [ ] `session inspect --json` validates a selected archive.
-- [ ] Resume diagnostics suggest safe next commands.
-- [ ] Desktop can browse archives read-only through the CLI sidecar.
-- [ ] Archive integrity checks are documented and tested.
+- [x] `session list --json` lists archives.
+- [x] `session inspect --json` validates a selected archive.
+- [x] Resume diagnostics suggest safe next commands.
+- [x] Desktop can browse archives read-only through the CLI sidecar.
+- [x] Archive integrity checks are documented and tested.
 - [ ] `corepack pnpm build` and `corepack pnpm test` stay green.
 
 ## Out of scope

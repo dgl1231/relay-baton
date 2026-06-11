@@ -21,7 +21,7 @@ import { chatCommand } from "./commands/chat";
 import { replayCommand } from "./commands/replay";
 import { conversationAppendCommand } from "./commands/conversation";
 import { gitStatusCommand } from "./commands/git";
-import { sessionArchiveCommand } from "./commands/session";
+import { sessionArchiveCommand, sessionListCommand, sessionInspectCommand, sessionResumeCommand } from "./commands/session";
 import { loginCommand } from "./commands/login";
 import {
   projectAddCommand,
@@ -215,6 +215,27 @@ session
   .option("--project <name-or-id>", "registered project name or id")
   .option("--path <repoPath>", "repository path")
   .action(sessionArchiveCommand);
+session
+  .command("list")
+  .description("List archived sessions (read-only)")
+  .option("--json", "print machine-readable JSON")
+  .option("--out <dir>", "archive root directory (default: ~/.relay-baton/session-archives)")
+  .action(sessionListCommand);
+session
+  .command("inspect")
+  .description("Validate an archived session's manifest and file integrity (read-only)")
+  .argument("<archive>", "archive id or path under the archive root")
+  .option("--json", "print machine-readable JSON")
+  .option("--out <dir>", "archive root directory (default: ~/.relay-baton/session-archives)")
+  .action(sessionInspectCommand);
+session
+  .command("resume")
+  .description("Diagnose the current .ai-session and suggest the safest next command (read-only)")
+  .option("--json", "print machine-readable JSON")
+  .option("--stale-hours <n>", "treat the session as stale when older than N hours (default: 24)")
+  .option("--project <name-or-id>", "registered project name or id")
+  .option("--path <repoPath>", "repository path")
+  .action(sessionResumeCommand);
 
 addProjectOptions(program.command("tui").description("Start the relay-baton TUI")).action(tuiCommand);
 

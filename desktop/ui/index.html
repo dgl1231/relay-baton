@@ -219,6 +219,20 @@
       }
       .guide-row .desc { color: var(--muted); line-height: 1.5; }
       @media (max-width: 560px) { .guide-row { grid-template-columns: 1fr; gap: 2px; } }
+
+      /* session archive list */
+      .arc-list { display: flex; flex-direction: column; gap: 6px; max-height: 280px; overflow: auto; }
+      .arc {
+        display: grid; grid-template-columns: 1fr max-content; gap: 4px 10px; align-items: baseline;
+        border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; background: var(--inset);
+      }
+      .arc .id { font-size: 13px; color: var(--fg); word-break: break-all; }
+      .arc .sub { grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
+      .arc .sub.bad { color: var(--err); }
+      .arc button { padding: 4px 10px; font-size: 12px; background: var(--border); border: 1px solid var(--border2); color: var(--fg); }
+      .arc button:hover { background: var(--border2); }
+      .arc-detail { grid-column: 1 / -1; margin-top: 6px; }
+      .arc-detail pre { font-size: 12px; max-height: 200px; overflow: auto; }
     </style>
   </head>
   <body>
@@ -308,6 +322,16 @@
           <div id="git" class="kv">loading…</div>
         </div>
         <div class="card wide">
+          <h2 data-i18n="sessions">session archives</h2>
+          <div class="card-actions">
+            <button id="resume-diagnose" class="ghost" data-i18n="resumeDiagnose">Resume diagnosis</button>
+            <button id="sessions-refresh" class="ghost" data-i18n="refresh">Refresh</button>
+            <span id="sessions-meta" class="muted"></span>
+          </div>
+          <div id="resume" class="muted" style="margin:8px 0 0"></div>
+          <div id="sessions" style="margin-top:10px">loading…</div>
+        </div>
+        <div class="card wide">
           <h2 data-i18n="updates">updates</h2>
           <div class="check-row">
             <input id="updates-opt-in" type="checkbox" />
@@ -394,6 +418,15 @@
           budget: "budget",
           git: "git",
           updates: "updates",
+          sessions: "session archives",
+          resumeDiagnose: "Resume diagnosis",
+          inspect: "inspect",
+          noArchives: "No session archives yet. Run `relay-baton session archive` from the CLI.",
+          archivesUnavailable: "Archive root not found.",
+          archiveIntact: "intact",
+          archiveDamaged: "damaged",
+          noteSessions: "List archived .ai-session snapshots (read-only).",
+          noteResume: "Diagnose the current .ai-session and suggest the safest next command.",
           updatesOptIn: "Opt in to manual desktop update checks",
           updatesOff: "Update checks are off.",
           updatesReady: "Update checks are enabled. Nothing runs automatically.",
@@ -509,6 +542,15 @@
           budget: "budget",
           git: "git",
           updates: "업데이트",
+          sessions: "세션 아카이브",
+          resumeDiagnose: "재개 진단",
+          inspect: "검사",
+          noArchives: "아직 세션 아카이브가 없습니다. CLI에서 `relay-baton session archive`를 실행하세요.",
+          archivesUnavailable: "아카이브 루트를 찾을 수 없습니다.",
+          archiveIntact: "정상",
+          archiveDamaged: "손상",
+          noteSessions: "보관된 .ai-session 스냅샷 목록(읽기 전용).",
+          noteResume: "현재 .ai-session을 진단하고 가장 안전한 다음 명령을 제안합니다.",
           updatesOptIn: "수동 데스크톱 업데이트 확인 켜기",
           updatesOff: "업데이트 확인이 꺼져 있습니다.",
           updatesReady: "업데이트 확인이 켜졌습니다. 자동으로 실행되는 작업은 없습니다.",
@@ -624,6 +666,15 @@
           budget: "budget",
           git: "git",
           updates: "アップデート",
+          sessions: "セッションアーカイブ",
+          resumeDiagnose: "再開診断",
+          inspect: "検査",
+          noArchives: "セッションアーカイブはまだありません。CLIで`relay-baton session archive`を実行してください。",
+          archivesUnavailable: "アーカイブのルートが見つかりません。",
+          archiveIntact: "正常",
+          archiveDamaged: "破損",
+          noteSessions: "保存された .ai-session スナップショットの一覧（読み取り専用）。",
+          noteResume: "現在の .ai-session を診断し、最も安全な次のコマンドを提案します。",
           updatesOptIn: "手動のデスクトップ更新チェックを有効化",
           updatesOff: "更新チェックはオフです。",
           updatesReady: "更新チェックは有効です。自動実行はありません。",
@@ -739,6 +790,15 @@
           budget: "budget",
           git: "git",
           updates: "更新",
+          sessions: "会话存档",
+          resumeDiagnose: "恢复诊断",
+          inspect: "检查",
+          noArchives: "还没有会话存档。请在CLI中运行`relay-baton session archive`。",
+          archivesUnavailable: "未找到存档根目录。",
+          archiveIntact: "完好",
+          archiveDamaged: "损坏",
+          noteSessions: "列出已存档的 .ai-session 快照（只读）。",
+          noteResume: "诊断当前 .ai-session 并建议最安全的下一步命令。",
           updatesOptIn: "启用手动桌面更新检查",
           updatesOff: "更新检查已关闭。",
           updatesReady: "更新检查已启用。不会自动运行任何操作。",
@@ -860,7 +920,7 @@
           ] },
           { h: t("guideSecRoom"), rows: [
             { term: t("guideTermMessage"), desc: t("guideRoomMsg") },
-            { term: "/status /budget /git /review /diagnose /replay", desc: t("guideRoomRead"), code: true },
+            { term: "/status /budget /git /review /diagnose /sessions /resume /replay", desc: t("guideRoomRead"), code: true },
             { term: "/plan /execute /handoff", desc: t("guideRoomPreview"), code: true },
           ] },
           { h: t("guideSecMore"), rows: [
@@ -1095,6 +1155,81 @@
         }
       }
 
+      // Read-only session-archive browser. Everything comes from the CLI
+      // sidecar (`session list/inspect/resume`); the webview never touches the
+      // archive directory or `.ai-session` itself.
+      async function loadSessions() {
+        const el = $("sessions");
+        const meta = $("sessions-meta");
+        try {
+          const r = await cliJson(["session", "list", "--json"]);
+          el.innerHTML = "";
+          if (!r.available) {
+            const d = document.createElement("div"); d.className = "muted";
+            d.textContent = t("archivesUnavailable");
+            el.appendChild(d);
+            meta.textContent = "";
+            return;
+          }
+          meta.textContent = r.archiveRoot || "";
+          if (!r.archives || r.archives.length === 0) {
+            const d = document.createElement("div"); d.className = "muted";
+            d.textContent = t("noArchives");
+            el.appendChild(d);
+            return;
+          }
+          const list = document.createElement("div"); list.className = "arc-list";
+          for (const a of r.archives) {
+            const row = document.createElement("div"); row.className = "arc";
+            const id = document.createElement("div"); id.className = "id"; id.textContent = a.id;
+            const btn = document.createElement("button"); btn.textContent = t("inspect");
+            const sub = document.createElement("div");
+            sub.className = "sub" + (a.valid ? "" : " bad");
+            sub.textContent = a.valid
+              ? `${a.fileCount} file(s) · ${a.totalBytes.toLocaleString()} bytes · ${a.createdAt ?? "?"}`
+              : (a.reason || t("archiveDamaged"));
+            const detail = document.createElement("div"); detail.className = "arc-detail";
+            btn.disabled = !a.valid;
+            btn.addEventListener("click", async () => {
+              btn.disabled = true;
+              try {
+                const d = await cliJson(["session", "inspect", a.id, "--json"]);
+                detail.innerHTML = "";
+                const head = document.createElement("div"); head.className = "muted";
+                head.textContent = `${d.intact ? t("archiveIntact") : t("archiveDamaged")} · ${d.fileCount} file(s) · ${d.totalBytes.toLocaleString()} bytes`;
+                const pre = document.createElement("pre"); pre.className = "scroll";
+                pre.textContent = JSON.stringify(d, null, 2);
+                detail.append(head, pre);
+              } catch (err) {
+                detail.innerHTML = ""; showError(detail, err);
+              } finally { btn.disabled = false; }
+            });
+            row.append(id, btn, sub, detail);
+            list.appendChild(row);
+          }
+          el.appendChild(list);
+        } catch (err) { meta.textContent = ""; showError(el, err); }
+      }
+
+      async function runResumeDiagnosis() {
+        const el = $("resume");
+        el.classList.remove("err");
+        el.textContent = t("loading");
+        try {
+          const r = await cliJson(["session", "resume", "--json"]);
+          el.innerHTML = "";
+          const head = document.createElement("div");
+          head.innerHTML = `<strong>${r.status}</strong>`;
+          const findings = document.createElement("ul"); findings.style.margin = "6px 0";
+          for (const f of (r.findings || [])) { const li = document.createElement("li"); li.textContent = f; findings.appendChild(li); }
+          const sugg = document.createElement("div"); sugg.className = "muted";
+          sugg.textContent = (r.suggestions || []).map(s => `relay-baton ${s.command}`).join("  ·  ");
+          el.append(head);
+          if ((r.findings || []).length) el.append(findings);
+          el.append(sugg);
+        } catch (err) { el.classList.add("err"); el.textContent = String(err?.message ?? err); }
+      }
+
       function setUpdatesStatus(text, error = false) {
         const el = $("updates-status");
         el.textContent = text;
@@ -1204,6 +1339,8 @@
         { cmd: "/git", noteKey: "noteGit" },
         { cmd: "/review", noteKey: "noteReview" },
         { cmd: "/diagnose", noteKey: "noteDiagnose" },
+        { cmd: "/sessions", noteKey: "noteSessions" },
+        { cmd: "/resume", noteKey: "noteResume" },
         { cmd: "/replay", noteKey: "noteReplay" },
         { cmd: "/plan ", noteKey: "notePlan" },
         { cmd: "/execute", noteKey: "noteExecute" },
@@ -1275,7 +1412,7 @@
       }
 
       async function refresh() {
-        await Promise.all([loadProjects(), loadStatus(), loadBudget(), loadGit(), loadTimeline()]);
+        await Promise.all([loadProjects(), loadStatus(), loadBudget(), loadGit(), loadTimeline(), loadSessions()]);
         if (handoffOverlay.classList.contains("show")) await loadHandoff();
         updateRoomContext();
         renderHints();
@@ -1349,6 +1486,24 @@
             case "replay": {
               await loadTimeline();
               appendLocalEvent("relay-baton", "status", t("readOnlyResult"));
+              break;
+            }
+            case "sessions": {
+              const r = await cliJson(["session", "list", "--json"]);
+              appendLocalEvent("relay-baton", "status", JSON.stringify(r, null, 2));
+              await loadSessions();
+              break;
+            }
+            case "inspect": {
+              if (!argText) { appendLocalEvent("relay-baton", "status", t("unsupportedCommand")); break; }
+              const r = await cliJson(["session", "inspect", argText, "--json"]);
+              appendLocalEvent("relay-baton", "status", JSON.stringify(r, null, 2));
+              break;
+            }
+            case "resume": {
+              const r = await cliJson(["session", "resume", "--json"]);
+              appendLocalEvent("relay-baton", "diagnose", JSON.stringify(r, null, 2));
+              await runResumeDiagnosis();
               break;
             }
             case "plan": {
@@ -1578,6 +1733,9 @@
         }
         e.preventDefault();
       });
+
+      $("sessions-refresh").addEventListener("click", loadSessions);
+      $("resume-diagnose").addEventListener("click", runResumeDiagnosis);
 
       $("refresh").addEventListener("click", refresh);
       function openErrorConfirm(err) {

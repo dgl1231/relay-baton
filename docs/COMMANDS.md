@@ -37,6 +37,27 @@ The v1.6 first cut writes a directory archive plus `manifest.json` with file
 sizes and SHA-256 checksums. It does not prune, delete, zip, upload, or mutate
 the source project.
 
+### `session list [--json] [--out <dir>]`
+List archived sessions found under the archive root (default
+`~/.relay-baton/session-archives`), newest first. Read-only: reads each
+`manifest.json` and reports id, file count, total bytes, and `createdAt`. Invalid
+archives (missing/broken manifest) are listed with a `valid: false` flag. Degrades
+cleanly when the archive root does not exist.
+
+### `session inspect <archive> [--json] [--out <dir>]`
+Validate a single archive by id or path against its `manifest.json`. Reports
+`repoRoot`, `createdAt`, file count, total bytes, and per-file integrity
+(presence + size + SHA-256). `missing`/`corrupt` lists and an `intact` flag
+summarize the result. Read-only: it never copies, applies, or restores anything.
+
+### `session resume [--json] [--stale-hours <n>]`
+Diagnose the current `.ai-session` and suggest the safest next command. Classifies
+the session as `missing`, `incomplete`, `stale`, or `ok` from required-file
+presence, `session.json` validity/schema, git baseline drift, and `updatedAt` age
+(default stale threshold 24h). Read-only: it only reads and recommends — it never
+runs the suggested commands. Typical suggestions: `init` (re-scaffold),
+`status`/`replay` (resume context), `review`/`handoff`/`session archive` (stale).
+
 ### `doctor [--deep]`
 Check the local environment: git, agent CLIs, auth env presence (values never
 printed), `.ai-session`. With `--deep`, also validates the **config contract**
