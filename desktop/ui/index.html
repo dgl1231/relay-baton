@@ -300,6 +300,10 @@
           <h2 data-i18n="budget">budget</h2>
           <div id="budget">loading…</div>
         </div>
+        <div class="card wide">
+          <h2 data-i18n="git">git</h2>
+          <div id="git" class="kv">loading…</div>
+        </div>
       </section>
 
       <section id="view-room" class="view">
@@ -308,6 +312,7 @@
           <span class="badge"><span data-i18n="sessionState">session</span>: <strong id="room-session">-</strong></span>
           <span class="badge"><span data-i18n="status">status</span>: <strong id="room-status-val">-</strong></span>
           <span class="badge"><span data-i18n="budget">budget</span>: <strong id="room-budget-val">-</strong></span>
+          <span class="badge"><span data-i18n="git">git</span>: <strong id="room-git-val">-</strong></span>
         </div>
         <div class="confirm" id="confirm"></div>
         <div id="timeline" class="timeline">loading…</div>
@@ -341,6 +346,7 @@
       let activeProjectId = null;
       let currentStatus = null;
       let currentBudget = null;
+      let currentGit = null;
 
       const STRINGS = {
         en: {
@@ -372,12 +378,13 @@
           shortcutHelp: "this help",
           status: "status",
           budget: "budget",
+          git: "git",
           handoff: "handoff",
           agentRoom: "agent room",
           timelineSubtitle: "— conversation workspace",
           activeProject: "project",
           sessionState: "session",
-          composerPlaceholder: "/status, /budget, /review, /diagnose, /replay...",
+          composerPlaceholder: "/status, /budget, /git, /review, /diagnose, /replay...",
           send: "Send",
           initSession: "Init session",
           noSessionState: "no .ai-session",
@@ -385,7 +392,7 @@
           sessionReady: "ready",
           previewOnly: "preview only",
           readOnlyResult: "read-only result",
-          unsupportedCommand: "Unsupported command. Try /status, /budget, /review, /diagnose, /replay, /plan <task>, /execute, or /handoff.",
+          unsupportedCommand: "Unsupported command. Try /status, /budget, /git, /review, /diagnose, /replay, /plan <task>, /execute, or /handoff.",
           messageSaved: "Message saved to the current project session.",
           loading: "loading…",
           cwdProject: "(cwd — no registered projects)",
@@ -405,12 +412,14 @@
           actionReview: "review",
           actionDiagnose: "diagnose",
           actionStatus: "status",
+          actionGit: "git",
           actionHandoff: "handoff",
           actionPlan: "plan",
           actionExecute: "execute",
           noteReview: "Deterministic diff-vs-plan review. No model call.",
           noteDiagnose: "Deep environment + artifact diagnostics. No model call.",
           noteStatus: "Current session status. No model call.",
+          noteGit: "Read-only git branch and working-tree tracking. No write commands.",
           noteHandoff: "Preview a handoff to the selected agent. Run from your terminal.",
           notePlan: "Preview planner agent launch with the selected agent. Run from your terminal.",
           noteExecute: "Preview executor agent launch with the selected agent. Run from your terminal.",
@@ -471,12 +480,13 @@
           shortcutHelp: "이 도움말",
           status: "상태",
           budget: "budget",
+          git: "git",
           handoff: "handoff",
           agentRoom: "agent room",
           timelineSubtitle: "— 대화 작업공간",
           activeProject: "프로젝트",
           sessionState: "세션",
-          composerPlaceholder: "/status, /budget, /review, /diagnose, /replay...",
+          composerPlaceholder: "/status, /budget, /git, /review, /diagnose, /replay...",
           send: "전송",
           initSession: "세션 초기화",
           noSessionState: ".ai-session 없음",
@@ -484,7 +494,7 @@
           sessionReady: "준비됨",
           previewOnly: "미리보기 전용",
           readOnlyResult: "읽기 전용 결과",
-          unsupportedCommand: "지원하지 않는 명령입니다. /status, /budget, /review, /diagnose, /replay, /plan <task>, /execute, /handoff 중 하나를 사용하세요.",
+          unsupportedCommand: "지원하지 않는 명령입니다. /status, /budget, /git, /review, /diagnose, /replay, /plan <task>, /execute, /handoff 중 하나를 사용하세요.",
           messageSaved: "현재 프로젝트 세션에 메시지를 저장했습니다.",
           loading: "로딩 중…",
           cwdProject: "(cwd — 등록된 프로젝트 없음)",
@@ -504,12 +514,14 @@
           actionReview: "review",
           actionDiagnose: "diagnose",
           actionStatus: "status",
+          actionGit: "git",
           actionHandoff: "handoff",
           actionPlan: "plan",
           actionExecute: "execute",
           noteReview: "결정적 diff-vs-plan review. 모델 호출 없음.",
           noteDiagnose: "환경 + artifact 심층 진단. 모델 호출 없음.",
           noteStatus: "현재 세션 상태. 모델 호출 없음.",
+          noteGit: "읽기 전용 git branch/working-tree 추적. 쓰기 명령 없음.",
           noteHandoff: "선택한 agent로 handoff하는 명령을 미리봅니다. 터미널에서 실행하세요.",
           notePlan: "선택한 agent로 planner 실행 명령을 미리봅니다. 터미널에서 실행하세요.",
           noteExecute: "선택한 agent로 executor 실행 명령을 미리봅니다. 터미널에서 실행하세요.",
@@ -570,12 +582,13 @@
           shortcutHelp: "このヘルプ",
           status: "状態",
           budget: "budget",
+          git: "git",
           handoff: "handoff",
           agentRoom: "agent room",
           timelineSubtitle: "— 会話ワークスペース",
           activeProject: "プロジェクト",
           sessionState: "セッション",
-          composerPlaceholder: "/status, /budget, /review, /diagnose, /replay...",
+          composerPlaceholder: "/status, /budget, /git, /review, /diagnose, /replay...",
           send: "送信",
           initSession: "セッション初期化",
           noSessionState: ".ai-sessionなし",
@@ -583,7 +596,7 @@
           sessionReady: "準備完了",
           previewOnly: "プレビューのみ",
           readOnlyResult: "読み取り専用結果",
-          unsupportedCommand: "未対応のコマンドです。/status, /budget, /review, /diagnose, /replay, /plan <task>, /execute, /handoffを使ってください。",
+          unsupportedCommand: "未対応のコマンドです。/status, /budget, /git, /review, /diagnose, /replay, /plan <task>, /execute, /handoffを使ってください。",
           messageSaved: "現在のプロジェクトセッションにメッセージを保存しました。",
           loading: "読み込み中…",
           cwdProject: "(cwd — 登録プロジェクトなし)",
@@ -603,12 +616,14 @@
           actionReview: "review",
           actionDiagnose: "diagnose",
           actionStatus: "status",
+          actionGit: "git",
           actionHandoff: "handoff",
           actionPlan: "plan",
           actionExecute: "execute",
           noteReview: "決定的なdiff-vs-plan review。モデル呼び出しなし。",
           noteDiagnose: "環境 + artifactの詳細診断。モデル呼び出しなし。",
           noteStatus: "現在のセッション状態。モデル呼び出しなし。",
+          noteGit: "読み取り専用のgit branch/working-tree追跡。書き込みコマンドなし。",
           noteHandoff: "選択したagentへのhandoffコマンドをプレビューします。ターミナルで実行してください。",
           notePlan: "選択したagentでplanner起動コマンドをプレビューします。ターミナルで実行してください。",
           noteExecute: "選択したagentでexecutor起動コマンドをプレビューします。ターミナルで実行してください。",
@@ -669,12 +684,13 @@
           shortcutHelp: "此帮助",
           status: "状态",
           budget: "budget",
+          git: "git",
           handoff: "handoff",
           agentRoom: "agent room",
           timelineSubtitle: "— 对话工作区",
           activeProject: "项目",
           sessionState: "会话",
-          composerPlaceholder: "/status, /budget, /review, /diagnose, /replay...",
+          composerPlaceholder: "/status, /budget, /git, /review, /diagnose, /replay...",
           send: "发送",
           initSession: "初始化会话",
           noSessionState: "无 .ai-session",
@@ -682,7 +698,7 @@
           sessionReady: "就绪",
           previewOnly: "仅预览",
           readOnlyResult: "只读结果",
-          unsupportedCommand: "不支持的命令。请使用 /status, /budget, /review, /diagnose, /replay, /plan <task>, /execute, 或 /handoff。",
+          unsupportedCommand: "不支持的命令。请使用 /status, /budget, /git, /review, /diagnose, /replay, /plan <task>, /execute, 或 /handoff。",
           messageSaved: "消息已保存到当前项目会话。",
           loading: "加载中…",
           cwdProject: "(cwd — 没有注册项目)",
@@ -702,12 +718,14 @@
           actionReview: "review",
           actionDiagnose: "diagnose",
           actionStatus: "status",
+          actionGit: "git",
           actionHandoff: "handoff",
           actionPlan: "plan",
           actionExecute: "execute",
           noteReview: "确定性的diff-vs-plan review。无模型调用。",
           noteDiagnose: "深度环境 + artifact诊断。无模型调用。",
           noteStatus: "当前会话状态。无模型调用。",
+          noteGit: "只读git branch/working-tree跟踪。无写入命令。",
           noteHandoff: "预览交接给所选 agent 的命令。请在终端运行。",
           notePlan: "预览使用所选 agent 启动 planner 的命令。请在终端运行。",
           noteExecute: "预览使用所选 agent 启动 executor 的命令。请在终端运行。",
@@ -775,7 +793,7 @@
           ] },
           { h: t("guideSecRoom"), rows: [
             { term: t("guideTermMessage"), desc: t("guideRoomMsg") },
-            { term: "/status /budget /review /diagnose /replay", desc: t("guideRoomRead"), code: true },
+            { term: "/status /budget /git /review /diagnose /replay", desc: t("guideRoomRead"), code: true },
             { term: "/plan /execute /handoff", desc: t("guideRoomPreview"), code: true },
           ] },
           { h: t("guideSecMore"), rows: [
@@ -866,6 +884,9 @@
         } else {
           $("room-budget-val").textContent = "-";
         }
+        $("room-git-val").textContent = currentGit?.available
+          ? `${currentGit.branch || "detached"} · ${currentGit.changed ?? 0} files`
+          : "-";
         const enabled = Boolean(p);
         $("composer").disabled = !enabled;
         $("send").disabled = !enabled;
@@ -971,6 +992,41 @@
         } catch (err) { showError(el, err); }
       }
 
+      async function loadGit() {
+        const el = $("git");
+        try {
+          const g = await cliJson(["git", "status", "--json"]);
+          currentGit = g;
+          if (!g.available) {
+            kvRows(el, [
+              ["available", "no"],
+              ["state", "not a git repository"],
+            ]);
+            updateRoomContext();
+            return;
+          }
+          kvRows(el, [
+            ["branch", g.branch || "(detached)"],
+            ["head", g.head ? g.head.slice(0, 12) : "(none)"],
+            ["upstream", g.upstream || "(none)"],
+            ["ahead / behind", `${g.ahead} / ${g.behind}`],
+            ["since session", g.tracking?.changedSinceBaseline == null ? "(no baseline)" : (g.tracking.changedSinceBaseline ? "changed" : "unchanged")],
+            ["change delta", g.tracking?.changedDelta ?? "-"],
+            ["clean", g.clean ? "yes" : "no"],
+            ["changed", g.changed],
+            ["staged", g.staged],
+            ["unstaged", g.unstaged],
+            ["untracked", g.untracked],
+            ["files", (g.files || []).map(f => `${f.code} ${f.path}`).join("\n") || "-"],
+          ]);
+          updateRoomContext();
+        } catch (err) {
+          currentGit = null;
+          updateRoomContext();
+          showError(el, err);
+        }
+      }
+
       async function loadHandoff() {
         const el = $("handoff");
         const meta = $("handoff-meta");
@@ -1025,6 +1081,7 @@
       const HINTS = [
         { cmd: "/status", noteKey: "noteStatus" },
         { cmd: "/budget", noteKey: "noteBudget" },
+        { cmd: "/git", noteKey: "noteGit" },
         { cmd: "/review", noteKey: "noteReview" },
         { cmd: "/diagnose", noteKey: "noteDiagnose" },
         { cmd: "/replay", noteKey: "noteReplay" },
@@ -1098,7 +1155,7 @@
       }
 
       async function refresh() {
-        await Promise.all([loadProjects(), loadStatus(), loadBudget(), loadTimeline()]);
+        await Promise.all([loadProjects(), loadStatus(), loadBudget(), loadGit(), loadTimeline()]);
         if (handoffOverlay.classList.contains("show")) await loadHandoff();
         updateRoomContext();
         renderHints();
@@ -1147,6 +1204,14 @@
               const b = await cliJson(["budget", "--json"]);
               appendLocalEvent("relay-baton", "budget", JSON.stringify(b, null, 2));
               await loadBudget();
+              break;
+            }
+            case "git": {
+              const g = await cliJson(["git", "status", "--json"]);
+              currentGit = g;
+              appendLocalEvent("relay-baton", "status", JSON.stringify(g, null, 2));
+              await loadGit();
+              updateRoomContext();
               break;
             }
             case "review": {

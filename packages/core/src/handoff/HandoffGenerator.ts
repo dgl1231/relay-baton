@@ -10,6 +10,7 @@ export interface HandoffInput {
   profileName: DietProfileName;
   profile: DietProfile;
   gitStatus: string;
+  gitTrackingSummary?: string[];
   repoMapSummary: string;
   relevantFiles: RelevantFile[];
   changedFiles: string[];
@@ -47,6 +48,11 @@ export class HandoffGenerator {
 
     p.push("## Current Repository State"); p.push("");
     p.push("```"); p.push(i.gitStatus.trim() || "(clean)"); p.push("```"); p.push("");
+    if (i.gitTrackingSummary?.length) {
+      p.push("## Git Tracking"); p.push("");
+      for (const line of i.gitTrackingSummary) p.push(`- ${line}`);
+      p.push("");
+    }
 
     p.push("## Repo Map"); p.push("");
     p.push(`See ${REFS.repoMap} for the full map.`); p.push("");

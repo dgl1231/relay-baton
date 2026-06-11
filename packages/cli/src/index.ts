@@ -20,6 +20,7 @@ import { tuiCommand } from "./commands/tui";
 import { chatCommand } from "./commands/chat";
 import { replayCommand } from "./commands/replay";
 import { conversationAppendCommand } from "./commands/conversation";
+import { gitStatusCommand } from "./commands/git";
 import { loginCommand } from "./commands/login";
 import {
   projectAddCommand,
@@ -34,7 +35,7 @@ const program = new Command();
 program
   .name("relay-baton")
   .description("Token-aware handoff harness for Codex CLI and Claude Code")
-  .version("1.4.0-alpha.1");
+  .version("1.5.0-alpha.0");
 
 function addProjectOptions(cmd: Command): Command {
   return cmd
@@ -192,6 +193,16 @@ project.command("switch").argument("<name-or-id>").description("Switch active pr
 project.command("current").description("Show active project").option("--json", "print machine-readable JSON").action(projectCurrentCommand);
 project.command("remove").argument("<name-or-id>").description("Remove a project").option("--json", "print machine-readable JSON").action(projectRemoveCommand);
 project.command("doctor").description("Check registered projects").action(projectDoctorCommand);
+
+const git = program.command("git").description("Read-only git tracking helpers");
+git
+  .command("status")
+  .description("Show branch, ahead/behind, and working-tree change counts")
+  .option("--json", "print machine-readable JSON")
+  .option("--limit <n>", "max changed files to include")
+  .option("--project <name-or-id>", "registered project name or id")
+  .option("--path <repoPath>", "repository path")
+  .action(gitStatusCommand);
 
 addProjectOptions(program.command("tui").description("Start the relay-baton TUI")).action(tuiCommand);
 

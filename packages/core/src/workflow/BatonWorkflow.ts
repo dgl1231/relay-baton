@@ -3,6 +3,7 @@ import type { DietProfileName, RelayBatonConfig } from "@relay-baton/shared";
 import { SessionManager } from "../session/SessionManager";
 import { SessionFiles } from "../session/SessionFiles";
 import { GitService } from "../git/GitService";
+import type { GitBaseline } from "../git/GitService";
 import { RepoMapGenerator } from "../git/RepoMapGenerator";
 import { ContextSelector } from "../token-diet/ContextSelector";
 import { DiffCompactor } from "../token-diet/DiffCompactor";
@@ -58,6 +59,10 @@ export class BatonWorkflow {
     const profile = this.cfg.tokenDiet.profiles[opts.profileName];
     const files = new SessionFiles(this.sm.repoRoot);
     const { status, changed, fullDiff, repoMap, compactState } = this.refreshArtifacts(opts.profileName);
+    const git = new GitService(this.sm.repoRoot);
+    const baseline = readJsonSafe<GitBaseline>(files.p("gitBaseline"));
+    const tracking = git.compareBaseline(baseline);
+    const summary = git.summary(0);
 
     const task = fs.existsSync(files.p("task")) ? fs.readFileSync(files.p("task"), "utf8") : "";
     const goal = task.replace(/^#.*\n/, "").trim();
@@ -84,6 +89,12 @@ export class BatonWorkflow {
       profileName: opts.profileName,
       profile,
       gitStatus: status,
+      gitTrackingSummary: [
+        `Branch: ${summary.branch ?? "(none)"}`,
+        `HEAD: ${summary.head ? summary.head.slice(0, 12) : "(none)"}`,
+        `Working tree: ${summary.clean ? "clean" : `${summary.changed} changed (${summary.staged} staged, ${summary.unstaged} unstaged, ${summary.untracked} untracked)`}`,
+        `Session baseline: ${tracking.changedSinceBaseline == null ? "none" : tracking.changedSinceBaseline ? `changed (delta ${tracking.changedDelta ?? 0})` : "unchanged"}`,
+      ],
       repoMapSummary,
       relevantFiles: relevant,
       changedFiles: changed,
@@ -121,4 +132,8 @@ export class BatonWorkflow {
       budgetSnapshot: snapshot,
     };
   }
+}
+
+function readJsonSafe<T>(p: string): T | null {
+  try { return JSON.parse(fs.readFileSync(p, "utf8")) as T; } catch { return null; }
 }

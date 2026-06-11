@@ -170,6 +170,7 @@ relay-baton status --project relay-baton
 
 | Подход | Что переносится | Стоимость в токенах | Непрерывность | Режим отказа |
 |---|---|---|---|---|
+| v1.5.0-alpha.0 | [Read →](../../release-notes/v1.5.0-alpha.0.md) | [읽기 →](../../release-notes/ko/v1.5.0-alpha.0.md) | Git tracking first cut: read-only `relay-baton git status --json`, non-git project fallback, desktop Git panel, and `/git` in Agent Room. |
 | Сырой chat export | Весь транскрипт | Высокая (в основном шум) | Хрупкая — агент перечитывает собственное мышление | Переполнение context window |
 | Копипаст prompting | Что запомнил человек | Переменная | Ломкая | Тихий дрифт от реального состояния |
 | Дамп всего репо | Всё | Очень высокая | Сильная, но дорогая | Модель обрезает посреди файла |
@@ -230,7 +231,7 @@ pnpm relay-baton login claude
 
 ## Заметки о релизах
 
-**Latest:** v1.4.0-alpha.1 — [English](../../release-notes/v1.4.0-alpha.1.md) · [한국어](../../release-notes/ko/v1.4.0-alpha.1.md)
+**Latest:** v1.5.0-alpha.0 — [English](../../release-notes/v1.5.0-alpha.0.md) · [한국어](../../release-notes/ko/v1.5.0-alpha.0.md)
 
 | Версия | English | 한국어 | Кратко |
 |---|---|---|---|

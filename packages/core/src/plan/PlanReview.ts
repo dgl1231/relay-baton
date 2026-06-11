@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import type { RelayBatonConfig } from "@relay-baton/shared";
 import { SessionFiles } from "../session/SessionFiles";
-import { GitService } from "../git/GitService";
+import { GitBaseline, GitService, GitSummary, GitBaselineComparison } from "../git/GitService";
 import { planSectionBody } from "./PlanSchema";
 
 export interface ReviewStep {
@@ -33,10 +33,18 @@ export interface ReviewResult {
   /** First non-empty line of test-results.md, or null. */
   testResultsSummary: string | null;
   handoffPresent: boolean;
+  git: {
+    summary: Pick<GitSummary, "available" | "branch" | "head" | "clean" | "changed" | "staged" | "unstaged" | "untracked">;
+    tracking: GitBaselineComparison;
+  };
 }
 
 function readSafe(p: string): string {
   try { return fs.readFileSync(p, "utf8"); } catch { return ""; }
+}
+
+function readJsonSafe<T>(p: string): T | null {
+  try { return JSON.parse(fs.readFileSync(p, "utf8")) as T; } catch { return null; }
 }
 
 /**
@@ -101,6 +109,8 @@ export class PlanReview {
 
     const git = new GitService(this.repoRoot);
     const changedFiles = git.isGitRepo() ? git.changedFiles() : [];
+    const gitSummary = git.summary(20);
+    const gitTracking = git.compareBaseline(readJsonSafe<GitBaseline>(files.p("gitBaseline")));
 
     const parsed = parseSteps(planMd);
     const referencedAll = new Set<string>();
@@ -142,6 +152,19 @@ export class PlanReview {
       uncorrelatedSteps,
       testResultsSummary,
       handoffPresent: fs.existsSync(files.p("handoff")),
+      git: {
+        summary: {
+          available: gitSummary.available,
+          branch: gitSummary.branch,
+          head: gitSummary.head,
+          clean: gitSummary.clean,
+          changed: gitSummary.changed,
+          staged: gitSummary.staged,
+          unstaged: gitSummary.unstaged,
+          untracked: gitSummary.untracked,
+        },
+        tracking: gitTracking,
+      },
     };
   }
 }

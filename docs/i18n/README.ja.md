@@ -169,6 +169,7 @@ relay-baton status --project relay-baton
 
 | 方式 | 渡る情報 | トークンコスト | 継続性 | 失敗モード |
 |---|---|---|---|---|
+| v1.5.0-alpha.0 | [Read →](../../release-notes/v1.5.0-alpha.0.md) | [읽기 →](../../release-notes/ko/v1.5.0-alpha.0.md) | Git tracking first cut: read-only `relay-baton git status --json`, non-git project fallback, desktop Git panel, and `/git` in Agent Room. |
 | 生のチャット export | transcript 全部 | 高い (大半がノイズ) | 脆い ― エージェントが自分の思考を読み直す | context window 溢れ |
 | コピペ prompting | 人が覚えていた分 | 可変 | 壊れやすい | 実状態との silent drift |
 | repo 全体 dump | 全部 | 非常に高い | 強いが高コスト | モデルが途中で切る |
@@ -229,7 +230,7 @@ pnpm relay-baton login claude
 
 ## リリースノート
 
-**最新:** v1.4.0-alpha.1 — [English](../../release-notes/v1.4.0-alpha.1.md) · [한국어](../../release-notes/ko/v1.4.0-alpha.1.md)
+**最新:** v1.5.0-alpha.0 — [English](../../release-notes/v1.5.0-alpha.0.md) · [한국어](../../release-notes/ko/v1.5.0-alpha.0.md)
 
 | Version | English | 한국어 | 一行サマリー |
 |---|---|---|---|

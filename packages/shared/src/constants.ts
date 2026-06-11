@@ -22,6 +22,7 @@ export const SESSION_FILES = {
   testResults: "test-results.md",
   fullDiff: "full-diff.patch",
   contextBudget: "context-budget.json",
+  gitBaseline: "git-baseline.json",
   sessionJson: "session.json",
   // v0.7 — append-only conversation event log (Agent Room groundwork).
   conversation: "conversation.jsonl",

@@ -170,6 +170,7 @@ Ruta por defecto: `~/.relay-baton/projects.json`. `RELAY_BATON_PROJECTS_FILE` pe
 
 | Enfoque | Qué se transfiere | Coste en tokens | Continuidad | Modo de fallo |
 |---|---|---|---|---|
+| v1.5.0-alpha.0 | [Read →](../../release-notes/v1.5.0-alpha.0.md) | [읽기 →](../../release-notes/ko/v1.5.0-alpha.0.md) | Git tracking first cut: read-only `relay-baton git status --json`, non-git project fallback, desktop Git panel, and `/git` in Agent Room. |
 | Export crudo del chat | Transcript completo | Alto (la mayor parte es ruido) | Frágil — el agente relee su propio razonamiento | Desbordamiento de context window |
 | Copiar/pegar prompting | Lo que el humano recuerda | Variable | Frágil | Drift silencioso del estado real |
 | Volcado del repo | Todo | Muy alto | Fuerte pero caro | El modelo trunca a mitad de archivo |
@@ -230,7 +231,7 @@ Que `claude --version` funcione **no** significa estar logueado. Si ves "Not log
 
 ## Notas de versión
 
-**Latest:** v1.4.0-alpha.1 — [English](../../release-notes/v1.4.0-alpha.1.md) · [한국어](../../release-notes/ko/v1.4.0-alpha.1.md)
+**Latest:** v1.5.0-alpha.0 — [English](../../release-notes/v1.5.0-alpha.0.md) · [한국어](../../release-notes/ko/v1.5.0-alpha.0.md)
 
 | Versión | English | 한국어 | Resumen |
 |---|---|---|---|

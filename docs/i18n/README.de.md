@@ -170,6 +170,7 @@ Default-Pfad: `~/.relay-baton/projects.json`. `RELAY_BATON_PROJECTS_FILE` übers
 
 | Ansatz | Was übergeben wird | Token-Kosten | Kontinuität | Failure-Mode |
 |---|---|---|---|---|
+| v1.5.0-alpha.0 | [Read →](../../release-notes/v1.5.0-alpha.0.md) | [읽기 →](../../release-notes/ko/v1.5.0-alpha.0.md) | Git tracking first cut: read-only `relay-baton git status --json`, non-git project fallback, desktop Git panel, and `/git` in Agent Room. |
 | Roher Chat-Export | Kompletter Transcript | Hoch (meist Rauschen) | Brüchig — Agent liest sein eigenes Denken erneut | Context-Window-Überlauf |
 | Copy-Paste-Prompting | Was der Mensch erinnert | Variabel | Zerbrechlich | Silent Drift vom realen State |
 | Komplettes Repo-Dump | Alles | Sehr hoch | Stark, aber teuer | Modell schneidet mittendrin ab |
@@ -230,7 +231,7 @@ Dass `claude --version` durchläuft, heißt **nicht**, dass du eingeloggt bist. 
 
 ## Release-Notes
 
-**Latest:** v1.4.0-alpha.1 — [English](../../release-notes/v1.4.0-alpha.1.md) · [한국어](../../release-notes/ko/v1.4.0-alpha.1.md)
+**Latest:** v1.5.0-alpha.0 — [English](../../release-notes/v1.5.0-alpha.0.md) · [한국어](../../release-notes/ko/v1.5.0-alpha.0.md)
 
 | Version | English | 한국어 | Kurzfassung |
 |---|---|---|---|

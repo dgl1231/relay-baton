@@ -170,6 +170,7 @@ Emplacement par défaut : `~/.relay-baton/projects.json`. `RELAY_BATON_PROJECTS_
 
 | Approche | Ce qui passe | Coût en tokens | Continuité | Mode d'échec |
 |---|---|---|---|---|
+| v1.5.0-alpha.0 | [Read →](../../release-notes/v1.5.0-alpha.0.md) | [읽기 →](../../release-notes/ko/v1.5.0-alpha.0.md) | Git tracking first cut: read-only `relay-baton git status --json`, non-git project fallback, desktop Git panel, and `/git` in Agent Room. |
 | Export brut du chat | Transcript entier | Élevé (majoritairement du bruit) | Fragile — l'agent relit son propre raisonnement | Débordement de fenêtre de contexte |
 | Copier-coller prompting | Ce dont l'humain se souvient | Variable | Cassant | Drift silencieux par rapport à l'état réel |
 | Dump du dépôt entier | Tout | Très élevé | Fort mais cher | Le modèle tronque en plein milieu |
@@ -230,7 +231,7 @@ pnpm relay-baton login claude
 
 ## Notes de version
 
-**Dernière :** v1.4.0-alpha.1 — [English](../../release-notes/v1.4.0-alpha.1.md) · [한국어](../../release-notes/ko/v1.4.0-alpha.1.md)
+**Dernière :** v1.5.0-alpha.0 — [English](../../release-notes/v1.5.0-alpha.0.md) · [한국어](../../release-notes/ko/v1.5.0-alpha.0.md)
 
 | Version | English | 한국어 | Résumé |
 |---|---|---|---|

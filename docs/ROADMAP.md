@@ -193,6 +193,20 @@ Full work order: [`TASK-v1.4-distribution.md`](./TASK-v1.4-distribution.md).
 - [ ] Auto-update channel for the desktop app (Tauri updater, opt-in).
 - [x] SBOM + checksums (SHA-256) attached to each release.
 
+## v1.5 — Git tracking & session insight
+
+Make relay-baton show the human what changed while an agent session is running,
+without ever performing git writes. Full work order:
+[`TASK-v1.5-git-tracking.md`](./TASK-v1.5-git-tracking.md).
+
+- [x] **Read-only git status snapshot (first cut)** — core `GitService.summary`,
+  `relay-baton git status --json`, desktop Git dashboard panel, and `/git` in
+  the Agent Room. Non-git projects report `available:false` instead of failing.
+- [x] **Session baseline snapshot** — record branch/HEAD/dirty state at session
+  start and show whether the working tree changed since then.
+- [x] **Review/handoff integration** — include bounded git tracking fields in
+  review/status/handoff surfaces while keeping full diffs as file references.
+
 ## v0.6 — Trust & Verify
 
 Make the existing pipeline provable and observable before adding surface area.

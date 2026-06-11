@@ -12,11 +12,15 @@ describe("SessionManager.init", () => {
     const r = sm.init("do thing");
     expect(r.created).toBe(true);
     expect(fs.existsSync(sm.files.p("sessionJson"))).toBe(true);
+    expect(fs.existsSync(sm.files.p("gitBaseline"))).toBe(true);
     expect(fs.existsSync(sm.files.p("task"))).toBe(true);
     expect(fs.existsSync(sm.files.p("commandsLog"))).toBe(true);
     const meta = sm.getMeta();
     expect(meta?.status).toBe("initialized");
     expect(meta?.primaryAgent).toBe("codex");
+    const baseline = JSON.parse(fs.readFileSync(sm.files.p("gitBaseline"), "utf8"));
+    expect(baseline.available).toBe(false);
+    expect(baseline.changed).toBe(0);
   });
   it("is idempotent", () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "rb-"));

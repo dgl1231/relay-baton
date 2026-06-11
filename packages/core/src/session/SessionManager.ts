@@ -5,6 +5,7 @@ import type { SessionMeta, RelayBatonConfig } from "@relay-baton/shared";
 import { SESSION_FILES, SESSION_SCHEMA_VERSION } from "@relay-baton/shared";
 import { SessionFiles } from "./SessionFiles";
 import { readSessionMeta, writeSessionMeta } from "./SessionState";
+import { GitService } from "../git/GitService";
 
 export interface InitResult {
   created: boolean;
@@ -48,6 +49,7 @@ export class SessionManager {
     add("testResults", "# Test Results\n");
     add("fullDiff", "");
     add("contextBudget", "{}\n");
+    add("gitBaseline", JSON.stringify(new GitService(this.repoRoot).baselineSnapshot(), null, 2) + "\n");
 
     const metaPath = this.files.p("sessionJson");
     if (!fs.existsSync(metaPath)) {

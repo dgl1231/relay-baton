@@ -9,13 +9,14 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-10 — v1.4.0-alpha.1 in progress: distribution polish
-implemented locally (install scripts, SHA256SUMS/SBOM release-finalize job,
-Scoop/Homebrew starter files, optional signing hooks, desktop Codex/Claude
-preview switcher)._
+_Last updated: 2026-06-11 — v1.5.0-alpha.0 in progress: git tracking first
+cut implemented locally (`relay-baton git status --json`, `.ai-session/git-baseline.json`,
+desktop Git panel, Agent Room `/git`, and `docs/TASK-v1.5-git-tracking.md`)._
 
 ## Where we are
 
+- **v1.4 alpha is SHIPPED** on tag **`v1.4.0-alpha.1`**. v1.5 work is now
+  starting locally with read-only git tracking.
 - **v1.1 is SHIPPED** on tag **`v1.1.3`**. The GitHub Release carries three
   working standalone binaries:
   - `relay-baton-linux-x64`
@@ -46,74 +47,38 @@ issues, all in `release.yml` — full detail in [`RELEASE.md`](./RELEASE.md):
 3. v1.1.2 — `postject@^1` doesn't exist (its "latest" is a prerelease) → ETARGET.
 4. v1.1.3 — pinned exact `esbuild@0.28.0` + `postject@1.0.0-alpha.6`. ✅
 
-## Next up: v1.2 — Desktop GUI
+## Next up: v1.5 release finalization
 
-Full phased plan in [`ROADMAP.md`](./ROADMAP.md) (§ v1.2). **Phase A in progress:**
+v1.5 feature work is implemented locally and all acceptance criteria in
+[`TASK-v1.5-git-tracking.md`](./TASK-v1.5-git-tracking.md) are checked:
 
-1. Make `desktop/` build locally — **mostly done**: `desktop/package.json` pins
-   `@tauri-apps/cli` (dev dep, `dev`/`build`/`icon`/`gen-icon-source`/
-   `stage-sidecar` scripts); icons generate deterministically
-   (`gen-icon-source.mjs` → committed `icon-source.png` → `npm run icon`,
-   verified on this box — the npm Tauri CLI's icon command works without Rust).
-   **Remaining (needs a Rust toolchain machine):** confirm `npm run dev` opens
-   the window + sidecar calls succeed. (This dev box has Node but no `cargo`.)
-2. Sidecar-staging — **done**: `npm run stage-sidecar` (scripts/stage-sidecar.mjs)
-   copies `relay-baton-<triple>` into `desktop/src-tauri/binaries/`. Tested for
-   all three triples on Windows.
-3. Desktop release job — **done, UNVERIFIED in CI**: `build-desktop` in
-   `release.yml` (downloads SEA artifact → npm ci → icons → stage sidecar →
-   `tauri build` → attach `.dmg`/`.msi`/`.AppImage`). YAML parse-checked
-   locally (remember the v1.1.0 YAML gotcha). **It will first really run on the
-   next `v*` tag — watch all six jobs then.**
-4. README desktop installer table — **done** (notes unsigned/ad-hoc binaries).
+- `relay-baton git status` / `relay-baton git status --json`
+- non-git fallback with `available:false`
+- `.ai-session/git-baseline.json` on `init`
+- session baseline comparison in `git status --json`
+- bounded git summaries in `status --json`, `review --json`, and generated handoffs
+- desktop Git panel and Agent Room `/git`
 
-**Phase B (read-only dashboard) — implemented** (same in-Tauri verification
-blocker as Phase A item 1):
+Remaining before calling v1.5 shipped:
 
-- New CLI surface for the UI (tested; cli suite now 50 tests, core 180):
-  `project list --json`, `project current --json`, `handoff show
-  [--file <name>] [--json]` (read-only; `--file` only accepts names listed by
-  `handoff history` — no path traversal). Documented in `docs/COMMANDS.md`
-  (EN + KO).
-- `desktop/ui/index.html` rebuilt as the dashboard: project switcher dropdown
-  (calls `project switch`), parsed status panel, budget panel with usage bar,
-  diet selector (localStorage display-state only), read-only handoff preview
-  pane. All data flows through the sidecar CLI; the UI never reads/writes
-  `.ai-session/` itself.
+1. Review the local diff once more.
+2. Commit the v1.5 changes.
+3. Push `main` only with explicit human approval.
+4. Tag `v1.5.0-alpha.0` and watch the Release workflow.
 
-**Phase C (agent-room view) — implemented** (same in-Tauri verification
-blocker): the dashboard gained a read-only conversation timeline (`replay
---json`, color-labeled roles) and a confirmation-first action palette. Read-only
-commands (`review`, `doctor --deep`, `status`) run via the sidecar; agent-
-launching ones (`plan`/`execute`/`handoff`) are copy-only — the GUI never spawns
-an agent.
+## Next after v1.5
 
-**Phase B follow-up (project management + i18n) — implemented, needs Tauri
-window verification:** the dashboard can now add a project through the native
-folder picker (`tauri-plugin-dialog`), remove the selected project with a
-confirmation step, and refresh all panels after add/switch/remove.
-CLI contract was extended with `project add --json` and `project remove --json`
-for clean sidecar usage. UI chrome now has a dependency-free language selector:
-English default plus Korean, Japanese, and Simplified Chinese; raw CLI output is
-still displayed as-is.
+Do not start v1.6 until v1.5 is committed/tagged or the user explicitly asks to
+keep it local. Likely v1.6 candidates:
 
-**Release staged, NOT pushed:** version bumped to **v1.2.0-alpha.0** everywhere
-(packages + CLI `--version` + desktop Cargo.toml/tauri.conf.json), release notes
-(en+ko) + README badge/tables updated, commit `release: v1.2.0-alpha.0` made
-locally. **A direct push to `main` was blocked by the harness auto-mode
-classifier** (CLAUDE.md forbids auto-push; needs explicit human OK). Pending:
-`git push origin main` then `git tag v1.2.0-alpha.0 && git push origin
-v1.2.0-alpha.0` — the tag is what first exercises `build-desktop` in CI (watch
-all six jobs, mind the v1.1.0 YAML gotcha).
+- Desktop auto-update, opt-in and confirmation-first, from the v1.4 deferred
+  item.
+- Real-window QA / stable promotion cleanup for desktop releases.
+- A deeper Git tracking follow-up only if the user wants it, still read-only.
 
-**Next after v1.4 alpha:** run real-window QA on a Rust/Tauri machine, then
-decide whether to promote `v1.3.0` stable or continue alpha. Paid cert secrets
-are still required for trusted Windows/macOS signing. Desktop auto-update remains
-unimplemented by design until signing/update keys exist.
-
-Hard rule for v1.2: the GUI calls the CLI sidecar only. **No business logic in
-the webview.** Read-only or confirmation-first. (Matches `CLAUDE.md`: TUI/GUI
-holds no business logic; no auto commit/push/PR; subprocess-only.)
+Hard rule remains: GUI calls the CLI sidecar only. **No business logic in the
+webview.** Read-only or confirmation-first. No auto commit/push/PR unless the
+human explicitly asks for it.
 
 ## Environment notes (this dev machine)
 

@@ -74,6 +74,20 @@ export function validateArtifacts(repoRoot: string): ArtifactReport {
     }
   }
 
+  // git-baseline.json — optional in older sessions, valid JSON when present.
+  {
+    const file = SESSION_FILES.gitBaseline;
+    const raw = readSafe(files.p("gitBaseline"));
+    if (raw === null) {
+      checks.push({ artifact: "gitBaseline", file, status: "absent", detail: "not present" });
+    } else if (raw.trim() === "") {
+      checks.push({ artifact: "gitBaseline", file, status: "warn", detail: "empty" });
+    } else {
+      try { JSON.parse(raw); checks.push({ artifact: "gitBaseline", file, status: "ok", detail: "valid JSON" }); }
+      catch (e: any) { checks.push({ artifact: "gitBaseline", file, status: "fail", detail: `unparseable JSON: ${e?.message ?? e}` }); }
+    }
+  }
+
   // conversation.jsonl — every non-empty line must be valid JSON.
   {
     const file = SESSION_FILES.conversation;
