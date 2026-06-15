@@ -3,6 +3,34 @@
 How relay-baton ships downloadable, per-OS executables. This is the operational
 runbook — for the *why* and roadmap, see [`ROADMAP.md`](./ROADMAP.md).
 
+## Finalized distribution & update policy (v2.0)
+
+The distribution story is considered **finalized** for the v2.0 line. What every
+`v*` release produces:
+
+- **Always**, with no secrets required:
+  - 3 CLI single-file binaries (`relay-baton-linux-x64`,
+    `relay-baton-macos-arm64`, `relay-baton-windows-x64.exe`); macOS is ad-hoc
+    codesigned in CI.
+  - 3 desktop installers (`.dmg`, `.AppImage`, `.msi`) — unsigned fallback when
+    signing secrets are absent.
+  - `SHA256SUMS` and a CycloneDX SBOM (`relay-baton.cdx.json`).
+  - One-line installers (`install/install.sh`, `install/install.ps1`) download
+    from `releases/latest` and **verify against `SHA256SUMS`** before installing
+    to a user-area PATH (no admin required).
+- **Conditional**, only when the matching repo secrets exist:
+  - macOS signing/notarization (Apple secrets) and Windows MSI signing (Azure
+    secrets) — see "Code signing & notarization".
+  - Signed Tauri updater artifacts + `latest.json` for the **opt-in, manual**
+    desktop update channel — see "Desktop updater".
+
+User-facing trust model: unsigned builds still ship, so Gatekeeper/SmartScreen
+prompts are expected on unsigned releases; the documented workaround and the
+`SHA256SUMS` verification path cover that. The desktop updater never runs
+silently. Package-manager starter files (`scoop/`, `homebrew/`) are thin and
+hash-bumped after assets exist. This policy is locked; future changes are
+additive (e.g. enabling a secret) rather than structural.
+
 ## TL;DR — cut a release
 
 ```bash

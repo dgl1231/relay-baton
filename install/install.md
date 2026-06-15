@@ -6,7 +6,7 @@
 
 ```text
 이 링크의 내용을 읽고 그대로 따라 설치해줘:
-https://github.com/<your-org>/relay-baton/blob/main/install/install.md
+https://github.com/dgl1231/relay-baton/blob/main/install/install.md
 
 - 환경 점검 후 부족한 항목만 설치한다.
 - 사용자의 OS(Windows / macOS / Linux)에 맞는 명령을 선택한다.
@@ -16,12 +16,12 @@ https://github.com/<your-org>/relay-baton/blob/main/install/install.md
 
 Codex CLI 예시:
 ```bash
-codex exec --sandbox workspace-write "https://github.com/<your-org>/relay-baton/blob/main/install/install.md 를 읽고 그대로 설치해줘"
+codex exec --sandbox workspace-write "https://github.com/dgl1231/relay-baton/blob/main/install/install.md 를 읽고 그대로 설치해줘"
 ```
 
 Claude Code 예시 (대화형 또는 headless):
 ```bash
-claude --permission-mode acceptEdits -p "Read https://github.com/<your-org>/relay-baton/blob/main/install/install.md and follow it step by step to install relay-baton on this machine."
+claude --permission-mode acceptEdits -p "Read https://github.com/dgl1231/relay-baton/blob/main/install/install.md and follow it step by step to install relay-baton on this machine."
 ```
 
 ## 가장 빠른 길 — 빌드 없이 바이너리 받기 (v1.1+)
@@ -135,7 +135,7 @@ claude
 ### Step 4 — relay-baton clone & build
 
 ```bash
-git clone https://github.com/<your-org>/relay-baton.git
+git clone https://github.com/dgl1231/relay-baton.git
 cd relay-baton
 pnpm install
 pnpm build

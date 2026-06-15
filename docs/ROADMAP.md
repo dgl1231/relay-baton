@@ -327,12 +327,15 @@ instead of a thin release shell.
   legacy/unreadable) via the `ARTIFACT_SCHEMA_VERSIONS` registry and give
   read-only guidance. Detection shipped; in-place apply lands with the first
   schema-version bump.
-- [ ] **Installer/update story finalized** — signed builds when credentials
-  exist, checksums/SBOM always, and opt-in desktop update channel if the updater
-  has proven reliable.
-- [ ] **Public docs pass** — docs for install, quickstart, desktop workflow,
-  CLI workflow, project registry, session archive, git tracking, and safety
-  model are complete in English and Korean.
+- [x] **Installer/update story finalized** — finalized distribution policy
+  documented in `RELEASE.md`: always-on CLI binaries + desktop installers +
+  `SHA256SUMS` + SBOM, conditional signing (macOS/Windows) and the opt-in,
+  manual desktop updater channel when secrets exist. One-line installers verify
+  `SHA256SUMS`. Locked by a docs test.
+- [x] **Public docs pass** — consolidated `docs/GUIDE.md` (EN) +
+  `docs/i18n/GUIDE.ko.md` (KO) cover install, quickstart, desktop + CLI
+  workflows, project registry, artifacts/schema, and the safety model, linked
+  from the README and covered by a docs test. `<your-org>` placeholders fixed.
 - [~] **Hard constraints reaffirmed** — auth policy (blocked provider key env
   vars, `allowApiKeyEnv` off, cli-session mode) and "no direct LLM API client
   dependency" are now locked by an automated test (`hardConstraints.test.ts`).

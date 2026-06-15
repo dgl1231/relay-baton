@@ -124,3 +124,30 @@ describe("v1.0 docs", () => {
     }
   });
 });
+
+describe("v2.0 docs", () => {
+  it("ships a consolidated public guide (EN + KO) covering install, workflows, and safety", () => {
+    for (const rel of ["docs/GUIDE.md", "docs/i18n/GUIDE.ko.md"]) {
+      const g = read(rel);
+      expect(g).toMatch(/install/i);
+      expect(g).toMatch(/quickstart|빠른 시작/i);
+      expect(g).toMatch(/desktop|데스크톱/i);
+      expect(g).toMatch(/safety|안전/i);
+      expect(g).toMatch(/migrate/);
+    }
+  });
+
+  it("documents the finalized distribution & update policy in RELEASE.md", () => {
+    const r = read("docs/RELEASE.md");
+    expect(r).toMatch(/[Ff]inalized distribution/);
+    expect(r).toMatch(/SHA256SUMS/);
+    expect(r).toMatch(/SBOM/);
+    expect(r).toMatch(/updater/i);
+  });
+
+  it("has no unresolved <your-org> placeholders in user-facing docs", () => {
+    for (const rel of ["README.md", "install/install.md", "docs/GUIDE.md", "docs/i18n/GUIDE.ko.md"]) {
+      expect(read(rel)).not.toContain("your-org");
+    }
+  });
+});

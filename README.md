@@ -244,10 +244,10 @@ pnpm relay-baton run "Fix the mail attachment upload flow" --diet balanced
 
 ```bash
 # Codex CLI
-codex exec --sandbox workspace-write "Read https://github.com/<your-org>/relay-baton/blob/main/install/install.md and install relay-baton on this machine. Do not print or store API keys. Finish by running 'pnpm relay-baton doctor'."
+codex exec --sandbox workspace-write "Read https://github.com/dgl1231/relay-baton/blob/main/install/install.md and install relay-baton on this machine. Do not print or store API keys. Finish by running 'pnpm relay-baton doctor'."
 
 # Claude Code (headless)
-claude --permission-mode acceptEdits -p "Read https://github.com/<your-org>/relay-baton/blob/main/install/install.md and follow it step by step. Do not print or store API keys. End by running 'pnpm relay-baton doctor'."
+claude --permission-mode acceptEdits -p "Read https://github.com/dgl1231/relay-baton/blob/main/install/install.md and follow it step by step. Do not print or store API keys. End by running 'pnpm relay-baton doctor'."
 ```
 
 ## Features
@@ -616,6 +616,7 @@ any real run). Design only for now — **not implemented yet**. Full design:
 
 ## Documentation
 
+- [`docs/GUIDE.md`](./docs/GUIDE.md) — consolidated guide: install, quickstart, desktop/CLI workflows, safety ([한국어](./docs/i18n/GUIDE.ko.md))
 - [`docs/COMMANDS.md`](./docs/COMMANDS.md) — full command reference ([한국어](./docs/i18n/COMMANDS.ko.md))
 - [`docs/ARTIFACTS.md`](./docs/ARTIFACTS.md) — `.ai-session/` artifact stability contract (v1.0)
 - [`docs/AGENT_ROOM.md`](./docs/AGENT_ROOM.md) — Agent Room design
@@ -679,7 +680,7 @@ pnpm relay-baton budget
 Issues and PRs welcome. For larger changes, open a short RFC issue first.
 
 ```bash
-git clone https://github.com/<your-org>/relay-baton
+git clone https://github.com/dgl1231/relay-baton
 cd relay-baton
 pnpm install
 pnpm build
