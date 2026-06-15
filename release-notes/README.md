@@ -14,6 +14,7 @@ Release notes are user-facing changelogs, not agent handoff material — that ro
 
 ## Versions
 
+- [v2.0.0-alpha.2](./v2.0.0-alpha.2.md) / [한국어](./ko/v2.0.0-alpha.2.md) - Stability guards: desktop i18n parity test (en/ko/ja/zh) enforcing the stable desktop contract, and a hard-constraints test locking the auth policy + no-LLM-client rule.
 - [v2.0.0-alpha.1](./v2.0.0-alpha.1.md) / [한국어](./ko/v2.0.0-alpha.1.md) - Schema migrator apply path: `relay-baton migrate --apply [--dry-run]` normalizes legacy artifacts (stamps schemaVersion) with timestamped backups, opt-in and idempotent.
 - [v2.0.0-alpha.0](./v2.0.0-alpha.0.md) / [한국어](./ko/v2.0.0-alpha.0.md) - v2.0 stability line opens: read-only artifact schema migration checks (`relay-baton migrate`, `ARTIFACT_SCHEMA_VERSIONS` registry, `doctor --deep` schema lines). Detection + guidance only.
 - [v1.9.0-alpha.0](./v1.9.0-alpha.0.md) / [한국어](./ko/v1.9.0-alpha.0.md) - Team handoff package: portable `relay-baton handoff bundle` (manifest + SHA-256 + redaction pass), `handoff inspect`, a markdown `report`, and a desktop team-handoff export card + Agent Room `/bundle` `/report`. No cloud upload.
