@@ -16,6 +16,8 @@ import { runCommand } from "./commands/run";
 import { handoffCommand } from "./commands/handoff";
 import { handoffHistoryCommand } from "./commands/handoffHistory";
 import { handoffShowCommand } from "./commands/handoffShow";
+import { handoffBundleCommand, handoffInspectCommand } from "./commands/handoffBundle";
+import { reportCommand } from "./commands/report";
 import { planCommand } from "./commands/plan";
 import { executeCommand } from "./commands/execute";
 import { compressContextCommand } from "./commands/compressContext";
@@ -115,6 +117,32 @@ handoff
   .option("--project <name-or-id>", "registered project name or id")
   .option("--path <repoPath>", "repository path")
   .action(handoffShowCommand);
+
+handoff
+  .command("bundle")
+  .description("Build a portable handoff bundle (curated artifacts + git summary + redaction pass). Read-only on the repo")
+  .option("--json", "print machine-readable JSON")
+  .option("--dry-run", "show what would be bundled without writing")
+  .option("--out <dir>", "bundle root directory (default: ~/.relay-baton/handoff-bundles)")
+  .option("--project <name-or-id>", "registered project name or id")
+  .option("--path <repoPath>", "repository path")
+  .action(handoffBundleCommand);
+
+handoff
+  .command("inspect")
+  .description("Validate a handoff bundle and print what it contains (read-only, applies nothing)")
+  .argument("<bundle>", "bundle id or path under the bundle root")
+  .option("--json", "print machine-readable JSON")
+  .option("--out <dir>", "bundle root directory (default: ~/.relay-baton/handoff-bundles)")
+  .action(handoffInspectCommand);
+
+addProjectOptions(
+  program
+    .command("report")
+    .description("Generate a human-readable markdown status report from existing artifacts (read-only, no model call)")
+    .option("--out <file>", "write the report to a file instead of stdout")
+    .option("--json", "wrap the markdown in JSON"),
+).action(reportCommand);
 
 program
   .command("plan")

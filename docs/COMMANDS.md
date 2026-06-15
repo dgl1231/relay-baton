@@ -94,6 +94,26 @@ named history file from `handoff history`). Exists so display surfaces (e.g.
 the desktop webview) read the handoff through the CLI instead of touching
 `.ai-session/` directly.
 
+### `handoff bundle [--json] [--dry-run] [--out <dir>]`
+Build a small, portable **handoff bundle** from curated `.ai-session` artifacts
+(handoff, compact state, repo map, plan + receipts, decisions, changed files,
+test results, errors, session.json) plus a git summary, into a timestamped
+directory under `~/.relay-baton/handoff-bundles` (or `--out`). Writes
+`manifest.json` (size + SHA-256 per file) and a `redaction.json` from a
+deterministic **redaction pass** (obvious secrets, API keys, absolute home
+paths, oversized files). Read-only on the source repo; no model calls.
+
+### `handoff inspect <bundle> [--json] [--out <dir>]`
+Validate a bundle by id or path against its manifest (per-file presence + size +
+SHA-256) and print what it contains — repoRoot, createdAt, git summary, file
+count, integrity, and recorded redaction findings. Applies nothing.
+
+### `report [--out <file>] [--json]`
+Generate a human-readable **markdown status report** (task, status, git, execution
+checkpoints, handoff excerpt) for PR comments, issues, or team chat — from
+existing artifacts only. Prints to stdout, or writes to `--out <file>`. Read-only,
+no model calls.
+
 ## Plan / execute
 
 ### `plan <task>`

@@ -87,6 +87,24 @@ handoff 문서를 읽기 전용으로 출력(기본은 현재 `handoff.md`, `--f
 `handoff history`의 파일 이름 지정 가능). desktop webview 같은 display
 surface가 `.ai-session/`을 직접 만지지 않고 CLI를 통해 읽도록 하기 위한 명령.
 
+### `handoff bundle [--json] [--dry-run] [--out <dir>]`
+큐레이션된 `.ai-session` 아티팩트(handoff, compact state, repo map, plan +
+receipts, decisions, changed files, test results, errors, session.json)와 git
+요약을 `~/.relay-baton/handoff-bundles`(또는 `--out`) 아래 timestamp 디렉터리로
+묶는 작고 portable한 **handoff 번들**. `manifest.json`(파일별 size + SHA-256)과
+결정적 **redaction 패스**(명백한 secret, API key, 절대 home 경로, 과대 파일)
+결과인 `redaction.json`을 쓴다. 소스 저장소는 읽기 전용, 모델 호출 없음.
+
+### `handoff inspect <bundle> [--json] [--out <dir>]`
+id나 path로 번들을 manifest와 비교 검증(파일별 존재 + size + SHA-256)하고 내용을
+출력한다 — repoRoot, createdAt, git 요약, 파일 수, 무결성, 기록된 redaction
+findings. 아무것도 적용하지 않는다.
+
+### `report [--out <file>] [--json]`
+기존 아티팩트만으로 사람이 읽는 **마크다운 상태 리포트**(task, status, git, 실행
+체크포인트, handoff 발췌)를 생성한다. PR 코멘트/이슈/팀 챗용. stdout으로 출력하거나
+`--out <file>`로 저장. 읽기 전용, 모델 호출 없음.
+
 ## plan / execute
 
 ### `plan <task>`

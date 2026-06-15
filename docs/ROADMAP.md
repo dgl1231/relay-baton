@@ -290,17 +290,21 @@ more useful without pasting the whole repository.
 Make relay-baton artifacts easier to share with another human or another local
 agent setup while preserving the local-only safety model.
 
-- [ ] **Portable handoff bundle** — `relay-baton handoff bundle` creates a
-  small archive containing handoff, compact state, repo map, receipts, git
-  summary, and referenced artifacts.
-- [ ] **Import/inspect bundle** — validate a bundle and print what it contains
-  without applying changes.
-- [ ] **Redaction pass** — deterministic checks for obvious secrets, absolute
-  home paths, API keys, and oversized logs before export.
-- [ ] **Markdown report** — human-readable status report for PR comments,
-  issue updates, or team chat, generated from existing artifacts only.
-- [ ] **Desktop export flow** — export/copy bundle/report from the project
-  session view; no cloud upload.
+- [x] **Portable handoff bundle** — `relay-baton handoff bundle` packages curated
+  artifacts (handoff, compact state, repo map, plan/receipts, decisions, changed
+  files, test results, errors, session.json) plus a git summary into a
+  timestamped bundle with `manifest.json` (size + SHA-256).
+- [x] **Import/inspect bundle** — `relay-baton handoff inspect <bundle>`
+  validates manifest shape + per-file integrity and prints contents; applies
+  nothing.
+- [x] **Redaction pass** — deterministic scan for obvious secrets, API keys,
+  absolute home paths, and oversized files, written to `redaction.json` in the
+  bundle and surfaced on `handoff bundle`.
+- [x] **Markdown report** — `relay-baton report` renders a human-readable status
+  report (task/status/git/checkpoints/handoff excerpt) from existing artifacts
+  only.
+- [x] **Desktop export flow** — "team handoff" card (build bundle, copy report)
+  plus Agent Room `/bundle`, `/report`; no cloud upload, sidecar only.
 
 ## v2.0 — Stable desktop + local handoff platform
 

@@ -339,6 +339,15 @@
           <div id="inspector" class="kv" style="margin-top:10px">loading…</div>
         </div>
         <div class="card wide">
+          <h2 data-i18n="teamHandoff">team handoff</h2>
+          <div class="card-actions">
+            <button id="bundle-build" data-i18n="buildBundle">Build bundle</button>
+            <button id="report-copy" class="ghost" data-i18n="copyReport">Copy report</button>
+            <span id="team-meta" class="muted"></span>
+          </div>
+          <pre id="report" class="scroll" style="margin-top:10px">—</pre>
+        </div>
+        <div class="card wide">
           <h2 data-i18n="execution">guarded execution</h2>
           <div class="card-actions">
             <button id="exec-refresh" class="ghost" data-i18n="refresh">Refresh</button>
@@ -453,6 +462,13 @@
           noteWorkspace: "Deterministic workspace map (read-only).",
           noteProfile: "Project profile hints: tags + recommended commands (read-only).",
           noteInventory: "Scripts, packages, CI, release files inventory (read-only).",
+          teamHandoff: "team handoff",
+          buildBundle: "Build bundle",
+          copyReport: "Copy report",
+          bundleBuilt: "Bundle built",
+          reportCopied: "Report copied to clipboard",
+          noteBundle: "Build a portable handoff bundle (read-only on the repo).",
+          noteReport: "Generate a markdown status report (read-only).",
           updatesOptIn: "Opt in to manual desktop update checks",
           updatesOff: "Update checks are off.",
           updatesReady: "Update checks are enabled. Nothing runs automatically.",
@@ -588,6 +604,13 @@
           noteWorkspace: "결정적 workspace map(읽기 전용).",
           noteProfile: "프로젝트 프로필 힌트: 태그 + 권장 명령(읽기 전용).",
           noteInventory: "scripts/packages/CI/release 파일 인벤토리(읽기 전용).",
+          teamHandoff: "팀 핸드오프",
+          buildBundle: "번들 생성",
+          copyReport: "리포트 복사",
+          bundleBuilt: "번들 생성됨",
+          reportCopied: "리포트를 클립보드에 복사함",
+          noteBundle: "포터블 handoff 번들 생성(저장소 읽기 전용).",
+          noteReport: "마크다운 상태 리포트 생성(읽기 전용).",
           updatesOptIn: "수동 데스크톱 업데이트 확인 켜기",
           updatesOff: "업데이트 확인이 꺼져 있습니다.",
           updatesReady: "업데이트 확인이 켜졌습니다. 자동으로 실행되는 작업은 없습니다.",
@@ -723,6 +746,13 @@
           noteWorkspace: "決定的なworkspace map(読み取り専用)。",
           noteProfile: "プロジェクトプロファイルのヒント: タグ + 推奨コマンド(読み取り専用)。",
           noteInventory: "scripts/packages/CI/releaseファイルのインベントリ(読み取り専用)。",
+          teamHandoff: "チームハンドオフ",
+          buildBundle: "バンドル作成",
+          copyReport: "レポートをコピー",
+          bundleBuilt: "バンドルを作成しました",
+          reportCopied: "レポートをクリップボードにコピーしました",
+          noteBundle: "ポータブルなhandoffバンドルを作成(リポジトリは読み取り専用)。",
+          noteReport: "マークダウンの状態レポートを生成(読み取り専用)。",
           updatesOptIn: "手動のデスクトップ更新チェックを有効化",
           updatesOff: "更新チェックはオフです。",
           updatesReady: "更新チェックは有効です。自動実行はありません。",
@@ -858,6 +888,13 @@
           noteWorkspace: "确定性 workspace map（只读）。",
           noteProfile: "项目画像提示：标签 + 推荐命令（只读）。",
           noteInventory: "脚本/包/CI/发布文件清单（只读）。",
+          teamHandoff: "团队交接",
+          buildBundle: "生成捆绑包",
+          copyReport: "复制报告",
+          bundleBuilt: "已生成捆绑包",
+          reportCopied: "报告已复制到剪贴板",
+          noteBundle: "生成可移植的 handoff 捆绑包（仓库只读）。",
+          noteReport: "生成 markdown 状态报告（只读）。",
           updatesOptIn: "启用手动桌面更新检查",
           updatesOff: "更新检查已关闭。",
           updatesReady: "更新检查已启用。不会自动运行任何操作。",
@@ -979,7 +1016,7 @@
           ] },
           { h: t("guideSecRoom"), rows: [
             { term: t("guideTermMessage"), desc: t("guideRoomMsg") },
-            { term: "/status /budget /git /review /diagnose /sessions /resume /checkpoints /guard /risk /workspace /profile /inventory /replay", desc: t("guideRoomRead"), code: true },
+            { term: "/status /budget /git /review /diagnose /sessions /resume /checkpoints /guard /risk /workspace /profile /inventory /bundle /report /replay", desc: t("guideRoomRead"), code: true },
             { term: "/plan /execute /handoff", desc: t("guideRoomPreview"), code: true },
           ] },
           { h: t("guideSecMore"), rows: [
@@ -1289,6 +1326,49 @@
         } catch (err) { el.classList.add("err"); el.textContent = String(err?.message ?? err); }
       }
 
+      // Team handoff: build a portable bundle and preview/copy the markdown
+      // report — both through the CLI sidecar. The bundle write happens in the
+      // CLI; the webview only triggers it and shows the result path. No upload.
+      let currentReport = "";
+      async function loadReport() {
+        const el = $("report");
+        try {
+          const r = await cliJson(["report", "--json"]);
+          currentReport = r.markdown || "";
+          el.textContent = currentReport || "—";
+        } catch (err) { showError(el, err); }
+      }
+
+      async function buildBundle() {
+        const meta = $("team-meta");
+        const btn = $("bundle-build");
+        btn.disabled = true;
+        meta.classList.remove("err");
+        try {
+          const r = await cliJson(["handoff", "bundle", "--json"]);
+          if (!r.available) { meta.textContent = r.reason || ""; return; }
+          const redaction = r.redaction && !r.redaction.clean ? ` · ⚠ ${r.redaction.findings.length} redaction finding(s)` : "";
+          meta.textContent = `${t("bundleBuilt")}: ${r.bundleDir}${redaction}`;
+          appendLocalEvent("relay-baton", "handoff", JSON.stringify(r, null, 2));
+        } catch (err) {
+          meta.classList.add("err");
+          meta.textContent = String(err?.message ?? err);
+        } finally { btn.disabled = false; }
+      }
+
+      async function copyReport() {
+        const meta = $("team-meta");
+        if (!currentReport) await loadReport();
+        try {
+          await navigator.clipboard?.writeText(currentReport);
+          meta.classList.remove("err");
+          meta.textContent = t("reportCopied");
+        } catch (err) {
+          meta.classList.add("err");
+          meta.textContent = String(err?.message ?? err);
+        }
+      }
+
       // Read-only project inspector: workspace map + profile hints, through the
       // CLI sidecar only. No repo scanning in the webview.
       async function loadInspector() {
@@ -1470,6 +1550,8 @@
         { cmd: "/workspace", noteKey: "noteWorkspace" },
         { cmd: "/profile", noteKey: "noteProfile" },
         { cmd: "/inventory", noteKey: "noteInventory" },
+        { cmd: "/bundle", noteKey: "noteBundle" },
+        { cmd: "/report", noteKey: "noteReport" },
         { cmd: "/replay", noteKey: "noteReplay" },
         { cmd: "/plan ", noteKey: "notePlan" },
         { cmd: "/execute", noteKey: "noteExecute" },
@@ -1541,7 +1623,7 @@
       }
 
       async function refresh() {
-        await Promise.all([loadProjects(), loadStatus(), loadBudget(), loadGit(), loadTimeline(), loadSessions(), loadExecution(), loadInspector()]);
+        await Promise.all([loadProjects(), loadStatus(), loadBudget(), loadGit(), loadTimeline(), loadSessions(), loadExecution(), loadInspector(), loadReport()]);
         if (handoffOverlay.classList.contains("show")) await loadHandoff();
         updateRoomContext();
         renderHints();
@@ -1667,6 +1749,15 @@
             case "inventory": {
               const r = await cliJson(["inventory", "--json"]);
               appendLocalEvent("relay-baton", "status", JSON.stringify(r, null, 2));
+              break;
+            }
+            case "bundle": {
+              await buildBundle();
+              break;
+            }
+            case "report": {
+              await loadReport();
+              appendLocalEvent("relay-baton", "handoff", currentReport || t("noOutput"));
               break;
             }
             case "plan": {
@@ -1901,6 +1992,8 @@
       $("resume-diagnose").addEventListener("click", runResumeDiagnosis);
       $("exec-refresh").addEventListener("click", loadExecution);
       $("inspector-refresh").addEventListener("click", loadInspector);
+      $("bundle-build").addEventListener("click", buildBundle);
+      $("report-copy").addEventListener("click", copyReport);
 
       $("refresh").addEventListener("click", refresh);
       function openErrorConfirm(err) {
