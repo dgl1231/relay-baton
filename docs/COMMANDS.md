@@ -109,6 +109,39 @@ Plan-execute mode: an executor agent implements `.ai-session/plan.md`. Options:
 ### `receipt done <step> [--note]` / `receipt skip <step> [--note]` / `receipt list [--json]`
 Append-only execution receipts for plan steps (`<step>` is the 1-based index).
 
+### `checkpoint add <step> [--command <s>] [--result ok|fail|pending] [--note <s>] [--json]`
+Record an append-only **execution checkpoint** for a bounded execute step
+(`<step>` is the 1-based index). Each checkpoint captures a deterministic,
+read-only snapshot: the command preview, the changed-file list, a git summary
+(branch/head/changed/clean), a budget snapshot (active profile + handoff chars),
+the result, and a timestamp. Checkpoints are never rewritten — a correction is a
+new checkpoint, stored one JSON object per line in `.ai-session/checkpoints.jsonl`.
+No model calls.
+
+### `checkpoint list [--json]`
+List recorded execution checkpoints in order. Tolerant of malformed lines.
+
+### `checkpoint summary [--json]`
+Compact, handoff/archive/review-ready **execution receipt** derived from the
+recorded checkpoints: total count, results breakdown (ok/fail/pending), last
+step/command/result, max changed files in a step, and the latest budget
+snapshot. Deterministic, read-only, no model calls.
+
+### `guard [--json] [--exit-code]`
+Evaluate the **stop-condition guardrails** against recorded checkpoints plus live
+git/budget state, and report whether execution should stop. Deterministic and
+read-only — it never halts an agent itself; relay-baton reports and the
+human/agent decides. Caps come from the `guardrails` config block (defaults:
+`maxSteps` 25, `maxChangedFiles` 40, `maxBudgetRatio` 0.9, `requireConfirmation`
+true). `--exit-code` makes a triggered stop condition exit non-zero (10) so a
+script/agent loop can halt; without it the command always exits 0.
+
+### `risk [--json]`
+Deterministically flag **risky surfaces** in the working tree from the git
+status: dependency manifests/lockfiles, file deletions (high severity),
+release/CI edits, env/build config changes, and binary/generated artifacts. Each
+finding carries a category, severity, and reason. Read-only, no model calls.
+
 ## Token diet
 
 ### `compact` (alias `squeeze`)

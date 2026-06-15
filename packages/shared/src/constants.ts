@@ -26,6 +26,8 @@ export const SESSION_FILES = {
   sessionJson: "session.json",
   // v0.7 — append-only conversation event log (Agent Room groundwork).
   conversation: "conversation.jsonl",
+  // v1.7 — append-only execution checkpoints (guarded execution workflow).
+  checkpoints: "checkpoints.jsonl",
 } as const;
 
 export const TRUNCATE_MARKER =

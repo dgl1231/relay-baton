@@ -245,17 +245,24 @@ work, especially across multiple projects and desktop sessions.
 Tighten the plan/execute loop so longer agent work remains auditable without
 turning relay-baton into autopilot.
 
-- [ ] **Execution checkpoints** — append-only checkpoints after each bounded
-  execute step: command preview, changed files, git summary, budget, result.
-- [ ] **Stop-condition policy** — project-configurable caps for max steps,
-  max changed files, max budget, and required human confirmation.
-- [ ] **Risk classifier (deterministic)** — flag risky surfaces such as package
-  installs, file deletion, release edits, env/config changes, and generated
-  binary changes. No model calls.
-- [ ] **Desktop checkpoint view** — show the current step, last result, and
-  blocked reason; mutating agent commands remain preview/copy-first.
-- [ ] **Better receipts** — compact execution receipts suitable for handoff,
-  archive, and review.
+- [x] **Execution checkpoints** — `relay-baton checkpoint add <step>` appends an
+  append-only JSON checkpoint per bounded execute step (command preview, changed
+  files, git summary, budget, result) to `.ai-session/checkpoints.jsonl`;
+  `checkpoint list` reads them back. Read-only snapshots, no model calls.
+- [x] **Stop-condition policy** — `relay-baton guard [--json] [--exit-code]`
+  evaluates project-configurable caps (`guardrails`: maxSteps, maxChangedFiles,
+  maxBudgetRatio, requireConfirmation) against checkpoints + live git/budget.
+  Deterministic, read-only, advisory — never auto-halts an agent.
+- [x] **Risk classifier (deterministic)** — `relay-baton risk [--json]` flags
+  risky surfaces from the git status (dependency manifests, file deletions,
+  release/CI edits, env/config changes, binary artifacts) with category +
+  severity. No model calls.
+- [x] **Desktop checkpoint view** — dashboard "guarded execution" card (guard
+  verdict + checkpoint receipt) and Agent Room `/checkpoints`, `/guard`, `/risk`,
+  all read-only through the CLI sidecar.
+- [x] **Better receipts** — `relay-baton checkpoint summary [--json]` derives a
+  compact execution receipt (results breakdown, last step, max changed files,
+  latest budget) suitable for handoff, archive, and review.
 
 ## v1.8 — Project intelligence & workspace map
 

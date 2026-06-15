@@ -94,4 +94,10 @@ export const defaultConfig: RelayBatonConfig = {
     threshold: 0.8,
     rotateRawArtifacts: true,
   },
+  guardrails: {
+    maxSteps: 25,
+    maxChangedFiles: 40,
+    maxBudgetRatio: 0.9,
+    requireConfirmation: true,
+  },
 };

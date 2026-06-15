@@ -82,6 +82,19 @@ export interface RelayBatonConfig {
      */
     perAgent?: Partial<Record<AgentId, number>>;
   };
+  // v1.7 guarded execution — optional stop-condition caps (advisory, read-only).
+  // Defaults applied when absent. Never auto-halts an agent; relay-baton reports
+  // and the human/agent decides.
+  guardrails?: {
+    /** Block when recorded execution checkpoints reach this count. */
+    maxSteps?: number;
+    /** Block when the working tree has at least this many changed files. */
+    maxChangedFiles?: number;
+    /** Block when handoff chars / maxHandoffChars reaches this ratio (0..1). */
+    maxBudgetRatio?: number;
+    /** Surface that mutating steps still require explicit human confirmation. */
+    requireConfirmation?: boolean;
+  };
 }
 
 export interface SessionMeta {

@@ -6,6 +6,9 @@ import { verifyCommand } from "./commands/verify";
 import { statusCommand } from "./commands/status";
 import { reviewCommand } from "./commands/review";
 import { receiptDoneCommand, receiptSkipCommand, receiptListCommand } from "./commands/receipt";
+import { checkpointCommand, checkpointListCommand, checkpointSummaryCommand } from "./commands/checkpoint";
+import { guardCommand } from "./commands/guard";
+import { riskCommand } from "./commands/risk";
 import { runCommand } from "./commands/run";
 import { handoffCommand } from "./commands/handoff";
 import { handoffHistoryCommand } from "./commands/handoffHistory";
@@ -160,6 +163,41 @@ const receipt = program.command("receipt").description("Append-only execution re
 addProjectOptions(receipt.command("done").description("Mark a plan step done").argument("<step>", "1-based step index").option("--note <text>", "short note")).action((step, opts) => receiptDoneCommand(step, opts));
 addProjectOptions(receipt.command("skip").description("Mark a plan step skipped").argument("<step>", "1-based step index").option("--note <text>", "short note")).action((step, opts) => receiptSkipCommand(step, opts));
 addProjectOptions(receipt.command("list").description("List recorded receipts").option("--json", "print machine-readable JSON")).action(receiptListCommand);
+
+const checkpoint = program
+  .command("checkpoint")
+  .description("Append-only execution checkpoints (command, changed files, git, budget, result) per step");
+addProjectOptions(
+  checkpoint
+    .command("add")
+    .description("Record an execution checkpoint for a step")
+    .argument("<step>", "1-based step index")
+    .option("--command <text>", "command preview this step ran")
+    .option("--result <result>", "step result: ok|fail|pending (default: pending)")
+    .option("--note <text>", "short note")
+    .option("--json", "print machine-readable JSON"),
+).action((step, opts) => checkpointCommand(step, opts));
+addProjectOptions(
+  checkpoint.command("list").description("List recorded execution checkpoints").option("--json", "print machine-readable JSON"),
+).action(checkpointListCommand);
+addProjectOptions(
+  checkpoint.command("summary").description("Compact execution receipt derived from checkpoints").option("--json", "print machine-readable JSON"),
+).action(checkpointSummaryCommand);
+
+addProjectOptions(
+  program
+    .command("guard")
+    .description("Evaluate stop-condition guardrails against checkpoints + live git/budget (advisory, read-only)")
+    .option("--json", "print machine-readable JSON")
+    .option("--exit-code", "exit non-zero (10) when a stop condition is triggered"),
+).action(guardCommand);
+
+addProjectOptions(
+  program
+    .command("risk")
+    .description("Flag risky surfaces in the working tree (deps, deletions, release/CI, env/config, binaries). Read-only")
+    .option("--json", "print machine-readable JSON"),
+).action(riskCommand);
 
 program
   .command("compress-context")

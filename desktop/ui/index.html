@@ -332,6 +332,14 @@
           <div id="sessions" style="margin-top:10px">loading…</div>
         </div>
         <div class="card wide">
+          <h2 data-i18n="execution">guarded execution</h2>
+          <div class="card-actions">
+            <button id="exec-refresh" class="ghost" data-i18n="refresh">Refresh</button>
+            <span id="exec-verdict" class="muted"></span>
+          </div>
+          <div id="execution" class="kv" style="margin-top:10px">loading…</div>
+        </div>
+        <div class="card wide">
           <h2 data-i18n="updates">updates</h2>
           <div class="check-row">
             <input id="updates-opt-in" type="checkbox" />
@@ -427,6 +435,13 @@
           archiveDamaged: "damaged",
           noteSessions: "List archived .ai-session snapshots (read-only).",
           noteResume: "Diagnose the current .ai-session and suggest the safest next command.",
+          execution: "guarded execution",
+          execBlocked: "BLOCKED",
+          execOk: "ok",
+          execNoData: "No checkpoints yet. Run `relay-baton checkpoint add` from the CLI.",
+          noteCheckpoints: "List recorded execution checkpoints (read-only).",
+          noteGuard: "Evaluate stop-condition guardrails (advisory, read-only).",
+          noteRisk: "Flag risky surfaces in the working tree (read-only).",
           updatesOptIn: "Opt in to manual desktop update checks",
           updatesOff: "Update checks are off.",
           updatesReady: "Update checks are enabled. Nothing runs automatically.",
@@ -551,6 +566,13 @@
           archiveDamaged: "손상",
           noteSessions: "보관된 .ai-session 스냅샷 목록(읽기 전용).",
           noteResume: "현재 .ai-session을 진단하고 가장 안전한 다음 명령을 제안합니다.",
+          execution: "guarded execution",
+          execBlocked: "차단됨",
+          execOk: "정상",
+          execNoData: "아직 체크포인트가 없습니다. CLI에서 `relay-baton checkpoint add`를 실행하세요.",
+          noteCheckpoints: "기록된 실행 체크포인트 나열(읽기 전용).",
+          noteGuard: "stop-condition 가드레일 평가(권고, 읽기 전용).",
+          noteRisk: "워킹 트리의 위험 표면 표시(읽기 전용).",
           updatesOptIn: "수동 데스크톱 업데이트 확인 켜기",
           updatesOff: "업데이트 확인이 꺼져 있습니다.",
           updatesReady: "업데이트 확인이 켜졌습니다. 자동으로 실행되는 작업은 없습니다.",
@@ -675,6 +697,13 @@
           archiveDamaged: "破損",
           noteSessions: "保存された .ai-session スナップショットの一覧（読み取り専用）。",
           noteResume: "現在の .ai-session を診断し、最も安全な次のコマンドを提案します。",
+          execution: "guarded execution",
+          execBlocked: "ブロック",
+          execOk: "ok",
+          execNoData: "チェックポイントはまだありません。CLIで`relay-baton checkpoint add`を実行してください。",
+          noteCheckpoints: "記録された実行チェックポイントを一覧(読み取り専用)。",
+          noteGuard: "stop-condition ガードレールを評価(助言、読み取り専用)。",
+          noteRisk: "作業ツリーのリスク箇所を表示(読み取り専用)。",
           updatesOptIn: "手動のデスクトップ更新チェックを有効化",
           updatesOff: "更新チェックはオフです。",
           updatesReady: "更新チェックは有効です。自動実行はありません。",
@@ -799,6 +828,13 @@
           archiveDamaged: "损坏",
           noteSessions: "列出已存档的 .ai-session 快照（只读）。",
           noteResume: "诊断当前 .ai-session 并建议最安全的下一步命令。",
+          execution: "guarded execution",
+          execBlocked: "已阻止",
+          execOk: "正常",
+          execNoData: "还没有检查点。请在CLI中运行`relay-baton checkpoint add`。",
+          noteCheckpoints: "列出已记录的执行检查点（只读）。",
+          noteGuard: "评估停止条件护栏（建议性，只读）。",
+          noteRisk: "标记工作树中的风险面（只读）。",
           updatesOptIn: "启用手动桌面更新检查",
           updatesOff: "更新检查已关闭。",
           updatesReady: "更新检查已启用。不会自动运行任何操作。",
@@ -920,7 +956,7 @@
           ] },
           { h: t("guideSecRoom"), rows: [
             { term: t("guideTermMessage"), desc: t("guideRoomMsg") },
-            { term: "/status /budget /git /review /diagnose /sessions /resume /replay", desc: t("guideRoomRead"), code: true },
+            { term: "/status /budget /git /review /diagnose /sessions /resume /checkpoints /guard /risk /replay", desc: t("guideRoomRead"), code: true },
             { term: "/plan /execute /handoff", desc: t("guideRoomPreview"), code: true },
           ] },
           { h: t("guideSecMore"), rows: [
@@ -1230,6 +1266,47 @@
         } catch (err) { el.classList.add("err"); el.textContent = String(err?.message ?? err); }
       }
 
+      // Read-only guarded-execution view: guardrail verdict + checkpoint
+      // receipt, all through the CLI sidecar. The webview never enforces or
+      // halts anything — it only displays what `guard` and `checkpoint summary`
+      // report. Mutating agent commands stay preview/copy-first elsewhere.
+      async function loadExecution() {
+        const el = $("execution");
+        const verdict = $("exec-verdict");
+        try {
+          const [guard, summary] = await Promise.all([
+            cliJson(["guard", "--json"]),
+            cliJson(["checkpoint", "summary", "--json"]),
+          ]);
+          verdict.textContent = guard.blocked ? t("execBlocked") : t("execOk");
+          verdict.classList.toggle("err", !!guard.blocked);
+          if (summary.total === 0) {
+            kvRows(el, [
+              [t("execOk"), guard.blocked ? t("execBlocked") : t("execOk")],
+              ["steps", `${guard.actual.steps}/${guard.limits.maxSteps ?? "∞"}`],
+              ["changed files", `${guard.actual.changedFiles}/${guard.limits.maxChangedFiles ?? "∞"}`],
+            ]);
+            const note = document.createElement("div"); note.className = "muted"; note.textContent = t("execNoData");
+            el.appendChild(note);
+            return;
+          }
+          const r = summary.results;
+          kvRows(el, [
+            ["guardrails", guard.blocked ? t("execBlocked") : t("execOk")],
+            ["steps", `${guard.actual.steps}/${guard.limits.maxSteps ?? "∞"}`],
+            ["changed files", `${guard.actual.changedFiles}/${guard.limits.maxChangedFiles ?? "∞"}`],
+            ["budget ratio", guard.actual.budgetRatio == null ? "-" : `${guard.actual.budgetRatio.toFixed(2)}/${guard.limits.maxBudgetRatio ?? "∞"}`],
+            ["results", `${r.ok} ok · ${r.fail} fail · ${r.pending} pending`],
+            ["last step", `${summary.lastStep} [${summary.lastResult}]${summary.lastCommand ? " — " + summary.lastCommand : ""}`],
+            ["violations", (guard.violations || []).map(v => v.message).join("\n") || "-"],
+          ]);
+        } catch (err) {
+          verdict.textContent = "";
+          verdict.classList.remove("err");
+          showError(el, err);
+        }
+      }
+
       function setUpdatesStatus(text, error = false) {
         const el = $("updates-status");
         el.textContent = text;
@@ -1341,6 +1418,9 @@
         { cmd: "/diagnose", noteKey: "noteDiagnose" },
         { cmd: "/sessions", noteKey: "noteSessions" },
         { cmd: "/resume", noteKey: "noteResume" },
+        { cmd: "/checkpoints", noteKey: "noteCheckpoints" },
+        { cmd: "/guard", noteKey: "noteGuard" },
+        { cmd: "/risk", noteKey: "noteRisk" },
         { cmd: "/replay", noteKey: "noteReplay" },
         { cmd: "/plan ", noteKey: "notePlan" },
         { cmd: "/execute", noteKey: "noteExecute" },
@@ -1412,7 +1492,7 @@
       }
 
       async function refresh() {
-        await Promise.all([loadProjects(), loadStatus(), loadBudget(), loadGit(), loadTimeline(), loadSessions()]);
+        await Promise.all([loadProjects(), loadStatus(), loadBudget(), loadGit(), loadTimeline(), loadSessions(), loadExecution()]);
         if (handoffOverlay.classList.contains("show")) await loadHandoff();
         updateRoomContext();
         renderHints();
@@ -1504,6 +1584,23 @@
               const r = await cliJson(["session", "resume", "--json"]);
               appendLocalEvent("relay-baton", "diagnose", JSON.stringify(r, null, 2));
               await runResumeDiagnosis();
+              break;
+            }
+            case "checkpoints": {
+              const r = await cliJson(["checkpoint", "list", "--json"]);
+              appendLocalEvent("relay-baton", "execute", JSON.stringify(r, null, 2));
+              await loadExecution();
+              break;
+            }
+            case "guard": {
+              const r = await cliJson(["guard", "--json"]);
+              appendLocalEvent("relay-baton", "status", JSON.stringify(r, null, 2));
+              await loadExecution();
+              break;
+            }
+            case "risk": {
+              const r = await cliJson(["risk", "--json"]);
+              appendLocalEvent("relay-baton", "review", JSON.stringify(r, null, 2));
               break;
             }
             case "plan": {
@@ -1736,6 +1833,7 @@
 
       $("sessions-refresh").addEventListener("click", loadSessions);
       $("resume-diagnose").addEventListener("click", runResumeDiagnosis);
+      $("exec-refresh").addEventListener("click", loadExecution);
 
       $("refresh").addEventListener("click", refresh);
       function openErrorConfirm(err) {

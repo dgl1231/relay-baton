@@ -101,6 +101,36 @@ plan-execute 모드: executor agent가 `.ai-session/plan.md`를 구현. 옵션:
 ### `receipt done <step> [--note]` / `receipt skip <step> [--note]` / `receipt list [--json]`
 plan step에 대한 append-only 실행 receipt(`<step>`는 1-based 인덱스).
 
+### `checkpoint add <step> [--command <s>] [--result ok|fail|pending] [--note <s>] [--json]`
+bounded execute step에 대한 append-only **실행 체크포인트**를 기록(`<step>`는
+1-based 인덱스). 각 체크포인트는 결정적·읽기 전용 스냅샷을 담는다: command
+미리보기, 변경 파일 목록, git 요약(branch/head/changed/clean), budget
+스냅샷(active profile + handoff chars), result, 타임스탬프. 체크포인트는 다시
+쓰지 않는다 — 정정은 새 체크포인트이며 `.ai-session/checkpoints.jsonl`에 한 줄당
+JSON 하나로 저장된다. 모델 호출 없음.
+
+### `checkpoint list [--json]`
+기록된 실행 체크포인트를 순서대로 나열한다. 깨진 줄은 건너뛴다.
+
+### `checkpoint summary [--json]`
+기록된 체크포인트에서 파생한 compact한 handoff/archive/review용 **실행
+receipt**: 총 개수, 결과 분포(ok/fail/pending), 마지막 step/command/result,
+한 step 내 최대 변경 파일 수, 최신 budget 스냅샷. 결정적·읽기 전용, 모델 호출 없음.
+
+### `guard [--json] [--exit-code]`
+기록된 체크포인트와 실시간 git/budget 상태를 **stop-condition 가드레일**과 비교해
+실행을 멈춰야 하는지 보고한다. 결정적·읽기 전용 — agent를 직접 멈추지 않고
+relay-baton은 보고만 하며 human/agent가 결정한다. cap은 `guardrails` config
+블록에서 온다(기본값: `maxSteps` 25, `maxChangedFiles` 40, `maxBudgetRatio` 0.9,
+`requireConfirmation` true). `--exit-code`를 주면 stop condition 발생 시 non-zero(10)로
+종료해 script/agent 루프가 멈출 수 있다. 없으면 항상 0으로 종료한다.
+
+### `risk [--json]`
+git status에서 워킹 트리의 **위험 표면**을 결정적으로 표시한다: dependency
+manifest/lockfile, 파일 삭제(high severity), release/CI 편집, env/build config
+변경, binary/생성 artifact. 각 finding은 category·severity·reason을 담는다.
+읽기 전용, 모델 호출 없음.
+
 ## token diet
 
 ### `compact` (별칭 `squeeze`)

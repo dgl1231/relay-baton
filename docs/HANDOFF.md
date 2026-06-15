@@ -9,15 +9,16 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-11 — `v1.6.0-alpha.0` committed to `main`
-(`e3b5d54`), tagged, and pushed. v1.6 session archives feature-complete:
-`session list` + `session inspect` + `session resume` + desktop read-only
-archive panel. All v1.6 acceptance items checked. Release workflow run
-`27330492827` in progress — re-check with:
-`gh run view 27330492827 --repo dgl1231/relay-baton --json status,conclusion,jobs`._
+_Last updated: 2026-06-15 — `v1.6.0-alpha.0` SHIPPED. v1.7 (guarded execution
+workflow) FEATURE-COMPLETE locally: checkpoints, stop-condition guardrails, risk
+classifier, better receipts, and desktop guarded-execution view. All five v1.7
+roadmap items checked. Committed locally; not yet tagged/released._
 
 ## Where we are
 
+- **v1.6 alpha is SHIPPED** on tag **`v1.6.0-alpha.0`** — session archives &
+  recovery (read-only `session archive`/`list`/`inspect`/`resume` + desktop
+  panel). Release run `27330492827` succeeded with all 8 assets published.
 - **v1.5 alpha is SHIPPED** on tags **`v1.5.0-alpha.0`** and
   **`v1.5.0-alpha.1`**. `alpha.0` added read-only git
   tracking, session baselines, desktop Git panel, Agent Room `/git`, and bounded
@@ -78,54 +79,52 @@ The v1.4 deferred updater item is being closed with:
 - CI enables updater artifacts only when Tauri updater signing secrets exist.
 - `latest.json` is generated only when signed updater artifacts are present.
 
-## v1.6 first cut now in progress
+## v1.6 — SHIPPED on `v1.6.0-alpha.0`
 
-Work order: [`TASK-v1.6-session-archives.md`](./TASK-v1.6-session-archives.md).
+Session archives & recovery, all read-only:
+`session archive` / `session list` / `session inspect` / `session resume`, plus a
+desktop session-archive panel + Agent Room `/sessions`, `/inspect`, `/resume`
+(all through the CLI sidecar). Manifest + SHA-256 integrity checks. Every v1.6
+acceptance item in [`TASK-v1.6-session-archives.md`](./TASK-v1.6-session-archives.md)
+is checked. Deferred (later only): prune (dry-run first), zip/export.
 
-Implemented locally after `v1.5.0-alpha.1`:
+## v1.7 — feature-complete (guarded execution workflow)
 
-- `packages/core/src/session/SessionArchiver.ts` (`session archive`)
-- `packages/core/src/session/SessionArchiveStore.ts` (`list` + `inspect`)
-- `packages/core/src/session/ResumeDiagnostics.ts` (`resume`)
-- `relay-baton session archive` (`--json`, `--dry-run`, `--out <dir>`)
-- `relay-baton session list [--json] [--out <dir>]` — newest-first, graceful
-  when archive root missing, flags invalid manifests
-- `relay-baton session inspect <archive> [--json] [--out <dir>]` — per-file
-  presence/size/SHA-256 verification, `missing`/`corrupt`/`intact` summary
-- `relay-baton session resume [--json] [--stale-hours <n>]` — classifies
-  missing/incomplete/stale/ok, suggests safe next command, read-only
-- desktop dashboard "session archives" card + Agent Room `/sessions`,
-  `/inspect <id>`, `/resume` — all through the CLI sidecar, no direct
-  archive/`.ai-session` reads from the webview (`desktop/ui/index.html`)
-- `manifest.json` with file size and SHA-256 per archived file
-- tests: core `SessionArchiveStore.test.ts` (5), `ResumeDiagnostics.test.ts` (4),
-  CLI `sessionArchive.test.ts`
-- command docs in EN + KO
+Roadmap: [`ROADMAP.md`](./ROADMAP.md) → "v1.7 — Guarded execution workflow".
+Implemented locally after `v1.6.0-alpha.0`:
+
+- **Execution checkpoints** — `packages/core/src/plan/ExecutionCheckpoints.ts`;
+  append-only JSON in `.ai-session/checkpoints.jsonl` (command, changed files,
+  git summary, budget, result, ts). `list()` tolerant of malformed lines;
+  `summarize()` builds the compact receipt. New `SESSION_FILES.checkpoints`.
+  CLI: `checkpoint add <step>`, `checkpoint list`, `checkpoint summary`.
+- **Stop-condition policy** — `packages/core/src/plan/GuardrailPolicy.ts` +
+  `relay-baton guard [--json] [--exit-code]`. Caps from optional `guardrails`
+  config (defaults: maxSteps 25, maxChangedFiles 40, maxBudgetRatio 0.9,
+  requireConfirmation). Advisory; `--exit-code` exits 10 when blocked.
+- **Risk classifier** — `packages/core/src/plan/RiskClassifier.ts` +
+  `relay-baton risk [--json]`. Flags deps/deletions/release/env-config/binary
+  from git status with category + severity.
+- **Better receipts** — `checkpoint summary` (see above).
+- **Desktop guarded-execution view** — dashboard "guarded execution" card +
+  Agent Room `/checkpoints`, `/guard`, `/risk` (`desktop/ui/index.html`), all
+  read-only via the CLI sidecar.
+- tests: core `ExecutionCheckpoints` (7), `GuardrailPolicy` (4),
+  `RiskClassifier` (4); CLI `checkpoint`, `guard`, `risk`. docs EN + KO.
 
 Validation already run:
 
 ```bash
 corepack pnpm build   # green
-corepack pnpm test    # 188 core + 60 cli pass
-node packages/cli/dist/index.js session archive --path .
-node packages/cli/dist/index.js session list
-node packages/cli/dist/index.js session inspect <id>
+corepack pnpm test    # 207 core + 64 cli pass
+node packages/cli/dist/index.js checkpoint add 1 --command "pnpm build" --result ok --path .
+node packages/cli/dist/index.js checkpoint summary --path .
+node packages/cli/dist/index.js guard --path .
+node packages/cli/dist/index.js risk --path .
 ```
 
-v1.6 is feature-complete. Next recommended work:
-
-1. Cut a `v1.6` (alpha) release per `RELEASE.md` when ready — bump versions,
-   add release notes (en+ko) + index, README badge, commit, tag, push.
-2. later only: prune (dry-run first, disabled by default), zip/export.
-
-## Next after v1.6 first cut
-
-Do not start broader v1.7 work until v1.6 list/inspect/resume diagnostics are
-done or intentionally deferred. Likely follow-ups:
-
-- Real-window QA / stable promotion cleanup for desktop releases.
-- A deeper Git tracking follow-up only if the user wants it, still read-only.
-- Session archive/recovery continuation from `docs/ROADMAP.md`.
+Next: cut a `v1.7.0-alpha.0` release per `RELEASE.md` when ready, then start v1.8
+(project intelligence & workspace map).
 
 Hard rule remains: GUI calls the CLI sidecar only. **No business logic in the
 webview.** Read-only or confirmation-first. No auto commit/push/PR unless the
