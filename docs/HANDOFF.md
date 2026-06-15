@@ -9,10 +9,10 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-15 — `v1.7.0-alpha.0` SHIPPED (tagged + pushed; release
-run `27518602727`). v1.8 (project intelligence) started locally: Workspace map v2
-implemented (`relay-baton workspace`), not yet committed. Remaining v1.8: project
-profile hints, dependency/script inventory, desktop project inspector._
+_Last updated: 2026-06-15 — `v1.7.0-alpha.0` SHIPPED (release run `27518602727`
+succeeded). `v1.8.0-alpha.0` committed to `main`, tagged, and pushed (release
+workflow triggered) — Workspace map v2 (`relay-baton workspace`). Remaining v1.8:
+project profile hints, dependency/script inventory, desktop project inspector._
 
 ## Where we are
 
