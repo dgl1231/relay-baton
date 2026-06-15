@@ -9,10 +9,10 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-15 — `v1.8.0-alpha.0` SHIPPED (workspace map v2). v1.8
-(project intelligence) now FEATURE-COMPLETE locally: workspace map, project
-profile hints (`profile`), dependency/script inventory (`inventory`), and desktop
-project inspector. All v1.8 deliverables checked. Not yet committed/released._
+_Last updated: 2026-06-15 — `v1.8.0-alpha.1` committed to `main`, tagged, and
+pushed (release workflow triggered). v1.8 (project intelligence) COMPLETE:
+workspace map, project profile hints (`profile`), dependency/script inventory
+(`inventory`), desktop project inspector. Next: v1.9 (team handoff package)._
 
 ## Where we are
 

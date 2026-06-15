@@ -14,6 +14,7 @@ Release notes are user-facing changelogs, not agent handoff material — that ro
 
 ## Versions
 
+- [v1.8.0-alpha.1](./v1.8.0-alpha.1.md) / [한국어](./ko/v1.8.0-alpha.1.md) - Project intelligence complete: `relay-baton profile` (framework tags + recommended commands), `inventory` (scripts/packages/CI/release files), and a desktop project-inspector panel + Agent Room `/workspace` `/profile` `/inventory`.
 - [v1.8.0-alpha.0](./v1.8.0-alpha.0.md) / [한국어](./ko/v1.8.0-alpha.0.md) - Project intelligence start: deterministic, bounded `relay-baton workspace` map (package managers, languages, monorepo packages, scripts, entry points, docs, AGENTS/CLAUDE files). No semantic indexing.
 - [v1.7.0-alpha.0](./v1.7.0-alpha.0.md) / [한국어](./ko/v1.7.0-alpha.0.md) - Guarded execution workflow: deterministic read-only `checkpoint add`/`list`/`summary`, `guard` stop-condition policy, `risk` classifier, and a desktop guarded-execution panel + Agent Room `/checkpoints` `/guard` `/risk`.
 - [v1.6.0-alpha.0](./v1.6.0-alpha.0.md) / [한국어](./ko/v1.6.0-alpha.0.md) - Session archives, recovery, and desktop browsing: read-only `relay-baton session list`/`inspect`/`resume` (manifest + SHA-256 integrity, stale/incomplete diagnosis), plus a desktop session-archive panel and Agent Room `/sessions` `/inspect` `/resume`.
