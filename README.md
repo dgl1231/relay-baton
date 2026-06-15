@@ -10,7 +10,7 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 [![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-[![Latest](https://img.shields.io/badge/release-v2.0.0--alpha.0-blue.svg)](./release-notes/v2.0.0-alpha.0.md)
+[![Latest](https://img.shields.io/badge/release-v2.0.0--alpha.1-blue.svg)](./release-notes/v2.0.0-alpha.1.md)
 [![Download](https://img.shields.io/badge/download-binaries-238636.svg)](https://github.com/dgl1231/relay-baton/releases/latest)
 
 **English**
@@ -627,10 +627,11 @@ any real run). Design only for now — **not implemented yet**. Full design:
 
 Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-notes/README.md)). They are user-facing changelogs, not agent handoff material — that role belongs to `.ai-session/handoff.md`.
 
-**Latest:** v2.0.0-alpha.0 — [English](./release-notes/v2.0.0-alpha.0.md) · [한국어](./release-notes/ko/v2.0.0-alpha.0.md)
+**Latest:** v2.0.0-alpha.1 — [English](./release-notes/v2.0.0-alpha.1.md) · [한국어](./release-notes/ko/v2.0.0-alpha.1.md)
 
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
+| v2.0.0-alpha.1 | [Read →](./release-notes/v2.0.0-alpha.1.md) | [읽기 →](./release-notes/ko/v2.0.0-alpha.1.md) | Schema migrator apply path: `relay-baton migrate --apply [--dry-run]` normalizes legacy artifacts with timestamped backups, opt-in and idempotent. |
 | v2.0.0-alpha.0 | [Read →](./release-notes/v2.0.0-alpha.0.md) | [읽기 →](./release-notes/ko/v2.0.0-alpha.0.md) | v2.0 stability line opens: read-only artifact schema migration checks (`relay-baton migrate`, `ARTIFACT_SCHEMA_VERSIONS` registry, `doctor --deep` schema lines). Detection + guidance only. |
 | v1.9.0-alpha.0 | [Read →](./release-notes/v1.9.0-alpha.0.md) | [읽기 →](./release-notes/ko/v1.9.0-alpha.0.md) | Team handoff package: portable `handoff bundle` (manifest + SHA-256 + redaction pass), `handoff inspect`, a markdown `report`, and a desktop team-handoff export card + Agent Room `/bundle` `/report`. No cloud upload. |
 | v1.8.0-alpha.1 | [Read →](./release-notes/v1.8.0-alpha.1.md) | [읽기 →](./release-notes/ko/v1.8.0-alpha.1.md) | Project intelligence complete: `relay-baton profile` (framework tags + recommended commands), `inventory` (scripts/packages/CI/release files), and a desktop project-inspector panel + Agent Room `/workspace` `/profile` `/inventory`. |
