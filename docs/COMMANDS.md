@@ -65,14 +65,18 @@ printed), `.ai-session`. With `--deep`, also validates the **config contract**
 adapter args, registry, plan/handoff/compression health, and **artifact schema
 versions** (see `migrate`). See [ARTIFACTS.md](ARTIFACTS.md).
 
-### `migrate [--check] [--json]`
+### `migrate [--check] [--apply] [--dry-run] [--json]`
 Check the schema version of each versioned `.ai-session` artifact
 (`session.json`, `checkpoints.jsonl`) against the current contract
 (`ARTIFACT_SCHEMA_VERSIONS`) and report guidance: `ok`, `outdated` (older than
 current), `ahead` (written by a newer CLI), `legacy` (no `schemaVersion` field —
-treated as v1), or `unreadable`. Read-only — this release ships detection and
-guidance only; in-place migration apply lands with the first real schema-version
-bump, so no artifact is ever rewritten.
+treated as v1), or `unreadable`. Default behavior (and `--check`) is read-only.
+
+With `--apply`, safe migrations run: **legacy normalization** stamps the current
+`schemaVersion` on artifacts that lack it. Each change writes a timestamped
+`.bak.<ts>` backup first; `--apply --dry-run` previews the plan without writing.
+Version-to-version upgrades are reported but skipped until their migrator is
+registered (added with the first real schema-version bump). Idempotent.
 
 ### `verify [--diet] [--real-agents] [--keep-temp] [--verbose]`
 Simulated end-to-end check of the pipeline against a throwaway temp repo. Never

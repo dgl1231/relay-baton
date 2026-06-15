@@ -29,4 +29,19 @@ describe("migrate command", () => {
     expect(report.ok).toBe(true);
     expect(report.checks.find((c: any) => c.file === "session.json").status).toBe("ok");
   });
+
+  it("--apply normalizes a legacy artifact and reports actions as JSON", async () => {
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "rb-cli-migrate-apply-"));
+    new SessionManager(repo, defaultConfig).init("apply via cli");
+    const p = path.join(repo, ".ai-session", "session.json");
+    const meta = JSON.parse(fs.readFileSync(p, "utf8"));
+    delete meta.schemaVersion;
+    fs.writeFileSync(p, JSON.stringify(meta));
+
+    await migrateCommand({ path: repo, apply: true, json: true });
+    const result = JSON.parse(logs.join("\n"));
+    expect(result.dryRun).toBe(false);
+    expect(result.actions.find((a: any) => a.artifact === "sessionJson").applied).toBe(true);
+    expect(JSON.parse(fs.readFileSync(p, "utf8")).schemaVersion).toBe(1);
+  });
 });

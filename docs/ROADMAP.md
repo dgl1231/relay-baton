@@ -315,8 +315,12 @@ instead of a thin release shell.
 - [ ] **Stable desktop contract** — desktop UI covers project management,
   status/budget, git tracking, session archives, replay, handoff preview, and
   guarded command preview with i18n parity.
-- [ ] **Stable artifact schema v2** — versioned contracts for session archives,
-  checkpoints, git baselines, handoff bundles, and conversation events.
+- [~] **Stable artifact schema v2** — migrator framework shipped:
+  `relay-baton migrate --apply [--dry-run]` normalizes legacy artifacts (stamps
+  `schemaVersion`) with timestamped backups and idempotency; version-to-version
+  upgrades plug into the registry when a schema is bumped. Per-artifact v2 bumps
+  (archives, git baselines, bundles, conversation events) land as breaking
+  changes require them.
 - [~] **Upgrade/migration checks** — `relay-baton migrate --check` and
   `doctor --deep` detect each versioned artifact's schema (ok/outdated/ahead/
   legacy/unreadable) via the `ARTIFACT_SCHEMA_VERSIONS` registry and give

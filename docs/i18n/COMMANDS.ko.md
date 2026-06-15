@@ -61,12 +61,16 @@ id나 path로 지정한 archive 하나를 `manifest.json` 기준으로 검증한
 상태와 **아티팩트 스키마 버전**(`migrate` 참고)을 검증한다.
 [ARTIFACTS.md](../ARTIFACTS.md) 참고.
 
-### `migrate [--check] [--json]`
+### `migrate [--check] [--apply] [--dry-run] [--json]`
 버전드 `.ai-session` 아티팩트(`session.json`, `checkpoints.jsonl`)의 스키마
 버전을 현재 계약(`ARTIFACT_SCHEMA_VERSIONS`)과 비교해 안내한다: `ok`, `outdated`(현재보다
 구버전), `ahead`(더 새 CLI가 작성), `legacy`(`schemaVersion` 필드 없음 — v1로 간주),
-`unreadable`. 읽기 전용 — 이번 릴리즈는 감지/안내만 제공하며, 실제 in-place 마이그레이션
-적용은 첫 스키마 버전 bump 때 들어온다. 따라서 아티팩트를 절대 다시 쓰지 않는다.
+`unreadable`. 기본 동작(및 `--check`)은 읽기 전용.
+
+`--apply`를 주면 안전한 마이그레이션이 실행된다: **legacy 정규화**가 `schemaVersion`이
+없는 아티팩트에 현재 버전을 stamp한다. 변경마다 먼저 timestamp `.bak.<ts>` 백업을 쓰며,
+`--apply --dry-run`은 쓰지 않고 계획만 미리 본다. 버전 간 업그레이드는 보고되지만 해당
+migrator가 등록될 때(첫 실제 스키마 버전 bump)까지 skip된다. 멱등적이다.
 
 ### `verify [--diet] [--real-agents] [--keep-temp] [--verbose]`
 임시 repo를 대상으로 파이프라인 end-to-end 시뮬레이션 점검. 실제 agent를 절대

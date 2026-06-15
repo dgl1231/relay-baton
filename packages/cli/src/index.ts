@@ -148,8 +148,10 @@ addProjectOptions(
 addProjectOptions(
   program
     .command("migrate")
-    .description("Check .ai-session artifact schema versions and report migration guidance (read-only)")
-    .option("--check", "report only (no apply); apply is not available until the first schema bump")
+    .description("Check .ai-session artifact schema versions; with --apply, normalize legacy artifacts (backs up first)")
+    .option("--check", "report only (default behavior, read-only)")
+    .option("--apply", "apply safe migrations (writes a .bak backup before each change)")
+    .option("--dry-run", "with --apply, show the plan without writing")
     .option("--json", "print machine-readable JSON"),
 ).action(migrateCommand);
 
