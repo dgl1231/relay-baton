@@ -9,10 +9,10 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-15 — `v1.6.0-alpha.0` SHIPPED. v1.7 (guarded execution
-workflow) FEATURE-COMPLETE locally: checkpoints, stop-condition guardrails, risk
-classifier, better receipts, and desktop guarded-execution view. All five v1.7
-roadmap items checked. Committed locally; not yet tagged/released._
+_Last updated: 2026-06-15 — `v1.7.0-alpha.0` committed to `main`, tagged, and
+pushed (release workflow triggered). v1.7 guarded execution workflow complete:
+checkpoints, stop-condition guardrails, risk classifier, better receipts, desktop
+view. Next: v1.8 (project intelligence & workspace map)._
 
 ## Where we are
 
