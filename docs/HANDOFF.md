@@ -9,13 +9,23 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-15 — `v1.9.0-alpha.0` committed to `main`, tagged, and
-pushed (release workflow triggered). v1.9 (team handoff package) COMPLETE:
-handoff bundle + inspect, redaction pass, markdown report, desktop team-handoff
-export. Next milestone: v2.0 (stable desktop + local handoff platform)._
+_Last updated: 2026-06-15 — `v1.9.0-alpha.0` SHIPPED. v2.0 (stable desktop +
+local handoff platform) STARTED: scope is one item per cycle. First item —
+**Upgrade/migration checks** (#3) — implemented locally: artifact schema registry
++ `relay-baton migrate --check` + `doctor --deep` detection (read-only). Not yet
+committed. Schema-v2 approach chosen: bump + migration (apply lands when a real
+schema bump is defined). Releases stay alpha (v2.0.0-alpha.N)._
 
 ## Where we are
 
+- **v1.9 alpha is SHIPPED** on tag **`v1.9.0-alpha.0`** — team handoff package
+  (`handoff bundle`/`inspect`, redaction pass, `report`, desktop export).
+- **v1.8 alpha is SHIPPED** on tags **`v1.8.0-alpha.0`** / **`v1.8.0-alpha.1`** —
+  project intelligence (`workspace`, `profile`, `inventory`, desktop inspector).
+- **v1.7 alpha is SHIPPED** on tag **`v1.7.0-alpha.0`** — guarded execution
+  (`checkpoint`, `guard`, `risk`, desktop guarded-execution view).
+- **v2.0 is IN PROGRESS** — first item (migration checks) implemented locally;
+  see the v2.0 section below.
 - **v1.6 alpha is SHIPPED** on tag **`v1.6.0-alpha.0`** — session archives &
   recovery (read-only `session archive`/`list`/`inspect`/`resume` + desktop
   panel). Release run `27330492827` succeeded with all 8 assets published.

@@ -317,8 +317,11 @@ instead of a thin release shell.
   guarded command preview with i18n parity.
 - [ ] **Stable artifact schema v2** — versioned contracts for session archives,
   checkpoints, git baselines, handoff bundles, and conversation events.
-- [ ] **Upgrade/migration checks** — `doctor --deep` detects old artifact
-  schemas and provides safe migration or read-only compatibility guidance.
+- [~] **Upgrade/migration checks** — `relay-baton migrate --check` and
+  `doctor --deep` detect each versioned artifact's schema (ok/outdated/ahead/
+  legacy/unreadable) via the `ARTIFACT_SCHEMA_VERSIONS` registry and give
+  read-only guidance. Detection shipped; in-place apply lands with the first
+  schema-version bump.
 - [ ] **Installer/update story finalized** — signed builds when credentials
   exist, checksums/SBOM always, and opt-in desktop update channel if the updater
   has proven reliable.

@@ -5,6 +5,7 @@ export * from "./logging/Logger";
 export * from "./session/SessionFiles";
 export * from "./session/SessionMetaSchema";
 export * from "./session/ArtifactValidator";
+export * from "./session/SchemaInspector";
 export * from "./session/SessionState";
 export * from "./session/SessionManager";
 export * from "./session/SessionArchiver";

@@ -4,7 +4,7 @@ import * as os from "os";
 import { spawnSync } from "child_process";
 import { ConfigLoader, SessionManager } from "@relay-baton/core";
 import { PLAN_SECTIONS, planSectionBody } from "@relay-baton/core";
-import { validateConfig, validateArtifacts } from "@relay-baton/core";
+import { validateConfig, validateArtifacts, SchemaInspector } from "@relay-baton/core";
 import type { RelayBatonConfig } from "@relay-baton/shared";
 import { collectHandoffHistory } from "./handoffHistory";
 
@@ -153,6 +153,25 @@ export function deepChecks(repoRoot: string, cfg: RelayBatonConfig): Check[] {
         const status: CheckStatus =
           c.status === "absent" ? "info" : c.status === "warn" ? "warn" : c.status === "fail" ? "fail" : "ok";
         checks.push({ status, label: `artifact: ${c.file}`, value: c.detail });
+      }
+    }
+  }
+
+  // .ai-session artifact schema versions (v2.0 migration checks).
+  {
+    const schema = new SchemaInspector(repoRoot).inspect();
+    if (!schema.exists) {
+      checks.push({ status: "info", label: "artifact schemas", value: "no .ai-session yet" });
+    } else {
+      for (const c of schema.checks) {
+        if (c.status === "absent") continue;
+        const status: CheckStatus =
+          c.status === "ok" ? "ok" : c.status === "ahead" || c.status === "unreadable" ? "fail" : "warn";
+        const found = c.foundVersion == null ? "-" : `v${c.foundVersion}`;
+        checks.push({ status, label: `schema: ${c.file}`, value: `${c.status} (${found}/v${c.currentVersion})` });
+      }
+      if (schema.migratable) {
+        checks.push({ status: "info", label: "migration", value: "run `relay-baton migrate --check` for guidance" });
       }
     }
   }

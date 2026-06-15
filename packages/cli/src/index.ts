@@ -18,6 +18,7 @@ import { handoffHistoryCommand } from "./commands/handoffHistory";
 import { handoffShowCommand } from "./commands/handoffShow";
 import { handoffBundleCommand, handoffInspectCommand } from "./commands/handoffBundle";
 import { reportCommand } from "./commands/report";
+import { migrateCommand } from "./commands/migrate";
 import { planCommand } from "./commands/plan";
 import { executeCommand } from "./commands/execute";
 import { compressContextCommand } from "./commands/compressContext";
@@ -143,6 +144,14 @@ addProjectOptions(
     .option("--out <file>", "write the report to a file instead of stdout")
     .option("--json", "wrap the markdown in JSON"),
 ).action(reportCommand);
+
+addProjectOptions(
+  program
+    .command("migrate")
+    .description("Check .ai-session artifact schema versions and report migration guidance (read-only)")
+    .option("--check", "report only (no apply); apply is not available until the first schema bump")
+    .option("--json", "print machine-readable JSON"),
+).action(migrateCommand);
 
 program
   .command("plan")

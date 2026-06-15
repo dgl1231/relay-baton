@@ -62,8 +62,17 @@ runs the suggested commands. Typical suggestions: `init` (re-scaffold),
 Check the local environment: git, agent CLIs, auth env presence (values never
 printed), `.ai-session`. With `--deep`, also validates the **config contract**
 (`validateConfig`) and **artifact shapes** (`validateArtifacts`), plus tooling,
-adapter args, registry, plan/handoff/compression health. See
-[ARTIFACTS.md](ARTIFACTS.md).
+adapter args, registry, plan/handoff/compression health, and **artifact schema
+versions** (see `migrate`). See [ARTIFACTS.md](ARTIFACTS.md).
+
+### `migrate [--check] [--json]`
+Check the schema version of each versioned `.ai-session` artifact
+(`session.json`, `checkpoints.jsonl`) against the current contract
+(`ARTIFACT_SCHEMA_VERSIONS`) and report guidance: `ok`, `outdated` (older than
+current), `ahead` (written by a newer CLI), `legacy` (no `schemaVersion` field —
+treated as v1), or `unreadable`. Read-only — this release ships detection and
+guidance only; in-place migration apply lands with the first real schema-version
+bump, so no artifact is ever rewritten.
 
 ### `verify [--diet] [--real-agents] [--keep-temp] [--verbose]`
 Simulated end-to-end check of the pipeline against a throwaway temp repo. Never

@@ -58,7 +58,15 @@ id나 path로 지정한 archive 하나를 `manifest.json` 기준으로 검증한
 로컬 환경 점검: git, agent CLI, auth env 존재 여부(값은 출력 안 함),
 `.ai-session`. `--deep`는 추가로 **config 계약**(`validateConfig`)과 **아티팩트
 형태**(`validateArtifacts`), 도구/adapter args/registry/plan/handoff/compression
-상태를 검증한다. [ARTIFACTS.md](../ARTIFACTS.md) 참고.
+상태와 **아티팩트 스키마 버전**(`migrate` 참고)을 검증한다.
+[ARTIFACTS.md](../ARTIFACTS.md) 참고.
+
+### `migrate [--check] [--json]`
+버전드 `.ai-session` 아티팩트(`session.json`, `checkpoints.jsonl`)의 스키마
+버전을 현재 계약(`ARTIFACT_SCHEMA_VERSIONS`)과 비교해 안내한다: `ok`, `outdated`(현재보다
+구버전), `ahead`(더 새 CLI가 작성), `legacy`(`schemaVersion` 필드 없음 — v1로 간주),
+`unreadable`. 읽기 전용 — 이번 릴리즈는 감지/안내만 제공하며, 실제 in-place 마이그레이션
+적용은 첫 스키마 버전 bump 때 들어온다. 따라서 아티팩트를 절대 다시 쓰지 않는다.
 
 ### `verify [--diet] [--real-agents] [--keep-temp] [--verbose]`
 임시 repo를 대상으로 파이프라인 end-to-end 시뮬레이션 점검. 실제 agent를 절대

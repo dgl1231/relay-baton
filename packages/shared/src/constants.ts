@@ -8,6 +8,20 @@ export const SESSION_DIR = ".ai-session";
 export const CONFIG_VERSION = 1;
 export const SESSION_SCHEMA_VERSION = 1;
 
+/**
+ * v2.0 artifact schema registry. Current on-disk schema version for each
+ * versioned artifact relay-baton owns. The migration tooling (`migrate
+ * --check`, `doctor --deep`) compares what it finds on disk against these.
+ * Bump a value ONLY on a breaking shape change and register a migrator.
+ * Artifacts without a schemaVersion field are treated as legacy v1.
+ */
+export const ARTIFACT_SCHEMA_VERSIONS = {
+  sessionJson: 1,
+  checkpoints: 1,
+} as const;
+
+export type VersionedArtifact = keyof typeof ARTIFACT_SCHEMA_VERSIONS;
+
 export const SESSION_FILES = {
   task: "task.md",
   state: "state.md",
