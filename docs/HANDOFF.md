@@ -9,10 +9,10 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-15 — `v1.8.0-alpha.1` SHIPPED. v1.9 (team handoff package)
-FEATURE-COMPLETE locally: handoff bundle + inspect, redaction pass, markdown
-report (`relay-baton report`), and desktop team-handoff export. All v1.9 items
-checked. Not yet committed/released. Next milestone after release: v2.0._
+_Last updated: 2026-06-15 — `v1.9.0-alpha.0` committed to `main`, tagged, and
+pushed (release workflow triggered). v1.9 (team handoff package) COMPLETE:
+handoff bundle + inspect, redaction pass, markdown report, desktop team-handoff
+export. Next milestone: v2.0 (stable desktop + local handoff platform)._
 
 ## Where we are
 
