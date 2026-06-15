@@ -25,9 +25,9 @@ schema bump is defined). Releases stay alpha (v2.0.0-alpha.N)._
 - **v1.7 alpha is SHIPPED** on tag **`v1.7.0-alpha.0`** — guarded execution
   (`checkpoint`, `guard`, `risk`, desktop guarded-execution view).
 - **v2.0 is IN PROGRESS** — migration checks (`v2.0.0-alpha.0`) + schema migrator
-  apply path (`v2.0.0-alpha.1`) SHIPPED. Remaining: per-artifact v2 bumps as
-  needed, stable desktop contract (i18n parity), installer/update finalize,
-  public docs pass, constraints reaffirm.
+  (`v2.0.0-alpha.1`) SHIPPED. Stable desktop contract (i18n parity test) + hard
+  constraints test implemented locally, not yet released. Remaining: installer/
+  update finalize, public docs pass, per-artifact v2 bumps as needed.
 - **v1.6 alpha is SHIPPED** on tag **`v1.6.0-alpha.0`** — session archives &
   recovery (read-only `session archive`/`list`/`inspect`/`resume` + desktop
   panel). Release run `27330492827` succeeded with all 8 assets published.

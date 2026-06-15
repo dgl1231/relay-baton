@@ -312,9 +312,10 @@ Define the next stability line: relay-baton remains local-first, subprocess-only
 and deterministic, but the desktop app becomes a first-class daily workflow
 instead of a thin release shell.
 
-- [ ] **Stable desktop contract** — desktop UI covers project management,
-  status/budget, git tracking, session archives, replay, handoff preview, and
-  guarded command preview with i18n parity.
+- [x] **Stable desktop contract** — desktop UI covers project management,
+  status/budget, git tracking, session archives, replay, handoff preview, guarded
+  execution, project inspector, and team handoff. i18n parity (en/ko/ja/zh) is
+  now enforced by an automated test (`desktopI18n.test.ts`).
 - [~] **Stable artifact schema v2** — migrator framework shipped:
   `relay-baton migrate --apply [--dry-run]` normalizes legacy artifacts (stamps
   `schemaVersion`) with timestamped backups and idempotency; version-to-version
@@ -332,9 +333,11 @@ instead of a thin release shell.
 - [ ] **Public docs pass** — docs for install, quickstart, desktop workflow,
   CLI workflow, project registry, session archive, git tracking, and safety
   model are complete in English and Korean.
-- [ ] **Hard constraints reaffirmed** — no direct LLM API client, no API-key
-  storage, no auto commit/push/PR, no daemon requirement, no real-time chat
-  platform, no semantic/vector indexing by default.
+- [~] **Hard constraints reaffirmed** — auth policy (blocked provider key env
+  vars, `allowApiKeyEnv` off, cli-session mode) and "no direct LLM API client
+  dependency" are now locked by an automated test (`hardConstraints.test.ts`).
+  The remaining constraints (no auto commit/push/PR, no daemon, no real-time
+  chat, no default semantic indexing) hold by design and are documented.
 
 ## v0.6 — Trust & Verify
 
