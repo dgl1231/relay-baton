@@ -14,6 +14,7 @@ Release notes are user-facing changelogs, not agent handoff material — that ro
 
 ## Versions
 
+- [v2.0.0-alpha.3](./v2.0.0-alpha.3.md) / [한국어](./ko/v2.0.0-alpha.3.md) - Installer/update finalized + public docs pass: a locked distribution policy in RELEASE.md and a consolidated `docs/GUIDE.md` (EN+KO) for install, workflows, and safety.
 - [v2.0.0-alpha.2](./v2.0.0-alpha.2.md) / [한국어](./ko/v2.0.0-alpha.2.md) - Stability guards: desktop i18n parity test (en/ko/ja/zh) enforcing the stable desktop contract, and a hard-constraints test locking the auth policy + no-LLM-client rule.
 - [v2.0.0-alpha.1](./v2.0.0-alpha.1.md) / [한국어](./ko/v2.0.0-alpha.1.md) - Schema migrator apply path: `relay-baton migrate --apply [--dry-run]` normalizes legacy artifacts (stamps schemaVersion) with timestamped backups, opt-in and idempotent.
 - [v2.0.0-alpha.0](./v2.0.0-alpha.0.md) / [한국어](./ko/v2.0.0-alpha.0.md) - v2.0 stability line opens: read-only artifact schema migration checks (`relay-baton migrate`, `ARTIFACT_SCHEMA_VERSIONS` registry, `doctor --deep` schema lines). Detection + guidance only.
