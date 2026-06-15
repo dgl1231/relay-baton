@@ -269,16 +269,19 @@ turning relay-baton into autopilot.
 Improve repo understanding with deterministic, bounded metadata so handoffs are
 more useful without pasting the whole repository.
 
-- [~] **Workspace map v2** — `relay-baton workspace [--json]` deterministically
+- [x] **Workspace map v2** — `relay-baton workspace [--json]` deterministically
   detects package managers, languages, monorepo packages, npm scripts
   (build/test/lint + others), entry points, docs, and AGENTS/CLAUDE files from
   manifest/config files. Bounded, read-only, no model calls.
-- [ ] **Project profile hints** — optional per-project hints for command
-  defaults, excluded paths, language/framework tags, and preferred verification.
-- [ ] **Dependency and script inventory** — bounded summaries of package scripts,
-  workspace packages, CI workflows, and release files.
-- [ ] **Desktop project inspector** — read-only view of repo map, configured
-  commands, current session artifacts, and git tracking.
+- [x] **Project profile hints** — `relay-baton profile [--json]` derives
+  framework tags, recommended build/test commands, diet/agent defaults, excluded
+  paths, and entry points from the workspace map + config + project defaults.
+- [x] **Dependency and script inventory** — `relay-baton inventory [--json]`
+  gives bounded summaries of package scripts, workspace packages, CI workflows,
+  and release files.
+- [x] **Desktop project inspector** — dashboard "project inspector" card
+  (workspace + profile) and Agent Room `/workspace`, `/profile`, `/inventory`,
+  all read-only through the CLI sidecar.
 - [ ] **No semantic indexing yet** — keep this deterministic; embeddings,
   vector stores, and exact tokenizers remain out of scope.
 

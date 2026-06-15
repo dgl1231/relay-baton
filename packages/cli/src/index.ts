@@ -10,6 +10,8 @@ import { checkpointCommand, checkpointListCommand, checkpointSummaryCommand } fr
 import { guardCommand } from "./commands/guard";
 import { riskCommand } from "./commands/risk";
 import { workspaceCommand } from "./commands/workspace";
+import { profileCommand } from "./commands/profile";
+import { inventoryCommand } from "./commands/inventory";
 import { runCommand } from "./commands/run";
 import { handoffCommand } from "./commands/handoff";
 import { handoffHistoryCommand } from "./commands/handoffHistory";
@@ -206,6 +208,20 @@ addProjectOptions(
     .description("Deterministic workspace map: package managers, languages, monorepo packages, scripts, entry points, docs. Read-only")
     .option("--json", "print machine-readable JSON"),
 ).action(workspaceCommand);
+
+addProjectOptions(
+  program
+    .command("profile")
+    .description("Deterministic project profile hints: framework tags, recommended build/test, diet/agents, entry points. Read-only")
+    .option("--json", "print machine-readable JSON"),
+).action(profileCommand);
+
+addProjectOptions(
+  program
+    .command("inventory")
+    .description("Bounded inventory: package scripts, workspace packages, CI workflows, release files. Read-only")
+    .option("--json", "print machine-readable JSON"),
+).action(inventoryCommand);
 
 program
   .command("compress-context")

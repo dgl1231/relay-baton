@@ -332,6 +332,13 @@
           <div id="sessions" style="margin-top:10px">loading…</div>
         </div>
         <div class="card wide">
+          <h2 data-i18n="inspector">project inspector</h2>
+          <div class="card-actions">
+            <button id="inspector-refresh" class="ghost" data-i18n="refresh">Refresh</button>
+          </div>
+          <div id="inspector" class="kv" style="margin-top:10px">loading…</div>
+        </div>
+        <div class="card wide">
           <h2 data-i18n="execution">guarded execution</h2>
           <div class="card-actions">
             <button id="exec-refresh" class="ghost" data-i18n="refresh">Refresh</button>
@@ -442,6 +449,10 @@
           noteCheckpoints: "List recorded execution checkpoints (read-only).",
           noteGuard: "Evaluate stop-condition guardrails (advisory, read-only).",
           noteRisk: "Flag risky surfaces in the working tree (read-only).",
+          inspector: "project inspector",
+          noteWorkspace: "Deterministic workspace map (read-only).",
+          noteProfile: "Project profile hints: tags + recommended commands (read-only).",
+          noteInventory: "Scripts, packages, CI, release files inventory (read-only).",
           updatesOptIn: "Opt in to manual desktop update checks",
           updatesOff: "Update checks are off.",
           updatesReady: "Update checks are enabled. Nothing runs automatically.",
@@ -573,6 +584,10 @@
           noteCheckpoints: "기록된 실행 체크포인트 나열(읽기 전용).",
           noteGuard: "stop-condition 가드레일 평가(권고, 읽기 전용).",
           noteRisk: "워킹 트리의 위험 표면 표시(읽기 전용).",
+          inspector: "프로젝트 인스펙터",
+          noteWorkspace: "결정적 workspace map(읽기 전용).",
+          noteProfile: "프로젝트 프로필 힌트: 태그 + 권장 명령(읽기 전용).",
+          noteInventory: "scripts/packages/CI/release 파일 인벤토리(읽기 전용).",
           updatesOptIn: "수동 데스크톱 업데이트 확인 켜기",
           updatesOff: "업데이트 확인이 꺼져 있습니다.",
           updatesReady: "업데이트 확인이 켜졌습니다. 자동으로 실행되는 작업은 없습니다.",
@@ -704,6 +719,10 @@
           noteCheckpoints: "記録された実行チェックポイントを一覧(読み取り専用)。",
           noteGuard: "stop-condition ガードレールを評価(助言、読み取り専用)。",
           noteRisk: "作業ツリーのリスク箇所を表示(読み取り専用)。",
+          inspector: "プロジェクトインスペクター",
+          noteWorkspace: "決定的なworkspace map(読み取り専用)。",
+          noteProfile: "プロジェクトプロファイルのヒント: タグ + 推奨コマンド(読み取り専用)。",
+          noteInventory: "scripts/packages/CI/releaseファイルのインベントリ(読み取り専用)。",
           updatesOptIn: "手動のデスクトップ更新チェックを有効化",
           updatesOff: "更新チェックはオフです。",
           updatesReady: "更新チェックは有効です。自動実行はありません。",
@@ -835,6 +854,10 @@
           noteCheckpoints: "列出已记录的执行检查点（只读）。",
           noteGuard: "评估停止条件护栏（建议性，只读）。",
           noteRisk: "标记工作树中的风险面（只读）。",
+          inspector: "项目检查器",
+          noteWorkspace: "确定性 workspace map（只读）。",
+          noteProfile: "项目画像提示：标签 + 推荐命令（只读）。",
+          noteInventory: "脚本/包/CI/发布文件清单（只读）。",
           updatesOptIn: "启用手动桌面更新检查",
           updatesOff: "更新检查已关闭。",
           updatesReady: "更新检查已启用。不会自动运行任何操作。",
@@ -956,7 +979,7 @@
           ] },
           { h: t("guideSecRoom"), rows: [
             { term: t("guideTermMessage"), desc: t("guideRoomMsg") },
-            { term: "/status /budget /git /review /diagnose /sessions /resume /checkpoints /guard /risk /replay", desc: t("guideRoomRead"), code: true },
+            { term: "/status /budget /git /review /diagnose /sessions /resume /checkpoints /guard /risk /workspace /profile /inventory /replay", desc: t("guideRoomRead"), code: true },
             { term: "/plan /execute /handoff", desc: t("guideRoomPreview"), code: true },
           ] },
           { h: t("guideSecMore"), rows: [
@@ -1266,6 +1289,29 @@
         } catch (err) { el.classList.add("err"); el.textContent = String(err?.message ?? err); }
       }
 
+      // Read-only project inspector: workspace map + profile hints, through the
+      // CLI sidecar only. No repo scanning in the webview.
+      async function loadInspector() {
+        const el = $("inspector");
+        try {
+          const [ws, profile] = await Promise.all([
+            cliJson(["workspace", "--json"]),
+            cliJson(["profile", "--json"]),
+          ]);
+          kvRows(el, [
+            ["package managers", ws.packageManagers.join(", ") || "-"],
+            ["languages", ws.languages.join(", ") || "-"],
+            ["frameworks", profile.frameworks.join(", ") || "-"],
+            ["monorepo", ws.monorepo ? `yes (${ws.packages.length})` : "no"],
+            ["recommended build", profile.recommended.build ?? "-"],
+            ["recommended test", profile.recommended.test ?? "-"],
+            ["entry points", ws.entryPoints.join(", ") || "-"],
+            ["docs", ws.docs.join(", ") || "-"],
+            ["agents files", ws.agentsFiles.join(", ") || "-"],
+          ]);
+        } catch (err) { showError(el, err); }
+      }
+
       // Read-only guarded-execution view: guardrail verdict + checkpoint
       // receipt, all through the CLI sidecar. The webview never enforces or
       // halts anything — it only displays what `guard` and `checkpoint summary`
@@ -1421,6 +1467,9 @@
         { cmd: "/checkpoints", noteKey: "noteCheckpoints" },
         { cmd: "/guard", noteKey: "noteGuard" },
         { cmd: "/risk", noteKey: "noteRisk" },
+        { cmd: "/workspace", noteKey: "noteWorkspace" },
+        { cmd: "/profile", noteKey: "noteProfile" },
+        { cmd: "/inventory", noteKey: "noteInventory" },
         { cmd: "/replay", noteKey: "noteReplay" },
         { cmd: "/plan ", noteKey: "notePlan" },
         { cmd: "/execute", noteKey: "noteExecute" },
@@ -1492,7 +1541,7 @@
       }
 
       async function refresh() {
-        await Promise.all([loadProjects(), loadStatus(), loadBudget(), loadGit(), loadTimeline(), loadSessions(), loadExecution()]);
+        await Promise.all([loadProjects(), loadStatus(), loadBudget(), loadGit(), loadTimeline(), loadSessions(), loadExecution(), loadInspector()]);
         if (handoffOverlay.classList.contains("show")) await loadHandoff();
         updateRoomContext();
         renderHints();
@@ -1601,6 +1650,23 @@
             case "risk": {
               const r = await cliJson(["risk", "--json"]);
               appendLocalEvent("relay-baton", "review", JSON.stringify(r, null, 2));
+              break;
+            }
+            case "workspace": {
+              const r = await cliJson(["workspace", "--json"]);
+              appendLocalEvent("relay-baton", "status", JSON.stringify(r, null, 2));
+              await loadInspector();
+              break;
+            }
+            case "profile": {
+              const r = await cliJson(["profile", "--json"]);
+              appendLocalEvent("relay-baton", "status", JSON.stringify(r, null, 2));
+              await loadInspector();
+              break;
+            }
+            case "inventory": {
+              const r = await cliJson(["inventory", "--json"]);
+              appendLocalEvent("relay-baton", "status", JSON.stringify(r, null, 2));
               break;
             }
             case "plan": {
@@ -1834,6 +1900,7 @@
       $("sessions-refresh").addEventListener("click", loadSessions);
       $("resume-diagnose").addEventListener("click", runResumeDiagnosis);
       $("exec-refresh").addEventListener("click", loadExecution);
+      $("inspector-refresh").addEventListener("click", loadInspector);
 
       $("refresh").addEventListener("click", refresh);
       function openErrorConfirm(err) {

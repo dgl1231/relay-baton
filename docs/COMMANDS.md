@@ -149,6 +149,17 @@ files: detected package managers, languages, monorepo packages, npm scripts
 file-content scanning beyond known manifests, no semantic indexing, no model
 calls.
 
+### `profile [--json]`
+Deterministic **project profile hints** combining the workspace map with config
+and the registered project's defaults: framework tags, recommended build/test
+commands (explicit config commands win, else derived from scripts + package
+manager), diet/agent defaults, excluded paths, and entry points. Read-only.
+
+### `inventory [--json]`
+Bounded **inventory** of package scripts, workspace packages (with their
+scripts), CI workflows, release files, and dependency manifests. Reads known
+manifest/config locations only — no full-repo scanning, no model calls.
+
 ## Token diet
 
 ### `compact` (alias `squeeze`)

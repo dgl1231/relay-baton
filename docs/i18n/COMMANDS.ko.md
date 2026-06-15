@@ -137,6 +137,17 @@ package manager, 언어, monorepo 패키지, npm script(build/test/lint + 기타
 point, docs, AGENTS/CLAUDE 파일. 알려진 manifest 외 파일 내용 스캔 없음, semantic
 indexing 없음, 모델 호출 없음.
 
+### `profile [--json]`
+workspace map에 config와 등록된 project 기본값을 결합한 결정적 **project profile
+힌트**: framework 태그, 권장 build/test 명령(명시적 config 명령이 우선, 없으면
+script + package manager에서 파생), diet/agent 기본값, 제외 경로, entry point.
+읽기 전용.
+
+### `inventory [--json]`
+package script, workspace package(스크립트 포함), CI workflow, release 파일,
+dependency manifest의 bounded **인벤토리**. 알려진 manifest/config 위치만 읽으며,
+전체 저장소 스캔 없음, 모델 호출 없음.
+
 ## token diet
 
 ### `compact` (별칭 `squeeze`)
