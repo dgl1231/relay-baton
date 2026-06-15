@@ -24,8 +24,9 @@ schema bump is defined). Releases stay alpha (v2.0.0-alpha.N)._
   project intelligence (`workspace`, `profile`, `inventory`, desktop inspector).
 - **v1.7 alpha is SHIPPED** on tag **`v1.7.0-alpha.0`** — guarded execution
   (`checkpoint`, `guard`, `risk`, desktop guarded-execution view).
-- **v2.0 is IN PROGRESS** — first item (migration checks) implemented locally;
-  see the v2.0 section below.
+- **v2.0 is IN PROGRESS** on tag **`v2.0.0-alpha.0`** — first item (migration
+  checks) SHIPPED. Remaining: schema v2 bump + migrators, stable desktop
+  contract, installer/update finalize, public docs pass, constraints reaffirm.
 - **v1.6 alpha is SHIPPED** on tag **`v1.6.0-alpha.0`** — session archives &
   recovery (read-only `session archive`/`list`/`inspect`/`resume` + desktop
   panel). Release run `27330492827` succeeded with all 8 assets published.

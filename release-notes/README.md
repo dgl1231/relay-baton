@@ -14,6 +14,7 @@ Release notes are user-facing changelogs, not agent handoff material — that ro
 
 ## Versions
 
+- [v2.0.0-alpha.0](./v2.0.0-alpha.0.md) / [한국어](./ko/v2.0.0-alpha.0.md) - v2.0 stability line opens: read-only artifact schema migration checks (`relay-baton migrate`, `ARTIFACT_SCHEMA_VERSIONS` registry, `doctor --deep` schema lines). Detection + guidance only.
 - [v1.9.0-alpha.0](./v1.9.0-alpha.0.md) / [한국어](./ko/v1.9.0-alpha.0.md) - Team handoff package: portable `relay-baton handoff bundle` (manifest + SHA-256 + redaction pass), `handoff inspect`, a markdown `report`, and a desktop team-handoff export card + Agent Room `/bundle` `/report`. No cloud upload.
 - [v1.8.0-alpha.1](./v1.8.0-alpha.1.md) / [한국어](./ko/v1.8.0-alpha.1.md) - Project intelligence complete: `relay-baton profile` (framework tags + recommended commands), `inventory` (scripts/packages/CI/release files), and a desktop project-inspector panel + Agent Room `/workspace` `/profile` `/inventory`.
 - [v1.8.0-alpha.0](./v1.8.0-alpha.0.md) / [한국어](./ko/v1.8.0-alpha.0.md) - Project intelligence start: deterministic, bounded `relay-baton workspace` map (package managers, languages, monorepo packages, scripts, entry points, docs, AGENTS/CLAUDE files). No semantic indexing.
