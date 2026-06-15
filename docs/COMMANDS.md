@@ -142,6 +142,13 @@ status: dependency manifests/lockfiles, file deletions (high severity),
 release/CI edits, env/build config changes, and binary/generated artifacts. Each
 finding carries a category, severity, and reason. Read-only, no model calls.
 
+### `workspace [--json]`
+Deterministic, bounded **workspace map** built straight from manifest/config
+files: detected package managers, languages, monorepo packages, npm scripts
+(build/test/lint + others), entry points, docs, and AGENTS/CLAUDE files. No
+file-content scanning beyond known manifests, no semantic indexing, no model
+calls.
+
 ## Token diet
 
 ### `compact` (alias `squeeze`)

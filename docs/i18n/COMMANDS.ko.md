@@ -131,6 +131,12 @@ manifest/lockfile, 파일 삭제(high severity), release/CI 편집, env/build co
 변경, binary/생성 artifact. 각 finding은 category·severity·reason을 담는다.
 읽기 전용, 모델 호출 없음.
 
+### `workspace [--json]`
+manifest/config 파일에서 바로 만든 결정적·bounded **workspace map**: 감지된
+package manager, 언어, monorepo 패키지, npm script(build/test/lint + 기타), entry
+point, docs, AGENTS/CLAUDE 파일. 알려진 manifest 외 파일 내용 스캔 없음, semantic
+indexing 없음, 모델 호출 없음.
+
 ## token diet
 
 ### `compact` (별칭 `squeeze`)

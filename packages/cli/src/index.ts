@@ -9,6 +9,7 @@ import { receiptDoneCommand, receiptSkipCommand, receiptListCommand } from "./co
 import { checkpointCommand, checkpointListCommand, checkpointSummaryCommand } from "./commands/checkpoint";
 import { guardCommand } from "./commands/guard";
 import { riskCommand } from "./commands/risk";
+import { workspaceCommand } from "./commands/workspace";
 import { runCommand } from "./commands/run";
 import { handoffCommand } from "./commands/handoff";
 import { handoffHistoryCommand } from "./commands/handoffHistory";
@@ -198,6 +199,13 @@ addProjectOptions(
     .description("Flag risky surfaces in the working tree (deps, deletions, release/CI, env/config, binaries). Read-only")
     .option("--json", "print machine-readable JSON"),
 ).action(riskCommand);
+
+addProjectOptions(
+  program
+    .command("workspace")
+    .description("Deterministic workspace map: package managers, languages, monorepo packages, scripts, entry points, docs. Read-only")
+    .option("--json", "print machine-readable JSON"),
+).action(workspaceCommand);
 
 program
   .command("compress-context")

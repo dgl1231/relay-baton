@@ -12,6 +12,7 @@ export * from "./session/SessionArchiveStore";
 export * from "./session/ResumeDiagnostics";
 export * from "./git/GitService";
 export * from "./git/RepoMapGenerator";
+export * from "./git/WorkspaceMap";
 export * from "./agents/AgentAdapter";
 export * from "./agents/AgentRunner";
 export * from "./agents/CodexAdapter";
