@@ -14,6 +14,7 @@ Release notes are user-facing changelogs, not agent handoff material — that ro
 
 ## Versions
 
+- [v2.2.0-alpha.0](./v2.2.0-alpha.0.md) / [한국어](./ko/v2.2.0-alpha.0.md) - Trust & supply chain: untrusted-bundle/path-traversal safety (`resolveWithin` guard + size cap + `trust:` flag), SLSA build provenance by default (`attest-build-provenance`), and supply-chain hardening (SHA-pinned actions, Dependabot, SBOM diff).
 - [v2.1.0-alpha.2](./v2.1.0-alpha.2.md) / [한국어](./ko/v2.1.0-alpha.2.md) - Secret-leak regression scan + `--allow-api-key-env` audit (names only); v2.1 reliability & secret-safety line complete.
 - [v2.1.0-alpha.1](./v2.1.0-alpha.1.md) / [한국어](./ko/v2.1.0-alpha.1.md) - Redact before handoff: a Redaction Gate blocks launching the next agent on high-severity secret findings in the generated handoff (unless `--force`).
 - [v2.1.0-alpha.0](./v2.1.0-alpha.0.md) / [한국어](./ko/v2.1.0-alpha.0.md) - Windows-safe agent spawn: `safeSpawn` (cross-spawn) resolves npm-global `.cmd` shims and escapes arguments, fixing `doctor`/`run`/`login` on Windows.
