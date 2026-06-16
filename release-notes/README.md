@@ -14,6 +14,7 @@ Release notes are user-facing changelogs, not agent handoff material — that ro
 
 ## Versions
 
+- [v2.0.0-alpha.5](./v2.0.0-alpha.5.md) / [한국어](./ko/v2.0.0-alpha.5.md) - Session archive prune policy (`session prune`, disabled by default, dry-run unless `--apply`) + a CI release-creation race fix.
 - [v2.0.0-alpha.4](./v2.0.0-alpha.4.md) / [한국어](./ko/v2.0.0-alpha.4.md) - git-baseline.json brought under the versioned schema contract (registry + migrate/doctor coverage + legacy normalization). No version bump.
 - [v2.0.0-alpha.3](./v2.0.0-alpha.3.md) / [한국어](./ko/v2.0.0-alpha.3.md) - Installer/update finalized + public docs pass: a locked distribution policy in RELEASE.md and a consolidated `docs/GUIDE.md` (EN+KO) for install, workflows, and safety.
 - [v2.0.0-alpha.2](./v2.0.0-alpha.2.md) / [한국어](./ko/v2.0.0-alpha.2.md) - Stability guards: desktop i18n parity test (en/ko/ja/zh) enforcing the stable desktop contract, and a hard-constraints test locking the auth policy + no-LLM-client rule.
