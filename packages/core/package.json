@@ -1,6 +1,6 @@
 {
   "name": "@relay-baton/core",
-  "version": "2.1.0-alpha.1",
+  "version": "2.1.0-alpha.2",
   "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
