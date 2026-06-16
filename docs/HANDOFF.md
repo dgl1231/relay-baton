@@ -20,9 +20,12 @@ agents + tier; `ConfigSchema`/`diagnostics` derive lists from the registry. Item
 ordered chain (`resolveChain`: `--chain` > `--primary`/`--fallback` > project >
 config); supports reverse (claude→codex) + longer chains; `PromptBuilder.
 continuation()` is agent-agnostic. New tests `AgentRegistry.test.ts` +
-`relayChain.test.ts`. Build green, 273 core + 88 cli tests pass. Next: cut a
-`v2.3.0-alpha.0` release per RELEASE.md when ready, then start v2.4 (smarter
-handoff). Releases stay alpha (v2.x.0-alpha.N).
+`relayChain.test.ts`. Build green, 273 core + 88 cli tests pass. **SHIPPED &
+VERIFIED on `v2.3.0-alpha.0`** — release run `27602507471` green (8 jobs);
+provenance attestation verifies (SLSA v1) and `sbom-diff.md` published (no dep
+changes vs v2.2.0-alpha.0). 9 assets on the Release. Next: start v2.4 (smarter
+handoff — deterministic compaction v2, local usage insight). Releases stay alpha
+(v2.x.0-alpha.N).
 
 Prior: **v2.2 SHIPPED & VERIFIED on `v2.2.0-alpha.0`** (run `27597659547` green;
 provenance attestation verifies, `sbom-diff.md` published). Roadmap milestone
