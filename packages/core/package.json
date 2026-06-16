@@ -16,7 +16,7 @@
   "devDependencies": {
     "vitest": "^2.0.5",
     "typescript": "^5.5.4",
-    "@types/node": "^20.14.10",
+    "@types/node": "^25.9.3",
     "@types/cross-spawn": "^6.0.6"
   }
 }
