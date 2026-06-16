@@ -50,6 +50,13 @@ Validate a single archive by id or path against its `manifest.json`. Reports
 (presence + size + SHA-256). `missing`/`corrupt` lists and an `intact` flag
 summarize the result. Read-only: it never copies, applies, or restores anything.
 
+### `session prune [--max-age-days <n>] [--max-count <n>] [--apply] [--json]`
+Apply a retention policy to the session-archive root. **Disabled by default** —
+with no `--max-age-days`/`--max-count` nothing is pruned. An archive is a prune
+candidate if it violates any given constraint (older than N days, or beyond the
+newest N). **Dry-run by default**: it previews candidates and only deletes with
+`--apply`. Archives with an unknown `createdAt` are never pruned by age.
+
 ### `session resume [--json] [--stale-hours <n>]`
 Diagnose the current `.ai-session` and suggest the safest next command. Classifies
 the session as `missing`, `incomplete`, `stale`, or `ok` from required-file

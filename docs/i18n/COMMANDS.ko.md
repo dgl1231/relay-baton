@@ -47,6 +47,13 @@ id나 path로 지정한 archive 하나를 `manifest.json` 기준으로 검증한
 `missing`/`corrupt` 목록과 `intact` 플래그로 결과를 요약한다. read-only: 복사/적용/
 복원은 하지 않는다.
 
+### `session prune [--max-age-days <n>] [--max-count <n>] [--apply] [--json]`
+세션 아카이브 루트에 보존 정책을 적용한다. **기본 비활성** — `--max-age-days`/
+`--max-count`가 없으면 아무것도 prune하지 않는다. 주어진 제약을 하나라도 위반하면
+prune 후보(N일보다 오래됨, 또는 최신 N개 밖). **기본 dry-run**: 후보만 미리보고
+`--apply`일 때만 삭제한다. `createdAt`을 알 수 없는 아카이브는 나이 기준으로 절대
+prune하지 않는다.
+
 ### `session resume [--json] [--stale-hours <n>]`
 현재 `.ai-session`을 진단하고 가장 안전한 다음 명령을 제안한다. 필수 파일 존재 여부,
 `session.json` 유효성/schema, git baseline drift, `updatedAt` 경과시간(기본 stale

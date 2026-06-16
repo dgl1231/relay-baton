@@ -67,6 +67,50 @@ export async function sessionListCommand(opts: SessionListOpts = {}) {
   }
 }
 
+export interface SessionPruneOpts {
+  json?: boolean;
+  out?: string;
+  maxAgeDays?: string;
+  maxCount?: string;
+  apply?: boolean;
+}
+
+export async function sessionPruneCommand(opts: SessionPruneOpts = {}) {
+  const maxAgeDays = opts.maxAgeDays != null ? Number.parseFloat(opts.maxAgeDays) : undefined;
+  const maxCount = opts.maxCount != null ? Number.parseInt(opts.maxCount, 10) : undefined;
+  for (const [flag, v] of [["--max-age-days", maxAgeDays], ["--max-count", maxCount]] as const) {
+    if (v !== undefined && (!Number.isFinite(v) || v < 0)) {
+      console.error(`[relay-baton] ${flag} must be a non-negative number`);
+      process.exit(2);
+    }
+  }
+
+  const result = new SessionArchiveStore({ archiveRoot: opts.out }).prune({
+    maxAgeDays,
+    maxCount,
+    dryRun: !opts.apply,
+  });
+
+  if (opts.json) {
+    console.log(JSON.stringify(result, null, 2));
+    return;
+  }
+
+  if (!result.available) {
+    console.log(`[relay-baton] cannot prune: ${result.reason}`);
+    return;
+  }
+  if (result.policy.maxAgeDays === null && result.policy.maxCount === null) {
+    console.log("[relay-baton] no retention policy — pass --max-age-days and/or --max-count. Nothing pruned.");
+    return;
+  }
+
+  const verb = result.dryRun ? "would prune" : "pruned";
+  console.log(`[relay-baton] ${verb} ${result.pruned.length} archive(s), keeping ${result.kept.length}${result.dryRun ? " (dry-run)" : ""}`);
+  for (const p of result.pruned) console.log(`- ${p.id} (${p.createdAt ?? "unknown"}) — ${p.reason}`);
+  if (result.dryRun && result.pruned.length > 0) console.log("re-run with --apply to delete the above.");
+}
+
 export interface SessionInspectOpts {
   json?: boolean;
   out?: string;

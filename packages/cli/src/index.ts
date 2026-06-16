@@ -30,7 +30,7 @@ import { chatCommand } from "./commands/chat";
 import { replayCommand } from "./commands/replay";
 import { conversationAppendCommand } from "./commands/conversation";
 import { gitStatusCommand } from "./commands/git";
-import { sessionArchiveCommand, sessionListCommand, sessionInspectCommand, sessionResumeCommand } from "./commands/session";
+import { sessionArchiveCommand, sessionListCommand, sessionInspectCommand, sessionResumeCommand, sessionPruneCommand } from "./commands/session";
 import { loginCommand } from "./commands/login";
 import {
   projectAddCommand,
@@ -337,6 +337,15 @@ session
   .option("--project <name-or-id>", "registered project name or id")
   .option("--path <repoPath>", "repository path")
   .action(sessionResumeCommand);
+session
+  .command("prune")
+  .description("Apply an archive retention policy (disabled by default; dry-run unless --apply)")
+  .option("--max-age-days <n>", "prune archives older than N days")
+  .option("--max-count <n>", "keep only the newest N archives")
+  .option("--apply", "actually delete (default is a dry-run preview)")
+  .option("--json", "print machine-readable JSON")
+  .option("--out <dir>", "archive root directory (default: ~/.relay-baton/session-archives)")
+  .action(sessionPruneCommand);
 
 addProjectOptions(program.command("tui").description("Start the relay-baton TUI")).action(tuiCommand);
 

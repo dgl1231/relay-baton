@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import { SessionManager, defaultConfig } from "@relay-baton/core";
-import { sessionArchiveCommand, sessionListCommand, sessionInspectCommand, sessionResumeCommand } from "../commands/session";
+import { sessionArchiveCommand, sessionListCommand, sessionInspectCommand, sessionResumeCommand, sessionPruneCommand } from "../commands/session";
 
 describe("session archive command", () => {
   let logs: string[];
@@ -60,5 +60,28 @@ describe("session archive command", () => {
     expect(parsed.available).toBe(true);
     expect(["ok", "stale", "incomplete"]).toContain(parsed.status);
     expect(parsed.suggestions.length).toBeGreaterThan(0);
+  });
+
+  it("prune is dry-run by default and reports candidates as JSON", async () => {
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "rb-session-prune-"));
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), "rb-session-prune-out-"));
+    new SessionManager(repo, defaultConfig).init("prune via cli");
+    await sessionArchiveCommand({ path: repo, out });
+
+    logs.length = 0;
+    await sessionPruneCommand({ out, maxCount: "0", json: true });
+    const result = JSON.parse(logs.join("\n"));
+    expect(result.dryRun).toBe(true);
+    expect(result.kept).toHaveLength(0);
+    expect(result.pruned).toHaveLength(1);
+    expect(result.pruned[0].deleted).toBe(false);
+  });
+
+  it("prune with no policy prunes nothing", async () => {
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), "rb-session-prune-noop-"));
+    await sessionPruneCommand({ out, json: true });
+    const result = JSON.parse(logs.join("\n"));
+    expect(result.pruned).toHaveLength(0);
+    expect(result.reason).toMatch(/no retention/);
   });
 });

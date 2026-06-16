@@ -234,9 +234,10 @@ work, especially across multiple projects and desktop sessions.
   `session.json` validity, git baseline drift, and `updatedAt` age, then suggests
   the safest next command (`init`, `status`, `replay`, `review`, `handoff`,
   `session archive`). Read-only.
-- [ ] **Prune policy** — configurable retention by age/count, disabled by
-  default, with dry-run output first.
-- [~] **Archive integrity checks** — `manifest.json` records per-file size +
+- [x] **Prune policy** — `relay-baton session prune [--max-age-days]
+  [--max-count] [--apply]` applies retention by age/count, disabled by default
+  and dry-run unless `--apply`. Never prunes by age when `createdAt` is unknown.
+- [x] **Archive integrity checks** — `manifest.json` records per-file size +
   SHA-256; `session inspect` verifies presence/size/hash and flags
   missing/corrupt files. Documented + tested.
 
@@ -324,11 +325,11 @@ instead of a thin release shell.
   bundle manifests already carry `schemaVersion`. Remaining: bring conversation
   events under the registry; per-artifact version *bumps* land as breaking
   changes require them.
-- [~] **Upgrade/migration checks** — `relay-baton migrate --check` and
+- [x] **Upgrade/migration checks** — `relay-baton migrate --check` /
   `doctor --deep` detect each versioned artifact's schema (ok/outdated/ahead/
-  legacy/unreadable) via the `ARTIFACT_SCHEMA_VERSIONS` registry and give
-  read-only guidance. Detection shipped; in-place apply lands with the first
-  schema-version bump.
+  legacy/unreadable) via `ARTIFACT_SCHEMA_VERSIONS`; `migrate --apply` normalizes
+  legacy artifacts (backup + dry-run). Version-to-version migrators plug in when
+  a schema is bumped.
 - [x] **Installer/update story finalized** — finalized distribution policy
   documented in `RELEASE.md`: always-on CLI binaries + desktop installers +
   `SHA256SUMS` + SBOM, conditional signing (macOS/Windows) and the opt-in,
@@ -338,11 +339,11 @@ instead of a thin release shell.
   `docs/i18n/GUIDE.ko.md` (KO) cover install, quickstart, desktop + CLI
   workflows, project registry, artifacts/schema, and the safety model, linked
   from the README and covered by a docs test. `<your-org>` placeholders fixed.
-- [~] **Hard constraints reaffirmed** — auth policy (blocked provider key env
+- [x] **Hard constraints reaffirmed** — auth policy (blocked provider key env
   vars, `allowApiKeyEnv` off, cli-session mode) and "no direct LLM API client
-  dependency" are now locked by an automated test (`hardConstraints.test.ts`).
-  The remaining constraints (no auto commit/push/PR, no daemon, no real-time
-  chat, no default semantic indexing) hold by design and are documented.
+  dependency" are locked by an automated test (`hardConstraints.test.ts`). The
+  remaining constraints (no auto commit/push/PR, no daemon, no real-time chat,
+  no default semantic indexing) hold by design and are documented.
 
 ## v0.6 — Trust & Verify
 

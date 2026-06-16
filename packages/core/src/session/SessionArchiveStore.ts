@@ -24,6 +24,32 @@ export interface SessionArchiveListResult {
   reason?: string;
 }
 
+export interface PrunedArchive {
+  id: string;
+  archiveDir: string;
+  createdAt: string | null;
+  reason: string;
+  deleted: boolean;
+}
+
+export interface SessionArchivePruneResult {
+  available: boolean;
+  archiveRoot: string;
+  dryRun: boolean;
+  policy: { maxAgeDays: number | null; maxCount: number | null };
+  kept: SessionArchiveSummary[];
+  pruned: PrunedArchive[];
+  reason?: string;
+}
+
+export interface SessionArchivePruneOptions {
+  maxAgeDays?: number;
+  maxCount?: number;
+  /** Default true (safe). Set false to actually delete. */
+  dryRun?: boolean;
+  now?: Date;
+}
+
 export interface InspectedFile {
   target: string;
   size: number;
@@ -84,6 +110,57 @@ export class SessionArchiveStore {
     });
 
     return { available: true, archiveRoot: this.archiveRoot, archives };
+  }
+
+  /**
+   * Apply a retention policy to the archive directory. Disabled by default: with
+   * no `maxAgeDays`/`maxCount` nothing is ever pruned. An archive is a prune
+   * candidate if it violates ANY given constraint (older than maxAgeDays, or
+   * beyond the newest maxCount). Dry-run by default — destructive deletion only
+   * happens with `dryRun: false`. Archives with an unknown createdAt are never
+   * pruned by age.
+   */
+  prune(options: SessionArchivePruneOptions = {}): SessionArchivePruneResult {
+    const dryRun = options.dryRun !== false;
+    const maxAgeDays = options.maxAgeDays ?? null;
+    const maxCount = options.maxCount ?? null;
+    const now = options.now ?? new Date();
+    const base: SessionArchivePruneResult = {
+      available: true,
+      archiveRoot: this.archiveRoot,
+      dryRun,
+      policy: { maxAgeDays, maxCount },
+      kept: [],
+      pruned: [],
+    };
+
+    const listed = this.list();
+    if (!listed.available) return { ...base, available: false, reason: listed.reason };
+    if (maxAgeDays === null && maxCount === null) {
+      return { ...base, kept: listed.archives, reason: "no retention policy set; nothing pruned" };
+    }
+
+    const archives = listed.archives; // newest first
+    for (let i = 0; i < archives.length; i++) {
+      const a = archives[i];
+      const reasons: string[] = [];
+      if (maxCount !== null && i >= maxCount) reasons.push(`beyond newest ${maxCount}`);
+      if (maxAgeDays !== null && a.createdAt) {
+        const ageDays = (now.getTime() - new Date(a.createdAt).getTime()) / 86_400_000;
+        if (ageDays > maxAgeDays) reasons.push(`older than ${maxAgeDays}d`);
+      }
+      if (reasons.length === 0) {
+        base.kept.push(a);
+        continue;
+      }
+      let deleted = false;
+      if (!dryRun) {
+        try { fs.rmSync(a.archiveDir, { recursive: true, force: true }); deleted = true; }
+        catch { deleted = false; }
+      }
+      base.pruned.push({ id: a.id, archiveDir: a.archiveDir, createdAt: a.createdAt, reason: reasons.join(", "), deleted });
+    }
+    return base;
   }
 
   inspect(idOrPath: string): SessionArchiveInspectResult {
