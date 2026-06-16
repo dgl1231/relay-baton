@@ -9,11 +9,15 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-16 — **v2.2 (Trust & supply chain) is FEATURE-COMPLETE
-locally (not yet released).** All three boxes `[x]`: (1) untrusted-bundle /
-path-traversal safety, (2) signed releases + provenance by default, (3)
-supply-chain hardening. Next: cut `v2.2.0-alpha.0` per RELEASE.md when ready, then
-start v2.3 (multi-agent breadth). Releases stay alpha (v2.2.0-alpha.N)._
+_Last updated: 2026-06-16 — **v2.2 (Trust & supply chain) SHIPPED — tag
+`v2.2.0-alpha.0` pushed; release run `27597659547` triggered (re-check:
+`gh run view 27597659547 --repo dgl1231/relay-baton --json status,conclusion,jobs`).**
+All three boxes `[x]`: (1) untrusted-bundle / path-traversal safety, (2) signed
+releases + provenance by default, (3) supply-chain hardening. This is the FIRST
+release exercising the new provenance attestation + SBOM-diff steps — confirm
+those two jobs in `release-finalize` succeeded and that `sbom-diff.md` +
+attestations appear on the Release. Next: start v2.3 (multi-agent breadth).
+Releases stay alpha (v2.2.0-alpha.N)._
 
 **v2.2 detail (all local):**
 - **(1) Path-traversal safety** — `inspect` on handoff bundles & session archives
