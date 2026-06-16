@@ -18,6 +18,7 @@ export const SESSION_SCHEMA_VERSION = 1;
 export const ARTIFACT_SCHEMA_VERSIONS = {
   sessionJson: 1,
   checkpoints: 1,
+  gitBaseline: 1,
 } as const;
 
 export type VersionedArtifact = keyof typeof ARTIFACT_SCHEMA_VERSIONS;

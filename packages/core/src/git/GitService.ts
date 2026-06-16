@@ -1,4 +1,5 @@
 import { execSync, spawnSync } from "child_process";
+import { ARTIFACT_SCHEMA_VERSIONS } from "@relay-baton/shared";
 
 export interface GitFileSummary {
   path: string;
@@ -23,6 +24,8 @@ export interface GitSummary {
 }
 
 export interface GitBaseline {
+  /** v2.0 versioned-contract marker; absent in pre-v2.0 baselines (legacy v1). */
+  schemaVersion?: number;
   createdAt: string;
   available: boolean;
   branch: string | null;
@@ -118,6 +121,7 @@ export class GitService {
   baselineSnapshot(now = new Date()): GitBaseline {
     const s = this.summary(0);
     return {
+      schemaVersion: ARTIFACT_SCHEMA_VERSIONS.gitBaseline,
       createdAt: now.toISOString(),
       available: s.available,
       branch: s.branch,

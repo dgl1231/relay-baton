@@ -62,7 +62,7 @@ id나 path로 지정한 archive 하나를 `manifest.json` 기준으로 검증한
 [ARTIFACTS.md](../ARTIFACTS.md) 참고.
 
 ### `migrate [--check] [--apply] [--dry-run] [--json]`
-버전드 `.ai-session` 아티팩트(`session.json`, `checkpoints.jsonl`)의 스키마
+버전드 `.ai-session` 아티팩트(`session.json`, `git-baseline.json`, `checkpoints.jsonl`)의 스키마
 버전을 현재 계약(`ARTIFACT_SCHEMA_VERSIONS`)과 비교해 안내한다: `ok`, `outdated`(현재보다
 구버전), `ahead`(더 새 CLI가 작성), `legacy`(`schemaVersion` 필드 없음 — v1로 간주),
 `unreadable`. 기본 동작(및 `--check`)은 읽기 전용.

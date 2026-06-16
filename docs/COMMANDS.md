@@ -67,7 +67,7 @@ versions** (see `migrate`). See [ARTIFACTS.md](ARTIFACTS.md).
 
 ### `migrate [--check] [--apply] [--dry-run] [--json]`
 Check the schema version of each versioned `.ai-session` artifact
-(`session.json`, `checkpoints.jsonl`) against the current contract
+(`session.json`, `git-baseline.json`, `checkpoints.jsonl`) against the current contract
 (`ARTIFACT_SCHEMA_VERSIONS`) and report guidance: `ok`, `outdated` (older than
 current), `ahead` (written by a newer CLI), `legacy` (no `schemaVersion` field —
 treated as v1), or `unreadable`. Default behavior (and `--check`) is read-only.

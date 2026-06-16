@@ -43,6 +43,17 @@ describe("SchemaMigrator", () => {
     expect(new SchemaInspector(repo).inspect().checks.find(c => c.file === "session.json")?.status).toBe("ok");
   });
 
+  it("normalizes a legacy git-baseline.json", () => {
+    const repo = legacyRepo();
+    const p = path.join(repo, ".ai-session", "git-baseline.json");
+    const b = JSON.parse(fs.readFileSync(p, "utf8"));
+    delete b.schemaVersion;
+    fs.writeFileSync(p, JSON.stringify(b));
+    const result = new SchemaMigrator(repo).migrate({ dryRun: false });
+    expect(result.actions.some(a => a.artifact === "gitBaseline" && a.applied)).toBe(true);
+    expect(JSON.parse(fs.readFileSync(p, "utf8")).schemaVersion).toBe(1);
+  });
+
   it("normalizes legacy checkpoint lines", () => {
     const repo = legacyRepo();
     // write a checkpoint line without schemaVersion

@@ -44,6 +44,7 @@ export class SchemaInspector {
 
     const checks: SchemaArtifactCheck[] = [
       this.checkJson("sessionJson"),
+      this.checkJson("gitBaseline"),
       this.checkJsonl("checkpoints"),
     ];
 
@@ -52,7 +53,7 @@ export class SchemaInspector {
     return { sessionDir: this.files.dir, exists: true, ok, migratable, checks };
   }
 
-  private checkJson(artifact: VersionedArtifact & "sessionJson"): SchemaArtifactCheck {
+  private checkJson(artifact: VersionedArtifact): SchemaArtifactCheck {
     const file = SESSION_FILES[artifact];
     const current = ARTIFACT_SCHEMA_VERSIONS[artifact];
     const raw = this.read(artifact);
@@ -66,7 +67,7 @@ export class SchemaInspector {
     }
   }
 
-  private checkJsonl(artifact: VersionedArtifact & "checkpoints"): SchemaArtifactCheck {
+  private checkJsonl(artifact: VersionedArtifact): SchemaArtifactCheck {
     const file = SESSION_FILES[artifact];
     const current = ARTIFACT_SCHEMA_VERSIONS[artifact];
     const raw = this.read(artifact);

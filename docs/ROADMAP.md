@@ -318,9 +318,11 @@ instead of a thin release shell.
   now enforced by an automated test (`desktopI18n.test.ts`).
 - [~] **Stable artifact schema v2** — migrator framework shipped:
   `relay-baton migrate --apply [--dry-run]` normalizes legacy artifacts (stamps
-  `schemaVersion`) with timestamped backups and idempotency; version-to-version
-  upgrades plug into the registry when a schema is bumped. Per-artifact v2 bumps
-  (archives, git baselines, bundles, conversation events) land as breaking
+  `schemaVersion`) with timestamped backups and idempotency. Versioned-contract
+  coverage now includes `session.json`, `checkpoints.jsonl`, and
+  `git-baseline.json` (registry: `ARTIFACT_SCHEMA_VERSIONS`); archives and
+  bundle manifests already carry `schemaVersion`. Remaining: bring conversation
+  events under the registry; per-artifact version *bumps* land as breaking
   changes require them.
 - [~] **Upgrade/migration checks** — `relay-baton migrate --check` and
   `doctor --deep` detect each versioned artifact's schema (ok/outdated/ahead/

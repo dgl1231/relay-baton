@@ -48,6 +48,21 @@ describe("SchemaInspector", () => {
     expect(checkFor(repo, "session.json").status).toBe("legacy");
   });
 
+  it("reports a freshly-written git-baseline.json as ok (now schema-stamped)", () => {
+    const repo = repoWithSession();
+    expect(checkFor(repo, "git-baseline.json").status).toBe("ok");
+  });
+
+  it("flags a legacy git-baseline.json (no schemaVersion) and marks it migratable", () => {
+    const repo = repoWithSession();
+    const p = path.join(repo, ".ai-session", "git-baseline.json");
+    const b = JSON.parse(fs.readFileSync(p, "utf8"));
+    delete b.schemaVersion;
+    fs.writeFileSync(p, JSON.stringify(b));
+    expect(checkFor(repo, "git-baseline.json").status).toBe("legacy");
+    expect(new SchemaInspector(repo).inspect().migratable).toBe(true);
+  });
+
   it("flags an ahead checkpoints schema as not ok", () => {
     const repo = repoWithSession();
     new ExecutionCheckpoints(repo, defaultConfig).append({ step: 1, result: "ok" });

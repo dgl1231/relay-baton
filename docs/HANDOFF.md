@@ -24,11 +24,13 @@ schema bump is defined). Releases stay alpha (v2.0.0-alpha.N)._
   project intelligence (`workspace`, `profile`, `inventory`, desktop inspector).
 - **v1.7 alpha is SHIPPED** on tag **`v1.7.0-alpha.0`** — guarded execution
   (`checkpoint`, `guard`, `risk`, desktop guarded-execution view).
-- **v2.0 is IN PROGRESS** — migration checks (`v2.0.0-alpha.0`) + schema migrator
-  (`v2.0.0-alpha.1`) + desktop contract & hard-constraints tests (`v2.0.0-alpha.2`)
-  SHIPPED. Installer/update finalize (RELEASE.md policy) + public docs pass
-  (`docs/GUIDE.md` EN/KO) implemented locally, not yet released. Only open v2.0
-  item left: per-artifact schema v2 bumps, done as breaking changes require.
+- **v2.0 is IN PROGRESS** — migration checks (`v2.0.0-alpha.0`), schema migrator
+  (`v2.0.0-alpha.1`), desktop contract & hard-constraints (`v2.0.0-alpha.2`),
+  installer/update finalize + public docs (`v2.0.0-alpha.3`) SHIPPED. Latest:
+  `git-baseline.json` brought under the versioned-schema registry + migrator
+  coverage (implemented locally, not yet released). Remaining: conversation
+  events under the registry; per-artifact version *bumps* as breaking changes
+  require them.
 - **v1.6 alpha is SHIPPED** on tag **`v1.6.0-alpha.0`** — session archives &
   recovery (read-only `session archive`/`list`/`inspect`/`resume` + desktop
   panel). Release run `27330492827` succeeded with all 8 assets published.
