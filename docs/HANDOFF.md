@@ -24,7 +24,11 @@ schema bump is defined). Releases stay alpha (v2.0.0-alpha.N)._
   project intelligence (`workspace`, `profile`, `inventory`, desktop inspector).
 - **v1.7 alpha is SHIPPED** on tag **`v1.7.0-alpha.0`** — guarded execution
   (`checkpoint`, `guard`, `risk`, desktop guarded-execution view).
-- **v2.0 is FEATURE-COMPLETE** — alpha.0..alpha.5 shipped (migration checks,
+- **v2.1 is IN PROGRESS** — "Reliability & secret safety". First item done
+  locally: Windows agent spawn reliability via a `safeSpawn` (cross-spawn)
+  wrapper across AgentRunner/adapters/doctor/login/TUI; injection-safe, tested.
+  Remaining v2.1: redact-before-handoff, secret-leak regression scan.
+- **v2.0 is FEATURE-COMPLETE** — alpha.0..alpha.6 shipped (migration checks,
   schema migrator, desktop contract, hard constraints, installer/docs finalize,
   git-baseline schema, prune policy + CI race fix). Latest local (not yet
   released): conversation-event schema versioning + `session export`, closing the

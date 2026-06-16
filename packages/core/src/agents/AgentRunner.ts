@@ -1,7 +1,7 @@
-import { spawn } from "child_process";
 import * as fs from "fs";
 import type { AuthPolicy, AgentCommand } from "@relay-baton/shared";
 import { FallbackDetector, FallbackHit } from "./FallbackDetector";
+import { safeSpawn } from "./safeSpawn";
 
 export interface AgentRunOptions {
   command: AgentCommand;
@@ -52,7 +52,7 @@ export async function runAgent(opts: AgentRunOptions): Promise<AgentRunResult> {
   return new Promise<AgentRunResult>((resolve) => {
     let child;
     try {
-      child = spawn(command.command, command.args, {
+      child = safeSpawn(command.command, command.args, {
         cwd: command.cwd,
         env,
         stdio: ["inherit", "pipe", "pipe"],

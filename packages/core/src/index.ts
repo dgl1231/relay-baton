@@ -19,6 +19,7 @@ export * from "./git/ProjectProfile";
 export * from "./git/DependencyInventory";
 export * from "./agents/AgentAdapter";
 export * from "./agents/AgentRunner";
+export * from "./agents/safeSpawn";
 export * from "./agents/CodexAdapter";
 export * from "./agents/ClaudeCodeAdapter";
 export * from "./agents/OpenCodeAdapter";

@@ -2,13 +2,13 @@ import * as React from "react";
 import { Box, Text, useApp, useInput } from "ink";
 import * as fs from "fs";
 import * as path from "path";
-import { spawnSync } from "child_process";
 import {
   BatonWorkflow,
   ConfigLoader,
   ProjectManager,
   ProjectResolver,
   SessionManager,
+  safeSpawnSync,
 } from "@relay-baton/core";
 import type { BatonProject, DietProfileName } from "@relay-baton/shared";
 import { PLAN_SECTIONS, planSectionBody } from "@relay-baton/core";
@@ -35,7 +35,7 @@ function readSafe(p: string, max = 4000): string {
 }
 
 function which(cmd: string): boolean {
-  const r = spawnSync(cmd, ["--version"], { encoding: "utf8" });
+  const r = safeSpawnSync(cmd, ["--version"], { encoding: "utf8" });
   return r.error == null;
 }
 

@@ -1,10 +1,9 @@
-import { spawn, spawnSync } from "child_process";
-import { ConfigLoader, createAgentEnv } from "@relay-baton/core";
+import { ConfigLoader, createAgentEnv, safeSpawn, safeSpawnSync } from "@relay-baton/core";
 
 type Which = "codex" | "claude" | "all";
 
 function bin(cmd: string): boolean {
-  const r = spawnSync(cmd, ["--version"], { encoding: "utf8" });
+  const r = safeSpawnSync(cmd, ["--version"], { encoding: "utf8" });
   return r.error == null;
 }
 
@@ -15,7 +14,7 @@ function header(title: string) {
 
 async function spawnInteractive(command: string, args: string[], env: NodeJS.ProcessEnv): Promise<number> {
   return new Promise((resolve) => {
-    const child = spawn(command, args, { stdio: "inherit", env, shell: false });
+    const child = safeSpawn(command, args, { stdio: "inherit", env, shell: false });
     child.on("error", (e: any) => {
       console.error(`\x1b[31m[relay-baton] failed to spawn ${command}: ${e?.message ?? e}\x1b[0m`);
       if (e?.code === "ENOENT") {

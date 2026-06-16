@@ -10,11 +10,13 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@relay-baton/shared": "workspace:*"
+    "@relay-baton/shared": "workspace:*",
+    "cross-spawn": "^7.0.6"
   },
   "devDependencies": {
     "vitest": "^2.0.5",
     "typescript": "^5.5.4",
-    "@types/node": "^20.14.10"
+    "@types/node": "^20.14.10",
+    "@types/cross-spawn": "^6.0.6"
   }
 }

@@ -1,4 +1,4 @@
-import { spawnSync } from "child_process";
+import { safeSpawnSync } from "./safeSpawn";
 import type { AgentCommand, AgentRunInput, AgentConfig } from "@relay-baton/shared";
 import type { AgentAdapter } from "./AgentAdapter";
 
@@ -8,7 +8,7 @@ export class ClaudeCodeAdapter implements AgentAdapter {
   constructor(private cfg: AgentConfig = { command: "claude", args: ["--permission-mode", "acceptEdits", "-p"] }) {}
 
   async detectAvailable(): Promise<boolean> {
-    const r = spawnSync(this.cfg.command, ["--version"], { encoding: "utf8" });
+    const r = safeSpawnSync(this.cfg.command, ["--version"], { encoding: "utf8" });
     return r.status === 0 || r.status === null ? r.error == null : false;
   }
 

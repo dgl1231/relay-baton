@@ -355,10 +355,12 @@ Proposed only — nothing committed; cut as alpha increments like v2.0.
 
 Fix real local-execution bugs and make sure secrets never leave the machine.
 
-- [ ] **Windows agent spawn reliability** — `spawn(..., { shell:false })` doesn't
-  apply PATHEXT, so npm-global shims (`claude.cmd` / `codex.cmd`) can fail with
-  ENOENT (mis-reported as "missing" by `doctor`). Add safe executable resolution
-  (PATH+PATHEXT / `.cmd` fallback) without enabling `shell:true`.
+- [x] **Windows agent spawn reliability** — agent spawns now route through a
+  `safeSpawn` wrapper (cross-spawn): it resolves npm-global `.cmd`/`.bat` shims
+  via PATH+PATHEXT and runs them through `cmd.exe` with escaped arguments and
+  `shell:false`, fixing the ENOENT/EINVAL that made `doctor` mis-report agents as
+  missing. Applied to AgentRunner, all five adapters, `doctor`, `login`, and the
+  TUI. Injection-safe (verified by test).
 - [ ] **Redact before handoff, not just bundle** — run `RedactionScanner` on the
   generated handoff / continuation prompt so secrets never reach the next agent.
 - [ ] **Secret-leak regression scan** — a test/scan asserting no artifact

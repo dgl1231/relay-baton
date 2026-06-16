@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
-import { spawnSync } from "child_process";
+import { safeSpawnSync } from "@relay-baton/core";
 import { ConfigLoader, SessionManager } from "@relay-baton/core";
 import { PLAN_SECTIONS, planSectionBody } from "@relay-baton/core";
 import { validateConfig, validateArtifacts, SchemaInspector } from "@relay-baton/core";
@@ -31,7 +31,7 @@ export const EXPECTED_AGENT_ARGS: Record<string, string[]> = {
 };
 
 function toolVersion(cmd: string): string | null {
-  const r = spawnSync(cmd, ["--version"], { encoding: "utf8" });
+  const r = safeSpawnSync(cmd, ["--version"], { encoding: "utf8" });
   if (r.error != null) return null;
   const out = `${r.stdout ?? ""}${r.stderr ?? ""}`.trim();
   return out.split(/\r?\n/)[0] || "available";
