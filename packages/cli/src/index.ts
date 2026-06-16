@@ -76,11 +76,14 @@ addProjectOptions(
 
 program
   .command("run")
-  .description("Run Codex CLI first; on fallback, run Claude Code with a handoff")
+  .description("Run a relay chain: first agent runs the task; on fallback, hand off to the next agent")
   .argument("<task>", "task description")
   .option("--diet <profile>", "diet profile: off|lite|balanced|caveman|ultra")
   .option("--force", "ignore quality gate failures")
   .option("--allow-api-key-env", "allow passing API key env vars to child processes")
+  .option("--primary <agent>", "first agent in the relay chain (default: config primaryAgent)")
+  .option("--fallback <agent>", "second agent in the relay chain (default: config fallbackAgent)")
+  .option("--chain <a,b,c>", "explicit N-way relay chain (overrides --primary/--fallback)")
   .option("--project <name-or-id>", "registered project name or id")
   .option("--path <repoPath>", "repository path")
   .action((task, opts) => runCommand(task, opts));
@@ -283,8 +286,8 @@ program
 
 program
   .command("login")
-  .description("Run Codex / Claude Code CLI login flows interactively")
-  .argument("[agent]", "codex | claude | all (default: all)")
+  .description("Run an agent CLI login flow interactively (codex/claude/opencode/gemini/aider/cursor)")
+  .argument("[agent]", "codex | claude | opencode | gemini | aider | cursor | all (default: all = first-class pair)")
   .option("--allow-api-key-env", "allow passing API key env vars to login process")
   .action((agent, opts) => loginCommand(agent, opts));
 

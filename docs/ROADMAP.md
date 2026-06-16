@@ -403,11 +403,24 @@ Make releases and externally-received artifacts trustworthy.
 
 Make relay-baton agent-agnostic beyond the Codex↔Claude pair.
 
-- [ ] **First-class multi-agent matrix** — promote the OpenCode / Gemini / Aider
-  scaffolds to supported adapters (real fallback patterns + `login` flows) and
-  add new CLIs (e.g. Cursor CLI) behind the same adapter contract.
-- [ ] **N-way & reverse relay** — support Claude→Codex and longer relay chains,
-  not just Codex→Claude, with a deterministic "who's next" policy.
+- [x] **First-class multi-agent matrix** — a central agent registry
+  (`packages/core/src/agents/AgentRegistry.ts`) is the single source of truth for
+  every agent: tier (`first-class` codex/claude vs `supported`), install URL,
+  login spec, default args, and agent-specific fallback patterns. OpenCode /
+  Gemini / Aider are promoted from scaffolds to **supported** and **Cursor CLI**
+  (`cursor-agent`) is added behind the same `AgentAdapter` contract. `login` is
+  now registry-driven (per-agent install/login flows, incl. interactive and
+  env-key agents); `doctor` reports availability + tier for all six agents;
+  `ConfigSchema` and `diagnostics` derive their agent lists from the registry;
+  and `run` merges the active agent's fallback patterns into the detector. Tests:
+  `AgentRegistry.test.ts` (registry invariants + Cursor adapter).
+- [x] **N-way & reverse relay** — `run` is now a generalized relay loop over an
+  ordered agent chain instead of a hardcoded codex→claude pair. The deterministic
+  "who's next" policy (`resolveChain`): `--chain a,b,c` wins, else
+  `--primary`/`--fallback` → project overrides → config. Supports reverse
+  (claude→codex) and longer N-way chains; each hop builds + gates a handoff and
+  uses the active agent's fallback patterns. Continuation prompt is now
+  agent-agnostic (`PromptBuilder.continuation`). Tests: `relayChain.test.ts`.
 
 ### v2.4 — Smarter handoff (still deterministic)
 

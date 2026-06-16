@@ -25,6 +25,8 @@ export * from "./agents/ClaudeCodeAdapter";
 export * from "./agents/OpenCodeAdapter";
 export * from "./agents/GeminiAdapter";
 export * from "./agents/AiderAdapter";
+export * from "./agents/CursorAdapter";
+export * from "./agents/AgentRegistry";
 export * from "./agents/FallbackDetector";
 export * from "./token-diet/BudgetManager";
 export * from "./token-diet/ContextSelector";

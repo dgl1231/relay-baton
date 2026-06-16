@@ -1,16 +1,51 @@
 import {
   ConfigLoader, SessionManager, GitService, BatonWorkflow,
-  CodexAdapter, ClaudeCodeAdapter, FallbackDetector, resolveFallbackPatterns, runAgent,
+  FallbackDetector, resolveFallbackPatterns, runAgent,
   HandoffQualityGate, TokenDietQualityGate, PromptBuilder, ContextCompressor,
+  agentFallbackPatterns, isAgentId,
 } from "@relay-baton/core";
-import type { DietProfileName } from "@relay-baton/shared";
+import type { AgentId, DietProfileName } from "@relay-baton/shared";
 import { ProjectOpts, resolveProjectContext } from "./projectOptions";
+import { adapterFor } from "./agentFor";
 import { auditApiKeyEnv } from "./auditApiKeyEnv";
 
 export interface RunOpts extends ProjectOpts {
   diet?: string;
   force?: boolean;
   allowApiKeyEnv?: boolean;
+  /** Override the first agent in the relay chain. */
+  primary?: string;
+  /** Override the second agent (single-fallback shorthand). */
+  fallback?: string;
+  /** Explicit N-way chain, comma-separated (e.g. "claude,codex,gemini"). */
+  chain?: string;
+}
+
+/**
+ * Deterministic "who's next" policy (v2.3): the relay chain is an ordered list
+ * of agents. `--chain` wins; otherwise it is [primary, fallback] resolved from
+ * flags > project overrides > config. Supports reverse (claude->codex) and
+ * longer chains, not just codex->claude.
+ */
+export function resolveChain(opts: RunOpts, project: { primaryAgent?: AgentId; fallbackAgent?: AgentId } | undefined, config: { primaryAgent: AgentId; fallbackAgent: AgentId }): AgentId[] {
+  let ids: string[];
+  if (opts.chain) {
+    ids = opts.chain.split(",").map(s => s.trim()).filter(Boolean);
+  } else {
+    const primary = opts.primary ?? project?.primaryAgent ?? config.primaryAgent;
+    const fallback = opts.fallback ?? project?.fallbackAgent ?? config.fallbackAgent;
+    ids = fallback && fallback !== primary ? [primary, fallback] : [primary];
+  }
+  for (const id of ids) {
+    if (!isAgentId(id)) {
+      console.error(`[relay-baton] unknown agent in relay chain: ${id}`);
+      process.exit(2);
+    }
+  }
+  // Collapse immediate duplicates (a,a -> a); keep distinct relay hops.
+  const chain: AgentId[] = [];
+  for (const id of ids as AgentId[]) if (chain[chain.length - 1] !== id) chain.push(id);
+  return chain;
 }
 
 export async function runCommand(task: string, opts: RunOpts) {
@@ -33,13 +68,16 @@ export async function runCommand(task: string, opts: RunOpts) {
     process.exit(2);
   }
 
-  // v0.4 observability: stamp the start of this run; clear any stale
-  // endedAt/durationMs from a previous run/handoff in the same session.
+  const chain = resolveChain(opts, projectContext.project, config);
+  console.log(`[relay-baton] relay chain: ${chain.join(" → ")}`);
+
   const startedAt = new Date().toISOString();
   sm.updateMeta({
     task,
     status: "running",
-    activeAgent: "codex",
+    primaryAgent: chain[0],
+    fallbackAgent: chain[1] ?? chain[0],
+    activeAgent: chain[0],
     tokenDietProfile: profileName,
     fallbackReason: null,
     startedAt,
@@ -47,138 +85,105 @@ export async function runCommand(task: string, opts: RunOpts) {
     durationMs: undefined,
   });
 
-  const codex = new CodexAdapter(config.agents.codex);
-  const cmd = codex.buildCommand({ task, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName });
-  const patterns = resolveFallbackPatterns(config.fallbackPatterns, projectContext.project?.fallbackPatterns);
-  const detector = new FallbackDetector(patterns);
-
-  console.log(`[relay-baton] running ${cmd.command} ${cmd.args.join(" ")}`);
-  const r = await runAgent({
-    command: cmd,
-    logFile: sm.files.p("commandsLog"),
-    authPolicy: config.authPolicy,
-    allowApiKeyEnv: opts.allowApiKeyEnv,
-    fallbackDetector: detector,
-    onStdout: l => process.stdout.write(l + "\n"),
-    onStderr: l => process.stderr.write(l + "\n"),
-    onFallback: hit => console.error(`[relay-baton] fallback pattern detected: ${hit.pattern}`),
-  });
-  auditApiKeyEnv(repoRoot, r.passedThroughEnvVars, sm.getMeta()?.id);
-
-  if (r.error) {
-    console.error(r.error);
+  const finalize = (status: "completed" | "failed", lastAgent: AgentId, lastError: string | null) => {
     const endedAt = new Date().toISOString();
     sm.updateMeta({
-      status: "failed", lastError: r.error, lastAgent: "codex", activeAgent: "none",
+      status, lastAgent, activeAgent: "none", lastError,
       endedAt, durationMs: Date.parse(endedAt) - Date.parse(startedAt),
     });
-    process.exit(1);
-  }
+  };
 
-  const shouldFallback = r.fallbackReason !== null;
-  if (shouldFallback) {
-    // Not terminal yet — fallback flow continues below; don't stamp endedAt.
-    sm.updateMeta({
-      lastAgent: "codex",
-      activeAgent: "none",
-      fallbackReason: r.fallbackReason,
-      status: "fallback_detected",
-      lastError: null,
-    });
-  } else {
-    // Terminal — Codex finished, no fallback needed. Stamp endedAt/duration.
-    const endedAt = new Date().toISOString();
-    sm.updateMeta({
-      lastAgent: "codex",
-      activeAgent: "none",
-      fallbackReason: r.fallbackReason,
-      status: r.exitCode === 0 ? "completed" : "failed",
-      lastError: r.exitCode === 0 ? null : `codex exited with ${r.exitCode}`,
-      endedAt,
-      durationMs: Date.parse(endedAt) - Date.parse(startedAt),
-    });
-    console.log("[relay-baton] codex finished without fallback. exiting.");
-    return;
-  }
+  for (let hop = 0; hop < chain.length; hop++) {
+    const agent = chain[hop];
+    const isFirst = hop === 0;
+    const nextAgent: AgentId | null = hop + 1 < chain.length ? chain[hop + 1] : null;
+    const adapter = adapterFor(agent, config);
 
-  // v0.5 context compression: before building the handoff, proactively
-  // compress running context so the handoff is assembled from tighter
-  // state.md / commands.log. Auto-only and threshold-gated; rolls back itself
-  // on its own gate failure (so it can never make the handoff worse).
-  if (config.contextCompression?.enabled && config.contextCompression?.auto) {
-    const cc = new ContextCompressor(repoRoot, config);
-    const profile = config.tokenDiet.profiles[profileName];
-    const res = cc.compressIfNeeded(profile, {});
-    if (res.compressed) {
-      sm.updateMeta({ status: "compressing" });
-      console.log(`[relay-baton] context compressed: ${res.before.total} -> ${res.after?.total} chars`);
-      sm.updateMeta({ status: "fallback_detected" });
+    // First hop runs the task fresh; later hops continue from the handoff. Pass
+    // the continuation in both task+prompt so task- and prompt-oriented adapters
+    // alike launch with the handoff framing.
+    const continuation = PromptBuilder.continuation();
+    const cmd = isFirst
+      ? adapter.buildCommand({ task, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName })
+      : adapter.buildCommand({ task: continuation, prompt: continuation, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName });
+
+    // Only watch for fallback signals when there is a next agent to relay to.
+    const detector = nextAgent
+      ? new FallbackDetector(resolveFallbackPatterns(
+          [...config.fallbackPatterns, ...agentFallbackPatterns(agent)],
+          projectContext.project?.fallbackPatterns,
+        ))
+      : undefined;
+
+    sm.updateMeta({ status: isFirst ? "running" : "running_fallback", activeAgent: agent });
+    console.log(`[relay-baton] running ${cmd.command} ${cmd.args.join(" ")}`);
+    const r = await runAgent({
+      command: cmd,
+      logFile: sm.files.p("commandsLog"),
+      authPolicy: config.authPolicy,
+      allowApiKeyEnv: opts.allowApiKeyEnv,
+      fallbackDetector: detector,
+      onStdout: l => process.stdout.write(l + "\n"),
+      onStderr: l => process.stderr.write(l + "\n"),
+      onFallback: hit => console.error(`[relay-baton] fallback pattern detected: ${hit.pattern}`),
+    });
+    auditApiKeyEnv(repoRoot, r.passedThroughEnvVars, sm.getMeta()?.id);
+
+    if (r.error) {
+      console.error(r.error);
+      finalize("failed", agent, r.error);
+      process.exit(1);
     }
-  }
 
-  console.log("[relay-baton] building handoff for claude...");
-  const wf = new BatonWorkflow(sm, config);
-  const h = wf.buildHandoff({
-    profileName,
-    fallbackReason: r.fallbackReason,
-    previousAgent: "codex",
-    nextAgent: "claude",
-  });
-  // v0.4 observability: count this successful handoff write.
-  const prevCount = sm.getMeta()?.handoffCount ?? 0;
-  sm.updateMeta({ handoffCount: prevCount + 1 });
+    const wantsFallback = r.fallbackReason !== null && nextAgent !== null;
+    if (!wantsFallback) {
+      // Terminal: either finished cleanly, or hit a limit with no one left to relay to.
+      if (r.fallbackReason !== null) {
+        sm.updateMeta({ fallbackReason: r.fallbackReason });
+        console.log(`[relay-baton] ${agent} hit a fallback signal but the relay chain is exhausted.`);
+      }
+      finalize(r.exitCode === 0 ? "completed" : "failed", agent, r.exitCode === 0 ? null : `${agent} exited with ${r.exitCode}`);
+      console.log(`[relay-baton] ${agent} finished. exiting.`);
+      return;
+    }
 
-  const gate = new HandoffQualityGate(repoRoot).check();
-  const dietGate = new TokenDietQualityGate(repoRoot, profileName, config.tokenDiet.profiles[profileName])
-    .check({ wasTruncated: h.truncated });
+    // Relay to the next agent: record fallback, (optionally) compress, build+gate handoff.
+    sm.updateMeta({ lastAgent: agent, activeAgent: "none", fallbackReason: r.fallbackReason, status: "fallback_detected", lastError: null });
 
-  let blocked = false;
-  if (!gate.ok) { console.error("Handoff Quality Gate failed:"); for (const f of gate.failures) console.error("  - " + f); blocked = true; }
-  if (!dietGate.ok) { console.error("Token Diet Quality Gate failed:"); for (const f of dietGate.failures) console.error("  - " + f); blocked = true; }
-  for (const w of dietGate.warnings) console.error("warn: " + w);
-  const highFindings = h.redaction.findings.filter(f => f.severity === "high");
-  if (highFindings.length > 0) {
-    console.error("Redaction Gate failed (handoff would leak secrets to the next agent):");
-    for (const f of highFindings) console.error(`  - ${f.category}: ${f.file}${f.line ? ":" + f.line : ""} (${f.hint})`);
-    blocked = true;
-  }
-  for (const f of h.redaction.findings.filter(f => f.severity !== "high")) {
-    console.error(`warn: redaction ${f.category} in ${f.file}${f.line ? ":" + f.line : ""} (${f.hint})`);
-  }
-  if (blocked && !opts.force) {
-    console.error("[relay-baton] aborting fallback launch. Use --force to override.");
-    process.exit(3);
-  }
+    if (config.contextCompression?.enabled && config.contextCompression?.auto) {
+      const cc = new ContextCompressor(repoRoot, config);
+      const res = cc.compressIfNeeded(config.tokenDiet.profiles[profileName], {});
+      if (res.compressed) {
+        sm.updateMeta({ status: "compressing" });
+        console.log(`[relay-baton] context compressed: ${res.before.total} -> ${res.after?.total} chars`);
+        sm.updateMeta({ status: "fallback_detected" });
+      }
+    }
 
-  sm.updateMeta({ status: "running_fallback", activeAgent: "claude" });
-  const claude = new ClaudeCodeAdapter(config.agents.claude);
-  const ccmd = claude.buildCommand({ task, repoRoot, sessionDir: sm.files.dir, prompt: PromptBuilder.claudeContinuation() });
-  const r2 = await runAgent({
-    command: ccmd,
-    logFile: sm.files.p("commandsLog"),
-    authPolicy: config.authPolicy,
-    allowApiKeyEnv: opts.allowApiKeyEnv,
-    onStdout: l => process.stdout.write(l + "\n"),
-    onStderr: l => process.stderr.write(l + "\n"),
-  });
-  auditApiKeyEnv(repoRoot, r2.passedThroughEnvVars, sm.getMeta()?.id);
+    console.log(`[relay-baton] building handoff for ${nextAgent}...`);
+    const wf = new BatonWorkflow(sm, config);
+    const h = wf.buildHandoff({ profileName, fallbackReason: r.fallbackReason, previousAgent: agent, nextAgent: nextAgent! });
+    sm.updateMeta({ handoffCount: (sm.getMeta()?.handoffCount ?? 0) + 1 });
 
-  if (r2.error) {
-    console.error(r2.error);
-    const endedAt = new Date().toISOString();
-    sm.updateMeta({
-      status: "failed", lastError: r2.error, lastAgent: "claude", activeAgent: "none",
-      endedAt, durationMs: Date.parse(endedAt) - Date.parse(startedAt),
-    });
-    process.exit(1);
+    const gate = new HandoffQualityGate(repoRoot).check();
+    const dietGate = new TokenDietQualityGate(repoRoot, profileName, config.tokenDiet.profiles[profileName]).check({ wasTruncated: h.truncated });
+    let blocked = false;
+    if (!gate.ok) { console.error("Handoff Quality Gate failed:"); for (const f of gate.failures) console.error("  - " + f); blocked = true; }
+    if (!dietGate.ok) { console.error("Token Diet Quality Gate failed:"); for (const f of dietGate.failures) console.error("  - " + f); blocked = true; }
+    for (const w of dietGate.warnings) console.error("warn: " + w);
+    const highFindings = h.redaction.findings.filter(f => f.severity === "high");
+    if (highFindings.length > 0) {
+      console.error("Redaction Gate failed (handoff would leak secrets to the next agent):");
+      for (const f of highFindings) console.error(`  - ${f.category}: ${f.file}${f.line ? ":" + f.line : ""} (${f.hint})`);
+      blocked = true;
+    }
+    for (const f of h.redaction.findings.filter(f => f.severity !== "high")) {
+      console.error(`warn: redaction ${f.category} in ${f.file}${f.line ? ":" + f.line : ""} (${f.hint})`);
+    }
+    if (blocked && !opts.force) {
+      console.error("[relay-baton] aborting fallback launch. Use --force to override.");
+      process.exit(3);
+    }
+    // loop continues to nextAgent
   }
-  const endedAt = new Date().toISOString();
-  sm.updateMeta({
-    status: r2.exitCode === 0 ? "completed" : "failed",
-    lastAgent: "claude",
-    activeAgent: "none",
-    lastError: r2.exitCode === 0 ? null : `claude exited with ${r2.exitCode}`,
-    endedAt,
-    durationMs: Date.parse(endedAt) - Date.parse(startedAt),
-  });
 }

@@ -1,6 +1,14 @@
-import { ConfigLoader, createAgentEnv, safeSpawn, safeSpawnSync } from "@relay-baton/core";
-
-type Which = "codex" | "claude" | "all";
+import {
+  ConfigLoader,
+  createAgentEnv,
+  safeSpawn,
+  safeSpawnSync,
+  AGENT_REGISTRY,
+  ALL_AGENT_IDS,
+  getAgentDescriptor,
+  isAgentId,
+} from "@relay-baton/core";
+import type { AgentId } from "@relay-baton/shared";
 
 function bin(cmd: string): boolean {
   const r = safeSpawnSync(cmd, ["--version"], { encoding: "utf8" });
@@ -26,8 +34,43 @@ async function spawnInteractive(command: string, args: string[], env: NodeJS.Pro
   });
 }
 
+/** Run the registry-described login flow for a single agent; returns 0 on success. */
+async function loginAgent(id: AgentId, command: string, env: NodeJS.ProcessEnv): Promise<number> {
+  const desc = getAgentDescriptor(id);
+  header(`${desc.displayName} login  [${desc.tier}]`);
+
+  if (!bin(command)) {
+    console.error(`\x1b[31m✗ ${command} command not found on PATH.\x1b[0m`);
+    console.error(`  Install ${desc.displayName} first: ${desc.installUrl}`);
+    return 1;
+  }
+
+  for (const line of desc.login.instructions) console.log(`\x1b[2m${line}\x1b[0m`);
+
+  // No login subcommand (e.g. Aider uses provider API keys via env) — instructions only.
+  if (desc.login.kind === "env") {
+    console.log(`\x1b[32m✓ ${desc.displayName}: nothing to run here (see above).\x1b[0m`);
+    return 0;
+  }
+
+  const args = desc.login.kind === "subcommand" ? desc.login.subcommand ?? [] : [];
+  const code = await spawnInteractive(command, args, env);
+  // Interactive sessions exit non-zero on Ctrl+C (130) — treat as benign.
+  if (code !== 0 && !(desc.login.kind === "interactive" && code === 130)) {
+    console.error(`\x1b[31m✗ ${command} login exited with ${code}\x1b[0m`);
+    return 1;
+  }
+  console.log(`\x1b[32m✓ ${desc.displayName} login finished. \`relay-baton doctor\`로 상태를 확인하세요.\x1b[0m`);
+  return 0;
+}
+
 export async function loginCommand(agent: string | undefined, opts: { allowApiKeyEnv?: boolean }) {
-  const which = (agent ?? "all") as Which;
+  const which = agent ?? "all";
+  if (which !== "all" && !isAgentId(which)) {
+    console.error(`unknown agent: ${which}. Use one of: ${ALL_AGENT_IDS.join(", ")} | all`);
+    process.exit(2);
+  }
+
   const repoRoot = process.cwd();
   const { config } = ConfigLoader.load(repoRoot);
   const { env, removed } = createAgentEnv(process.env, config.authPolicy, opts.allowApiKeyEnv);
@@ -36,50 +79,22 @@ export async function loginCommand(agent: string | undefined, opts: { allowApiKe
     console.log(`\x1b[2m[relay-baton] blocked env from child: ${removed.join(", ")}\x1b[0m`);
   }
 
+  // Default `all` logs in just the first-class pair (codex + claude); explicit
+  // agent ids reach the supported adapters (opencode/gemini/aider/cursor).
+  const targets: AgentId[] =
+    which === "all"
+      ? ALL_AGENT_IDS.filter((id) => AGENT_REGISTRY[id].tier === "first-class")
+      : [which];
+
   let totalFail = 0;
-
-  if (which === "codex" || which === "all") {
-    header("Codex CLI login");
-    if (!bin("codex")) {
-      console.error("\x1b[31m✗ codex command not found on PATH.\x1b[0m");
-      console.error("  Install Codex CLI first: https://github.com/openai/codex");
-      totalFail++;
-    } else {
-      console.log("\x1b[2m`codex login`을 실행합니다. 브라우저 인증을 마치면 자동으로 돌아옵니다.\x1b[0m");
-      const code = await spawnInteractive("codex", ["login"], env);
-      if (code !== 0) {
-        console.error(`\x1b[31m✗ codex login exited with ${code}\x1b[0m`);
-        totalFail++;
-      } else {
-        console.log("\x1b[32m✓ codex login finished.\x1b[0m");
-      }
-    }
+  for (const id of targets) {
+    const command = config.agents[id]?.command ?? AGENT_REGISTRY[id].command;
+    totalFail += await loginAgent(id, command, env);
   }
 
-  if (which === "claude" || which === "all") {
-    header("Claude Code login");
-    if (!bin("claude")) {
-      console.error("\x1b[31m✗ claude command not found on PATH.\x1b[0m");
-      console.error("  Install Claude Code first: https://docs.claude.com/en/docs/agents-and-tools/claude-code/setup");
-      totalFail++;
-    } else {
-      console.log("\x1b[2mClaude Code 대화형 세션을 엽니다.\x1b[0m");
-      console.log("\x1b[2m1. 프롬프트가 뜨면  /login  을 입력하고 Enter.\x1b[0m");
-      console.log("\x1b[2m2. 안내되는 브라우저 인증을 완료합니다.\x1b[0m");
-      console.log("\x1b[2m3. 끝나면  /exit  또는 Ctrl+C 로 빠져나옵니다.\x1b[0m\n");
-      const code = await spawnInteractive("claude", [], env);
-      if (code !== 0 && code !== 130) {
-        console.error(`\x1b[31m✗ claude exited with ${code}\x1b[0m`);
-        totalFail++;
-      } else {
-        console.log("\x1b[32m✓ claude session ended. 다시 doctor로 상태를 확인해 보세요.\x1b[0m");
-      }
-    }
-  }
-
-  if (which !== "codex" && which !== "claude" && which !== "all") {
-    console.error(`unknown agent: ${which}. Use codex | claude | all`);
-    process.exit(2);
+  if (which === "all") {
+    const supported = ALL_AGENT_IDS.filter((id) => AGENT_REGISTRY[id].tier === "supported");
+    console.log(`\n\x1b[2m지원 어댑터 로그인: ${supported.map((s) => `relay-baton login ${s}`).join("  ·  ")}\x1b[0m`);
   }
 
   if (totalFail > 0) process.exit(1);

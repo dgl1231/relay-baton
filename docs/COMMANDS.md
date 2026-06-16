@@ -95,15 +95,36 @@ Simulated end-to-end check of the pipeline against a throwaway temp repo. Never
 executes real agents (`--real-agents` is scaffold-only).
 
 ### `login [agent] [--allow-api-key-env]`
-Run the Codex / Claude Code interactive login flows. `agent` is `codex` |
-`claude` | `all` (default `all`).
+Run an agent CLI's interactive login flow. `agent` is `codex` | `claude` |
+`opencode` | `gemini` | `aider` | `cursor` | `all` (default `all` = the
+first-class Codex+Claude pair). Each flow is driven by the agent registry
+(install URL, login subcommand or interactive steps). Aider has no login command
+— it uses provider API keys via env (blocked by default; see
+`--allow-api-key-env`).
+
+#### Supported agent matrix (v2.3)
+- **First-class:** `codex`, `claude` — the default relay, exercised end-to-end.
+- **Supported:** `opencode`, `gemini`, `aider`, `cursor` (`cursor-agent`) — real
+  adapters with install + login flows + agent-specific fallback patterns; usable
+  as primary/fallback/planner/executor via config or `--with`/`--planner`/
+  `--executor`. `doctor` reports each agent's availability and tier.
 
 ## Run & handoff
 
 ### `run <task>`
-Run Codex CLI first; on usage/rate/token/context/quota fallback, generate a
-handoff and run Claude Code. Options: `--diet`, `--force`, `--allow-api-key-env`,
-`--project`, `--path`.
+Run a **relay chain**: the first agent runs the task; on a
+usage/rate/token/context/quota fallback signal, relay-baton builds a handoff and
+hands off to the next agent. Repeats down the chain until an agent finishes
+without a fallback or the chain is exhausted.
+
+The chain (deterministic "who's next" policy, v2.3):
+- `--chain <a,b,c>` — explicit N-way chain (overrides the pair below).
+- else `--primary <agent>` / `--fallback <agent>`, falling back to project
+  overrides, then config `primaryAgent`/`fallbackAgent`.
+
+Supports reverse relay (e.g. `--primary claude --fallback codex`) and longer
+chains, not just codex→claude. Other options: `--diet`, `--force`,
+`--allow-api-key-env`, `--project`, `--path`.
 
 ### `handoff --to <agent>`
 Generate a handoff document and optionally launch the next agent. Options:

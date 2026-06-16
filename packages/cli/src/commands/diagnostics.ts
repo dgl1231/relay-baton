@@ -5,6 +5,7 @@ import { safeSpawnSync } from "@relay-baton/core";
 import { ConfigLoader, SessionManager } from "@relay-baton/core";
 import { PLAN_SECTIONS, planSectionBody } from "@relay-baton/core";
 import { validateConfig, validateArtifacts, SchemaInspector } from "@relay-baton/core";
+import { AGENT_REGISTRY, ALL_AGENT_IDS } from "@relay-baton/core";
 import type { RelayBatonConfig } from "@relay-baton/shared";
 import { collectHandoffHistory } from "./handoffHistory";
 
@@ -24,11 +25,10 @@ export const DEPRECATED_AGENT_ARGS = [
   "bypassPermissions",
 ];
 
-/** Expected default adapter args (sanity baseline). */
-export const EXPECTED_AGENT_ARGS: Record<string, string[]> = {
-  codex: ["exec", "--sandbox", "workspace-write"],
-  claude: ["--permission-mode", "acceptEdits", "-p"],
-};
+/** Expected default adapter args (sanity baseline), derived from the registry. */
+export const EXPECTED_AGENT_ARGS: Record<string, string[]> = Object.fromEntries(
+  ALL_AGENT_IDS.map((id) => [id, AGENT_REGISTRY[id].defaultArgs]),
+);
 
 function toolVersion(cmd: string): string | null {
   const r = safeSpawnSync(cmd, ["--version"], { encoding: "utf8" });
@@ -54,12 +54,19 @@ export function coreChecks(repoRoot: string, cfg: RelayBatonConfig): Check[] {
   const gitV = toolVersion("git");
   checks.push({ status: gitV ? "ok" : "fail", label: "git command", value: gitV ?? "MISSING" });
 
-  const codexCmd = cfg.agents.codex?.command ?? "codex";
-  const claudeCmd = cfg.agents.claude?.command ?? "claude";
-  const codexV = toolVersion(codexCmd);
-  const claudeV = toolVersion(claudeCmd);
-  checks.push({ status: codexV ? "ok" : "warn", label: "codex command", value: codexV ?? "missing — run `relay-baton login codex`" });
-  checks.push({ status: claudeV ? "ok" : "warn", label: "claude command", value: claudeV ?? "missing — run `relay-baton login claude`" });
+  // Agent availability (v2.3): first-class agents warn when missing (they are the
+  // default relay); supported agents are info-only (optional, opt-in).
+  for (const id of ALL_AGENT_IDS) {
+    const desc = AGENT_REGISTRY[id];
+    const cmd = cfg.agents[id]?.command ?? desc.command;
+    const v = toolVersion(cmd);
+    const missingStatus = desc.tier === "first-class" ? "warn" : "info";
+    checks.push({
+      status: v ? "ok" : missingStatus,
+      label: `${id} command`,
+      value: v ?? `missing — run \`relay-baton login ${id}\` (${desc.tier})`,
+    });
+  }
 
   // Auth: presence only, never values.
   for (const ev of cfg.authPolicy.blockedEnvVars) {

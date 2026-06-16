@@ -9,17 +9,25 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-16 — **v2.2 (Trust & supply chain) SHIPPED & VERIFIED on
-tag `v2.2.0-alpha.0`.** Release run `27597659547` finished green (all 8 jobs).
-Verified the two new pipeline steps actually worked: provenance attestation
-passes (`gh attestation verify relay-baton-linux-x64 --repo dgl1231/relay-baton`
-→ exit 0, predicateType `https://slsa.dev/provenance/v1`) and `sbom-diff.md` is
-published (no dep changes vs v2.1.0-alpha.2, as expected for a CI/code-only
-release). Release carries 9 assets (3 CLI + 3 desktop + SHA256SUMS + SBOM +
-sbom-diff.md). Also added roadmap milestone **v2.6 — Public release &
-distribution (GA)** capturing the launch blockers (LICENSE, npm publish, code
-signing, package managers, announce). Next: start v2.3 (multi-agent breadth).
-Releases stay alpha (v2.x.0-alpha.N)._
+_Last updated: 2026-06-16 — **v2.3 (Multi-agent breadth) FEATURE-COMPLETE locally
+(not yet released).** Both boxes `[x]`. Item 1: central **agent registry**
+(`packages/core/src/agents/AgentRegistry.ts`) — tier (first-class codex/claude vs
+supported), install URL, login spec, default args, per-agent fallback patterns;
+OpenCode/Gemini/Aider promoted scaffold→supported; **Cursor CLI** (`cursor-agent`)
+added (`AgentId` gains `cursor`); registry-driven `login`; `doctor` shows all 6
+agents + tier; `ConfigSchema`/`diagnostics` derive lists from the registry. Item
+2: **N-way & reverse relay** — `run` is now a generalized relay loop over an
+ordered chain (`resolveChain`: `--chain` > `--primary`/`--fallback` > project >
+config); supports reverse (claude→codex) + longer chains; `PromptBuilder.
+continuation()` is agent-agnostic. New tests `AgentRegistry.test.ts` +
+`relayChain.test.ts`. Build green, 273 core + 88 cli tests pass. Next: cut a
+`v2.3.0-alpha.0` release per RELEASE.md when ready, then start v2.4 (smarter
+handoff). Releases stay alpha (v2.x.0-alpha.N).
+
+Prior: **v2.2 SHIPPED & VERIFIED on `v2.2.0-alpha.0`** (run `27597659547` green;
+provenance attestation verifies, `sbom-diff.md` published). Roadmap milestone
+**v2.6 — Public release & distribution (GA)** captures launch blockers (LICENSE,
+npm publish, code signing, package managers, announce)._
 
 **v2.2 detail (all local):**
 - **(1) Path-traversal safety** — `inspect` on handoff bundles & session archives

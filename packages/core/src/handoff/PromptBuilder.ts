@@ -1,5 +1,14 @@
 export class PromptBuilder {
+  /** Back-compat alias; the continuation prompt is agent-agnostic (v2.3). */
   static claudeContinuation(): string {
+    return PromptBuilder.continuation();
+  }
+
+  /**
+   * Generic handoff-continuation prompt for the NEXT agent in a relay chain,
+   * whichever agent that is (Codex↔Claude, reverse, or N-way). Agent-agnostic.
+   */
+  static continuation(): string {
     return [
       "You are continuing work from a previous coding agent through relay-baton.",
       "",

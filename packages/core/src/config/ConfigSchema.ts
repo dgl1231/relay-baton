@@ -1,5 +1,6 @@
 import type { AgentId, DietProfileName, RelayBatonConfig } from "@relay-baton/shared";
 import { CONFIG_VERSION } from "@relay-baton/shared";
+import { ALL_AGENT_IDS } from "../agents/AgentRegistry";
 
 export interface ValidationResult {
   ok: boolean;
@@ -7,9 +8,9 @@ export interface ValidationResult {
   warnings: string[];
 }
 
-const AGENT_IDS: ReadonlySet<string> = new Set<AgentId>([
-  "codex", "claude", "opencode", "gemini", "aider",
-]);
+// Single source of truth: the agent registry (v2.3). Keeps schema validation in
+// lockstep with the supported agent matrix.
+const AGENT_IDS: ReadonlySet<string> = new Set<AgentId>(ALL_AGENT_IDS);
 const DIET_NAMES: ReadonlySet<string> = new Set<DietProfileName>([
   "off", "lite", "balanced", "caveman", "ultra",
 ]);

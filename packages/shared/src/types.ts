@@ -1,4 +1,4 @@
-export type AgentId = "codex" | "claude" | "opencode" | "gemini" | "aider";
+export type AgentId = "codex" | "claude" | "opencode" | "gemini" | "aider" | "cursor";
 
 export type DietProfileName = "off" | "lite" | "balanced" | "caveman" | "ultra";
 
