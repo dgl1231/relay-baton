@@ -342,50 +342,71 @@ instead of a thin release shell.
   remaining constraints (no auto commit/push/PR, no daemon, no real-time chat,
   no default semantic indexing) hold by design and are documented.
 
-## Beyond v2.0 — proposed directions
+## Beyond v2.0 — proposed line (v2.1 → v2.5)
 
-The v1.x → v2.0 lines are complete. These are candidate directions for the next
-stable line, grouped into capability additions and hardening. All must respect
-the existing hard constraints (local-first, subprocess-only, deterministic, no
-direct LLM API client, no auto commit/push/PR, no daemon requirement, no default
-semantic/vector indexing). Nothing here is committed yet.
+The v1.x → v2.0 lines are complete. The next stable line is sequenced
+hardening-first (security/reliability before new surface area), then capability
+breadth. Every item respects the existing hard constraints (local-first,
+subprocess-only, deterministic, no direct LLM API client, no auto
+commit/push/PR, no daemon requirement, no default semantic/vector indexing).
+Proposed only — nothing committed; cut as alpha increments like v2.0.
 
-### Additions (capabilities)
+### v2.1 — Reliability & secret safety
+
+Fix real local-execution bugs and make sure secrets never leave the machine.
+
+- [ ] **Windows agent spawn reliability** — `spawn(..., { shell:false })` doesn't
+  apply PATHEXT, so npm-global shims (`claude.cmd` / `codex.cmd`) can fail with
+  ENOENT (mis-reported as "missing" by `doctor`). Add safe executable resolution
+  (PATH+PATHEXT / `.cmd` fallback) without enabling `shell:true`.
+- [ ] **Redact before handoff, not just bundle** — run `RedactionScanner` on the
+  generated handoff / continuation prompt so secrets never reach the next agent.
+- [ ] **Secret-leak regression scan** — a test/scan asserting no artifact
+  (`commands.log`, `handoff.md`, conversation) can capture provider key *values*,
+  plus an audit-trail event when `--allow-api-key-env` is used (names, not values).
+
+### v2.2 — Trust & supply chain
+
+Make releases and externally-received artifacts trustworthy.
+
+- [ ] **Untrusted-bundle / path-traversal safety** — when inspecting/importing an
+  externally-received bundle or archive, reject manifest `target` paths that are
+  absolute or escape the root (`..`, symlinks); add size caps.
+- [ ] **Signed releases + provenance by default** — move from
+  conditional-on-secrets signing toward default signing where possible, and
+  publish build provenance/attestations (e.g. SLSA,
+  `actions/attest-build-provenance`).
+- [ ] **Supply-chain hardening** — pin GitHub Actions by commit SHA, enable
+  Dependabot, and diff the SBOM between releases to flag dependency drift.
+
+### v2.3 — Multi-agent breadth
+
+Make relay-baton agent-agnostic beyond the Codex↔Claude pair.
 
 - [ ] **First-class multi-agent matrix** — promote the OpenCode / Gemini / Aider
   scaffolds to supported adapters (real fallback patterns + `login` flows) and
   add new CLIs (e.g. Cursor CLI) behind the same adapter contract.
 - [ ] **N-way & reverse relay** — support Claude→Codex and longer relay chains,
   not just Codex→Claude, with a deterministic "who's next" policy.
+
+### v2.4 — Smarter handoff (still deterministic)
+
+Spend fewer tokens per handoff without adding embeddings.
+
 - [ ] **Deterministic compaction v2** — symbol/heading-aware repo map and
   relevance-ranked diff selection (changed-file proximity), still no embeddings.
+- [ ] **Local usage insight** — per-session token/quota-proxy accounting for
+  budgeting; local only, never transmitted.
+
+### v2.5 — Guarded automation & extensibility
+
+Longer unattended-but-bounded runs and per-project customization.
+
 - [ ] **Bounded auto-orchestration (`run --until`)** — a guarded multi-step loop
   gated by the existing checkpoints + guardrails (max steps/files/budget,
   confirmation), never an unattended daemon.
 - [ ] **Project recipes / hooks** — per-project pre-handoff / post-execute hooks
   and command defaults, declared in config (no daemon, no network).
-- [ ] **Local usage insight** — per-session token/quota-proxy accounting for
-  budgeting; local only, never transmitted.
-
-### Hardening (security & reliability)
-
-- [ ] **Windows agent spawn reliability** — `spawn(..., { shell:false })` may not
-  resolve npm-global shims (`claude.cmd`/PATHEXT) → ENOENT. Add safe executable
-  resolution so users aren't pushed toward unsafe `shell:true` workarounds.
-- [ ] **Redact before handoff, not just bundle** — run `RedactionScanner` on the
-  generated handoff / continuation prompt so secrets never reach the next agent,
-  not only when exporting a bundle.
-- [ ] **Untrusted-bundle / path-traversal safety** — when inspecting/importing an
-  externally-received bundle or archive, reject manifest `target` paths that are
-  absolute or escape the root (`..`, symlinks); add size caps.
-- [ ] **Signed releases + provenance by default** — move from
-  conditional-on-secrets signing to default signing where possible, and publish
-  build provenance/attestations (e.g. SLSA, `actions/attest-build-provenance`).
-- [ ] **Supply-chain hardening** — pin GitHub Actions by commit SHA, enable
-  Dependabot, and diff the SBOM between releases to flag dependency drift.
-- [ ] **Secret-leak regression scan** — a test/scan asserting no artifact
-  (`commands.log`, `handoff.md`, conversation) can capture provider key *values*,
-  and an audit-trail event when `--allow-api-key-env` is used (names, not values).
 
 ## v0.6 — Trust & Verify
 
