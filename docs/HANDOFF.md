@@ -9,15 +9,17 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-16 — **v2.2 (Trust & supply chain) SHIPPED — tag
-`v2.2.0-alpha.0` pushed; release run `27597659547` triggered (re-check:
-`gh run view 27597659547 --repo dgl1231/relay-baton --json status,conclusion,jobs`).**
-All three boxes `[x]`: (1) untrusted-bundle / path-traversal safety, (2) signed
-releases + provenance by default, (3) supply-chain hardening. This is the FIRST
-release exercising the new provenance attestation + SBOM-diff steps — confirm
-those two jobs in `release-finalize` succeeded and that `sbom-diff.md` +
-attestations appear on the Release. Next: start v2.3 (multi-agent breadth).
-Releases stay alpha (v2.2.0-alpha.N)._
+_Last updated: 2026-06-16 — **v2.2 (Trust & supply chain) SHIPPED & VERIFIED on
+tag `v2.2.0-alpha.0`.** Release run `27597659547` finished green (all 8 jobs).
+Verified the two new pipeline steps actually worked: provenance attestation
+passes (`gh attestation verify relay-baton-linux-x64 --repo dgl1231/relay-baton`
+→ exit 0, predicateType `https://slsa.dev/provenance/v1`) and `sbom-diff.md` is
+published (no dep changes vs v2.1.0-alpha.2, as expected for a CI/code-only
+release). Release carries 9 assets (3 CLI + 3 desktop + SHA256SUMS + SBOM +
+sbom-diff.md). Also added roadmap milestone **v2.6 — Public release &
+distribution (GA)** capturing the launch blockers (LICENSE, npm publish, code
+signing, package managers, announce). Next: start v2.3 (multi-agent breadth).
+Releases stay alpha (v2.x.0-alpha.N)._
 
 **v2.2 detail (all local):**
 - **(1) Path-traversal safety** — `inspect` on handoff bundles & session archives
