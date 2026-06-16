@@ -2,6 +2,7 @@ import * as crypto from "crypto";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
+import { MAX_INSPECT_FILE_BYTES, resolveWithin, type UnsafeReason } from "@relay-baton/shared";
 import type { SessionArchiveManifest } from "./SessionArchiver";
 
 export const DEFAULT_ARCHIVE_ROOT = path.join(os.homedir(), ".relay-baton", "session-archives");
@@ -65,6 +66,9 @@ export interface InspectedFile {
   present: boolean;
   sizeMatches: boolean;
   hashMatches: boolean;
+  /** v2.2 — set when the manifest target was rejected as path-traversal. */
+  safe: boolean;
+  unsafeReason?: UnsafeReason | "too-large";
 }
 
 export interface SessionArchiveInspectResult {
@@ -78,7 +82,11 @@ export interface SessionArchiveInspectResult {
   files: InspectedFile[];
   missing: string[];
   corrupt: string[];
+  /** v2.2 — manifest targets rejected as unsafe (absolute / `..` / symlink / too large). */
+  unsafe: string[];
   intact: boolean;
+  /** True only when nothing is missing, corrupt, OR unsafe. */
+  safe: boolean;
   reason?: string;
 }
 
@@ -205,7 +213,9 @@ export class SessionArchiveStore {
       files: [],
       missing: [],
       corrupt: [],
+      unsafe: [],
       intact: false,
+      safe: false,
     };
 
     if (!fs.existsSync(archiveDir) || !fs.statSync(archiveDir).isDirectory()) {
@@ -220,25 +230,46 @@ export class SessionArchiveStore {
     const files: InspectedFile[] = [];
     const missing: string[] = [];
     const corrupt: string[] = [];
+    const unsafe: string[] = [];
     let totalBytes = 0;
 
     for (const f of manifest.files) {
-      const abs = path.isAbsolute(f.target) ? f.target : path.join(archiveDir, f.target);
+      totalBytes += f.size;
+
+      // v2.2: never trust the manifest target. Reject traversal/absolute/symlink.
+      const resolved = resolveWithin(archiveDir, f.target);
+      if (!resolved.abs) {
+        unsafe.push(resolved.rel);
+        files.push({ target: resolved.rel, size: f.size, sha256: f.sha256, present: false, sizeMatches: false, hashMatches: false, safe: false, unsafeReason: resolved.reason });
+        continue;
+      }
+      if (f.size > MAX_INSPECT_FILE_BYTES) {
+        unsafe.push(resolved.rel);
+        files.push({ target: resolved.rel, size: f.size, sha256: f.sha256, present: false, sizeMatches: false, hashMatches: false, safe: false, unsafeReason: "too-large" });
+        continue;
+      }
+
+      const abs = resolved.abs;
       const present = fs.existsSync(abs) && fs.statSync(abs).isFile();
       let sizeMatches = false;
       let hashMatches = false;
       if (present) {
+        const onDisk = fs.statSync(abs).size;
+        if (onDisk > MAX_INSPECT_FILE_BYTES) {
+          unsafe.push(resolved.rel);
+          files.push({ target: resolved.rel, size: f.size, sha256: f.sha256, present: true, sizeMatches: false, hashMatches: false, safe: false, unsafeReason: "too-large" });
+          continue;
+        }
         const bytes = fs.readFileSync(abs);
         sizeMatches = bytes.length === f.size;
         hashMatches = crypto.createHash("sha256").update(bytes).digest("hex") === f.sha256;
       }
-      totalBytes += f.size;
-      const rel = path.relative(archiveDir, abs);
-      if (!present) missing.push(rel);
-      else if (!sizeMatches || !hashMatches) corrupt.push(rel);
-      files.push({ target: rel, size: f.size, sha256: f.sha256, present, sizeMatches, hashMatches });
+      if (!present) missing.push(resolved.rel);
+      else if (!sizeMatches || !hashMatches) corrupt.push(resolved.rel);
+      files.push({ target: resolved.rel, size: f.size, sha256: f.sha256, present, sizeMatches, hashMatches, safe: true });
     }
 
+    const intact = missing.length === 0 && corrupt.length === 0;
     return {
       available: true,
       id,
@@ -250,7 +281,9 @@ export class SessionArchiveStore {
       files,
       missing,
       corrupt,
-      intact: missing.length === 0 && corrupt.length === 0,
+      unsafe,
+      intact,
+      safe: intact && unsafe.length === 0,
     };
   }
 

@@ -1,0 +1,51 @@
+# v2.2 supply-chain hardening — automated dependency update PRs.
+# Grouped to keep PR volume low; security updates always come through regardless
+# of the schedule.
+version: 2
+updates:
+  # Root pnpm workspace (packages/* are covered by the workspace manifest).
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      npm-dev:
+        dependency-type: development
+        update-types: [minor, patch]
+      npm-prod:
+        dependency-type: production
+        update-types: [minor, patch]
+
+  # Tauri desktop shell (separate npm project, not in the pnpm workspace).
+  - package-ecosystem: npm
+    directory: "/desktop"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      desktop-npm:
+        patterns: ["*"]
+        update-types: [minor, patch]
+
+  # Rust crates for the Tauri sidecar shell.
+  - package-ecosystem: cargo
+    directory: "/desktop/src-tauri"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      cargo:
+        patterns: ["*"]
+        update-types: [minor, patch]
+
+  # GitHub Actions — keep the SHA-pinned actions current (Dependabot updates the
+  # pin and the trailing version comment together).
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      actions:
+        patterns: ["*"]

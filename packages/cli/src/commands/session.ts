@@ -160,8 +160,15 @@ export async function sessionInspectCommand(archive: string, opts: SessionInspec
   console.log(`createdAt: ${result.createdAt ?? "unknown"}`);
   console.log(`files: ${result.fileCount}, total ${result.totalBytes} bytes`);
   console.log(`integrity: ${result.intact ? "intact" : "DAMAGED"}`);
+  console.log(`trust: ${result.safe ? "safe" : "UNSAFE — do not import"}`);
   if (result.missing.length > 0) console.log(`missing: ${result.missing.join(", ")}`);
   if (result.corrupt.length > 0) console.log(`corrupt: ${result.corrupt.join(", ")}`);
+  if (result.unsafe.length > 0) {
+    console.log(`⚠ unsafe targets (path traversal / oversized): ${result.unsafe.length}`);
+    for (const f of result.files.filter(x => !x.safe)) {
+      console.log(`  - [${f.unsafeReason}] ${f.target}`);
+    }
+  }
 }
 
 export interface SessionResumeOpts {

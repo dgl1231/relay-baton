@@ -9,12 +9,27 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-15 — `v1.9.0-alpha.0` SHIPPED. v2.0 (stable desktop +
-local handoff platform) STARTED: scope is one item per cycle. First item —
-**Upgrade/migration checks** (#3) — implemented locally: artifact schema registry
-+ `relay-baton migrate --check` + `doctor --deep` detection (read-only). Not yet
-committed. Schema-v2 approach chosen: bump + migration (apply lands when a real
-schema bump is defined). Releases stay alpha (v2.0.0-alpha.N)._
+_Last updated: 2026-06-16 — **v2.2 (Trust & supply chain) is FEATURE-COMPLETE
+locally (not yet released).** All three boxes `[x]`: (1) untrusted-bundle /
+path-traversal safety, (2) signed releases + provenance by default, (3)
+supply-chain hardening. Next: cut `v2.2.0-alpha.0` per RELEASE.md when ready, then
+start v2.3 (multi-agent breadth). Releases stay alpha (v2.2.0-alpha.N)._
+
+**v2.2 detail (all local):**
+- **(1) Path-traversal safety** — `inspect` on handoff bundles & session archives
+  refuses untrusted manifest `target`s via shared `resolveWithin` (rejects
+  absolute / `..` / symlink) + 8 MiB cap; results gain `unsafe[]` + top-level
+  `safe` (CLI prints `trust: safe|UNSAFE`). Bundler/archiver now write
+  bundle-relative POSIX targets. New `packages/shared/src/safe-path.ts`,
+  `pathTraversalSafety.test.ts`. 262 core + 83 cli tests pass.
+- **(2) Provenance by default** — `release.yml` `release-finalize` attests the 3
+  CLI binaries + `SHA256SUMS` with `actions/attest-build-provenance` (default
+  token, no secrets). Added `attestations: write`. Verify:
+  `gh attestation verify <file> --repo dgl1231/relay-baton`.
+- **(3) Supply-chain hardening** — all Actions pinned by SHA (`ci.yml` +
+  `release.yml`); `.github/dependabot.yml` (npm root+desktop, cargo, actions,
+  grouped weekly); `.github/scripts/sbom-diff.mjs` diffs SBOM vs previous release
+  → `sbom-diff.md`. CI/workflow YAML validated.
 
 ## Where we are
 
@@ -28,6 +43,10 @@ schema bump is defined). Releases stay alpha (v2.0.0-alpha.N)._
   (`alpha.0`), redact-before-handoff Redaction Gate (`alpha.1`), and secret-leak
   regression scan + `--allow-api-key-env` audit (latest, local). All three v2.1
   roadmap boxes are `[x]`. Next line: v2.2 (Trust & supply chain).
+- **v2.2 is FEATURE-COMPLETE locally** — "Trust & supply chain". All three boxes
+  `[x]`: path-traversal safety, signed releases + provenance by default, and
+  supply-chain hardening (pinned actions + Dependabot + SBOM diff). Not yet
+  released.
 - **v2.0 is FEATURE-COMPLETE** — alpha.0..alpha.6 shipped (migration checks,
   schema migrator, desktop contract, hard constraints, installer/docs finalize,
   git-baseline schema, prune policy + CI race fix). Latest local (not yet

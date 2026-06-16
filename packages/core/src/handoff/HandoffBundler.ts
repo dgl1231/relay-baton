@@ -92,7 +92,9 @@ export class HandoffBundler {
       const bytes = fs.readFileSync(source);
       files.push({
         source,
-        target: path.join(bundleDir, SESSION_FILES[key]),
+        // Manifest targets are bundle-relative (POSIX) so they stay portable
+        // and pass the v2.2 path-traversal guard on the receiving side.
+        target: SESSION_FILES[key],
         size: bytes.length,
         sha256: crypto.createHash("sha256").update(bytes).digest("hex"),
       });
@@ -111,7 +113,7 @@ export class HandoffBundler {
 
     if (!dryRun) {
       fs.mkdirSync(bundleDir, { recursive: true });
-      for (const f of files) fs.copyFileSync(f.source, f.target);
+      for (const f of files) fs.copyFileSync(f.source, path.join(bundleDir, f.target));
       fs.writeFileSync(path.join(bundleDir, "git-summary.json"), `${JSON.stringify(git, null, 2)}\n`, "utf8");
       fs.writeFileSync(path.join(bundleDir, "redaction.json"), `${JSON.stringify(redaction, null, 2)}\n`, "utf8");
       fs.writeFileSync(path.join(bundleDir, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");

@@ -77,6 +77,26 @@ release assets, writes `SHA256SUMS`, generates a best-effort CycloneDX SBOM
 (`relay-baton.cdx.json`), and uploads both back to the same Release. The
 one-line installers verify downloaded CLI binaries against `SHA256SUMS`.
 
+### Supply chain & provenance (v2.2)
+
+- **Build provenance (on by default).** `release-finalize` runs
+  `actions/attest-build-provenance` over the three CLI binaries + `SHA256SUMS`
+  using the default `GITHUB_TOKEN` — no extra secrets needed. Verify a download:
+
+  ```bash
+  gh attestation verify relay-baton-linux-x64 --repo dgl1231/relay-baton
+  ```
+
+  (The secret-gated Azure/Apple/Tauri code signing still applies to installers.)
+- **SBOM diff.** `.github/scripts/sbom-diff.mjs` compares this release's SBOM
+  against the previous release's and publishes `sbom-diff.md`
+  (added/removed/changed dependencies). Advisory — never fails the release.
+- **Pinned actions.** Every GitHub Action in `ci.yml`/`release.yml` is pinned to a
+  commit SHA with a trailing `# vX` comment. Bump via the Dependabot
+  `github-actions` group, not by hand.
+- **Dependabot.** `.github/dependabot.yml` opens grouped weekly update PRs for
+  npm (root + desktop), cargo (Tauri), and github-actions.
+
 When Tauri updater signing secrets are configured, the desktop matrix also
 creates signed updater artifacts and `release-finalize` publishes `latest.json`
 for the desktop app's manual update check. Without those secrets, updater

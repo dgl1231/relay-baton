@@ -72,8 +72,9 @@ export class SessionArchiver {
     if (!dryRun) {
       fs.mkdirSync(archiveDir, { recursive: true });
       for (const f of files) {
-        fs.mkdirSync(path.dirname(f.target), { recursive: true });
-        fs.copyFileSync(f.source, f.target);
+        const dest = path.join(archiveDir, f.target);
+        fs.mkdirSync(path.dirname(dest), { recursive: true });
+        fs.copyFileSync(f.source, dest);
       }
       fs.writeFileSync(path.join(archiveDir, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
     }
@@ -96,7 +97,9 @@ export class SessionArchiver {
         const bytes = fs.readFileSync(full);
         out.push({
           source: full,
-          target: path.join(archiveDir, rel),
+          // Archive-relative (POSIX) target — portable and traversal-safe on
+          // the receiving side (v2.2 path-traversal guard).
+          target: rel.split(path.sep).join("/"),
           size: stat.size,
           sha256: crypto.createHash("sha256").update(bytes).digest("hex"),
         });

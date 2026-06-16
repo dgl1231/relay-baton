@@ -376,15 +376,26 @@ Fix real local-execution bugs and make sure secrets never leave the machine.
 
 Make releases and externally-received artifacts trustworthy.
 
-- [ ] **Untrusted-bundle / path-traversal safety** — when inspecting/importing an
-  externally-received bundle or archive, reject manifest `target` paths that are
-  absolute or escape the root (`..`, symlinks); add size caps.
-- [ ] **Signed releases + provenance by default** — move from
-  conditional-on-secrets signing toward default signing where possible, and
-  publish build provenance/attestations (e.g. SLSA,
-  `actions/attest-build-provenance`).
-- [ ] **Supply-chain hardening** — pin GitHub Actions by commit SHA, enable
-  Dependabot, and diff the SBOM between releases to flag dependency drift.
+- [x] **Untrusted-bundle / path-traversal safety** — `inspect` on a handoff
+  bundle or session archive no longer trusts manifest `target` paths. A shared
+  `resolveWithin` guard (`@relay-baton/shared`) rejects absolute targets, `..`
+  escapes, and symlink escapes; a per-file size cap (`MAX_INSPECT_FILE_BYTES`,
+  8 MiB) caps verification reads. Rejected entries land in a new `unsafe[]` list,
+  each file carries `safe`/`unsafeReason`, and the result exposes a top-level
+  `safe` flag (CLI prints `trust: safe|UNSAFE`). Bundler/archiver now emit
+  bundle-relative POSIX targets so legitimate artifacts pass the guard.
+- [x] **Signed releases + provenance by default** — `release.yml` now publishes
+  SLSA build provenance for every CLI binary + `SHA256SUMS` via
+  `actions/attest-build-provenance` using the default `GITHUB_TOKEN` (no extra
+  secrets, so attestation is on by default). Consumers verify with
+  `gh attestation verify <file> --repo dgl1231/relay-baton`. The existing
+  secret-gated Azure/Apple/Tauri code signing remains for installers.
+- [x] **Supply-chain hardening** — all GitHub Actions are pinned by commit SHA
+  (with a trailing version comment) in `ci.yml` + `release.yml`;
+  `.github/dependabot.yml` enables grouped weekly updates for npm (root +
+  desktop), cargo (Tauri), and github-actions; and `release-finalize` runs
+  `.github/scripts/sbom-diff.mjs` to diff the CycloneDX SBOM against the previous
+  release (added/removed/changed components) and publish `sbom-diff.md`.
 
 ### v2.3 — Multi-agent breadth
 

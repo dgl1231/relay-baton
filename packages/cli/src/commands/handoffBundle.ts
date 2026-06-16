@@ -61,7 +61,14 @@ export async function handoffInspectCommand(bundle: string, opts: HandoffInspect
   console.log(`git: ${result.git?.branch ?? "(no git)"}${result.git ? ` · ${result.git.changed} changed` : ""}`);
   console.log(`files: ${result.fileCount}, total ${result.totalBytes} bytes`);
   console.log(`integrity: ${result.intact ? "intact" : "DAMAGED"}`);
+  console.log(`trust: ${result.safe ? "safe" : "UNSAFE — do not import"}`);
   if (result.missing.length) console.log(`missing: ${result.missing.join(", ")}`);
   if (result.corrupt.length) console.log(`corrupt: ${result.corrupt.join(", ")}`);
+  if (result.unsafe.length) {
+    console.log(`⚠ unsafe targets (path traversal / oversized): ${result.unsafe.length}`);
+    for (const f of result.files.filter(x => !x.safe)) {
+      console.log(`  - [${f.unsafeReason}] ${f.target}`);
+    }
+  }
   if (result.redactionFindings != null) console.log(`redaction findings recorded: ${result.redactionFindings}`);
 }
