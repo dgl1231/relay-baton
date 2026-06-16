@@ -14,6 +14,7 @@ Release notes are user-facing changelogs, not agent handoff material — that ro
 
 ## Versions
 
+- [v2.1.0-alpha.1](./v2.1.0-alpha.1.md) / [한국어](./ko/v2.1.0-alpha.1.md) - Redact before handoff: a Redaction Gate blocks launching the next agent on high-severity secret findings in the generated handoff (unless `--force`).
 - [v2.1.0-alpha.0](./v2.1.0-alpha.0.md) / [한국어](./ko/v2.1.0-alpha.0.md) - Windows-safe agent spawn: `safeSpawn` (cross-spawn) resolves npm-global `.cmd` shims and escapes arguments, fixing `doctor`/`run`/`login` on Windows.
 - [v2.0.0-alpha.6](./v2.0.0-alpha.6.md) / [한국어](./ko/v2.0.0-alpha.6.md) - Conversation-event schema versioning + `session export`; v2.0 feature-complete and a "Beyond v2.0" roadmap (additions + hardening).
 - [v2.0.0-alpha.5](./v2.0.0-alpha.5.md) / [한국어](./ko/v2.0.0-alpha.5.md) - Session archive prune policy (`session prune`, disabled by default, dry-run unless `--apply`) + a CI release-creation race fix.

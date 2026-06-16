@@ -10,7 +10,7 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 [![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-[![Latest](https://img.shields.io/badge/release-v2.1.0--alpha.0-blue.svg)](./release-notes/v2.1.0-alpha.0.md)
+[![Latest](https://img.shields.io/badge/release-v2.1.0--alpha.1-blue.svg)](./release-notes/v2.1.0-alpha.1.md)
 [![Download](https://img.shields.io/badge/download-binaries-238636.svg)](https://github.com/dgl1231/relay-baton/releases/latest)
 
 **English**
@@ -628,10 +628,11 @@ any real run). Design only for now — **not implemented yet**. Full design:
 
 Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-notes/README.md)). They are user-facing changelogs, not agent handoff material — that role belongs to `.ai-session/handoff.md`.
 
-**Latest:** v2.1.0-alpha.0 — [English](./release-notes/v2.1.0-alpha.0.md) · [한국어](./release-notes/ko/v2.1.0-alpha.0.md)
+**Latest:** v2.1.0-alpha.1 — [English](./release-notes/v2.1.0-alpha.1.md) · [한국어](./release-notes/ko/v2.1.0-alpha.1.md)
 
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
+| v2.1.0-alpha.1 | [Read →](./release-notes/v2.1.0-alpha.1.md) | [읽기 →](./release-notes/ko/v2.1.0-alpha.1.md) | Redact before handoff: a Redaction Gate blocks launching the next agent on high-severity secret findings (unless `--force`). |
 | v2.1.0-alpha.0 | [Read →](./release-notes/v2.1.0-alpha.0.md) | [읽기 →](./release-notes/ko/v2.1.0-alpha.0.md) | Windows-safe agent spawn: `safeSpawn` (cross-spawn) resolves npm-global `.cmd` shims and escapes arguments, fixing `doctor`/`run`/`login` on Windows. |
 | v2.0.0-alpha.6 | [Read →](./release-notes/v2.0.0-alpha.6.md) | [읽기 →](./release-notes/ko/v2.0.0-alpha.6.md) | Conversation-event schema versioning + `session export`; v2.0 feature-complete and a "Beyond v2.0" roadmap. |
 | v2.0.0-alpha.5 | [Read →](./release-notes/v2.0.0-alpha.5.md) | [읽기 →](./release-notes/ko/v2.0.0-alpha.5.md) | Session archive prune policy (`session prune`, disabled by default, dry-run unless `--apply`) + a CI release-creation race fix. |
