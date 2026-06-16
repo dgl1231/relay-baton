@@ -24,6 +24,7 @@ import { executeCommand } from "./commands/execute";
 import { compressContextCommand } from "./commands/compressContext";
 import { compactCommand } from "./commands/compact";
 import { budgetCommand } from "./commands/budget";
+import { usageCommand } from "./commands/usage";
 import { compressCommand } from "./commands/compress";
 import { tuiCommand } from "./commands/tui";
 import { chatCommand } from "./commands/chat";
@@ -203,6 +204,7 @@ program
   .action(compactCommand);
 
 addProjectOptions(program.command("budget").description("Show context budget usage").option("--json", "print machine-readable JSON")).action(budgetCommand);
+addProjectOptions(program.command("usage").description("Show local per-session usage (token proxy; never transmitted)").option("--json", "print machine-readable JSON")).action(usageCommand);
 
 const receipt = program.command("receipt").description("Append-only execution receipts for plan steps");
 addProjectOptions(receipt.command("done").description("Mark a plan step done").argument("<step>", "1-based step index").option("--note <text>", "short note")).action((step, opts) => receiptDoneCommand(step, opts));

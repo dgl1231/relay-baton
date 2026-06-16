@@ -426,10 +426,19 @@ Make relay-baton agent-agnostic beyond the Codex↔Claude pair.
 
 Spend fewer tokens per handoff without adding embeddings.
 
-- [ ] **Deterministic compaction v2** — symbol/heading-aware repo map and
-  relevance-ranked diff selection (changed-file proximity), still no embeddings.
-- [ ] **Local usage insight** — per-session token/quota-proxy accounting for
-  budgeting; local only, never transmitted.
+- [x] **Deterministic compaction v2** — `SymbolOutline` extracts a
+  symbol/heading outline (TS/JS/PY/C#/Go/Rust/Java + Markdown headings) so the
+  repo map carries a "## Symbols (changed + key files)" section, not just a tree.
+  `DiffCompactor.compactRanked` ranks diff chunks by relevance to the task
+  (path mention, directory proximity, source>test>doc weight, shallow-path bias)
+  so the most relevant file diffs survive the budget first; `buildHandoff` uses
+  it. Deterministic, no embeddings. Tests: `CompactionV2.test.ts`.
+- [x] **Local usage insight** — `UsageLedger` keeps an append-only per-session
+  ledger (`.ai-session/usage.jsonl`) of a token/quota *proxy* (`ceil(chars/4)`,
+  not a real tokenizer); `run`/`handoff` record a handoff event each time.
+  `relay-baton usage [--json]` aggregates totals, per-type/per-agent breakdown,
+  handoff count, and a budget ratio vs the active profile. Local only — never
+  transmitted. Tests: `UsageLedger.test.ts`.
 
 ### v2.5 — Guarded automation & extensibility
 

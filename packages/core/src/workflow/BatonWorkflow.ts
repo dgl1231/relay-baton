@@ -73,7 +73,9 @@ export class BatonWorkflow {
     const selector = new ContextSelector(this.sm.repoRoot);
     const relevant = selector.select(changed, task);
 
-    const importantDiff = new DiffCompactor().compact(fullDiff, profile.maxDiffChars);
+    // v2.4: rank diff chunks by relevance to the task (changed-file proximity)
+    // so the most relevant file diffs survive the budget first.
+    const importantDiff = new DiffCompactor().compactRanked(fullDiff, profile.maxDiffChars, { task });
 
     const rawLog = fs.existsSync(files.p("commandsLog")) ? fs.readFileSync(files.p("commandsLog"), "utf8") : "";
     const logResult = new LogCompactor().compact(rawLog, profile.maxLogTailChars, this.cfg.fallbackPatterns);

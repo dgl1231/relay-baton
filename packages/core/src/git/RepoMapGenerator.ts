@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { IGNORE_DIRS } from "@relay-baton/shared";
+import { outlineFile } from "../token-diet/SymbolOutline";
 
 const KEY_FILE_PATTERNS = [
   /^package\.json$/,
@@ -46,11 +47,48 @@ export class RepoMapGenerator {
       for (const f of changed) parts.push("- " + f);
       parts.push("");
     }
+
+    // v2.4 — symbol/heading outline for the files that matter (changed first,
+    // then key files), so the next agent sees structure, not just a tree.
+    const outline = this.symbolSection(changed, keyFiles);
+    if (outline.length > 0) {
+      parts.push("## Symbols (changed + key files)");
+      parts.push("");
+      parts.push(...outline);
+      parts.push("");
+    }
+
     let out = parts.join("\n");
     if (out.length > maxChars) {
       out = out.slice(0, Math.max(0, maxChars - 80)) + "\n... [repo-map truncated]\n";
     }
     return out;
+  }
+
+  /**
+   * Build a bounded "file → symbols" outline. Changed files rank first (most
+   * relevant to the handoff), then key files, de-duplicated. Caps the number of
+   * files so a huge changeset can't blow the repo-map budget on its own.
+   */
+  private symbolSection(changed: string[], keyFiles: string[], maxFiles = 20): string[] {
+    const ordered: string[] = [];
+    const seen = new Set<string>();
+    for (const f of [...changed, ...keyFiles]) {
+      const norm = f.replace(/\\/g, "/");
+      if (seen.has(norm)) continue;
+      seen.add(norm);
+      ordered.push(norm);
+      if (ordered.length >= maxFiles) break;
+    }
+
+    const lines: string[] = [];
+    for (const f of ordered) {
+      const o = outlineFile(this.repoRoot, f);
+      if (!o) continue;
+      lines.push(`- ${f}`);
+      for (const s of o.symbols) lines.push(`  - ${s}`);
+    }
+    return lines;
   }
 
   private walk(dir: string, rel: string, depth: number, maxDepth: number): string[] {

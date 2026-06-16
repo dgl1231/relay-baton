@@ -44,6 +44,8 @@ export const SESSION_FILES = {
   conversation: "conversation.jsonl",
   // v1.7 — append-only execution checkpoints (guarded execution workflow).
   checkpoints: "checkpoints.jsonl",
+  // v2.4 — append-only local usage ledger (token/quota proxy; never transmitted).
+  usage: "usage.jsonl",
 } as const;
 
 export const TRUNCATE_MARKER =

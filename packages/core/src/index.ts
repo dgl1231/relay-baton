@@ -31,6 +31,8 @@ export * from "./agents/FallbackDetector";
 export * from "./token-diet/BudgetManager";
 export * from "./token-diet/ContextSelector";
 export * from "./token-diet/DiffCompactor";
+export * from "./token-diet/SymbolOutline";
+export * from "./token-diet/UsageLedger";
 export * from "./token-diet/LogCompactor";
 export * from "./token-diet/StateCompactor";
 export * from "./token-diet/HandoffCompactor";

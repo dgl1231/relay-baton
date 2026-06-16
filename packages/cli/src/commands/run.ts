@@ -2,7 +2,7 @@ import {
   ConfigLoader, SessionManager, GitService, BatonWorkflow,
   FallbackDetector, resolveFallbackPatterns, runAgent,
   HandoffQualityGate, TokenDietQualityGate, PromptBuilder, ContextCompressor,
-  agentFallbackPatterns, isAgentId,
+  agentFallbackPatterns, isAgentId, UsageLedger,
 } from "@relay-baton/core";
 import type { AgentId, DietProfileName } from "@relay-baton/shared";
 import { ProjectOpts, resolveProjectContext } from "./projectOptions";
@@ -164,6 +164,8 @@ export async function runCommand(task: string, opts: RunOpts) {
     const wf = new BatonWorkflow(sm, config);
     const h = wf.buildHandoff({ profileName, fallbackReason: r.fallbackReason, previousAgent: agent, nextAgent: nextAgent! });
     sm.updateMeta({ handoffCount: (sm.getMeta()?.handoffCount ?? 0) + 1 });
+    // v2.4 local usage insight (token proxy; never transmitted).
+    new UsageLedger(repoRoot).record("handoff", nextAgent!, h.usedChars, `${agent}→${nextAgent}`);
 
     const gate = new HandoffQualityGate(repoRoot).check();
     const dietGate = new TokenDietQualityGate(repoRoot, profileName, config.tokenDiet.profiles[profileName]).check({ wasTruncated: h.truncated });

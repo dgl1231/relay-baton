@@ -3,6 +3,7 @@ import {
   ConfigLoader, SessionManager, BatonWorkflow,
   HandoffQualityGate, TokenDietQualityGate,
   ClaudeCodeAdapter, PromptBuilder, runAgent, GitService,
+  UsageLedger, isAgentId,
 } from "@relay-baton/core";
 import type { DietProfileName } from "@relay-baton/shared";
 import { ProjectOpts, resolveProjectContext } from "./projectOptions";
@@ -58,6 +59,8 @@ export async function handoffCommand(opts: HandoffOpts) {
     handoffCount: prevCount + 1,
   });
   console.log(`[relay-baton] handoff written: ${result.handoffPath} (${result.usedChars} chars, truncated=${result.truncated})`);
+  // v2.4 local usage insight (token proxy; never transmitted).
+  new UsageLedger(repoRoot).record("handoff", isAgentId(opts.to) ? opts.to : "none", result.usedChars, `${prevMeta.lastAgent}→${opts.to}`);
 
   const gate = new HandoffQualityGate(repoRoot).check();
   const dietGate = new TokenDietQualityGate(repoRoot, profileName, config.tokenDiet.profiles[profileName])

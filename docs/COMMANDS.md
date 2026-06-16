@@ -248,7 +248,13 @@ budget. `--threshold` is a `0..1` ratio; `--dry-run` reports without writing.
 Deterministically compress a single markdown/instruction file.
 
 ### `budget [--json]`
-Show context-budget usage.
+Show context-budget usage (current artifact sizes vs the active profile).
+
+### `usage [--json]`
+Show **local** per-session usage from `.ai-session/usage.jsonl`: a token/quota
+*proxy* (`ceil(chars/4)`, not a real tokenizer) accumulated across runs/handoffs,
+with per-type/per-agent breakdown, handoff count, and a budget ratio vs the
+active profile. Read-only and local — nothing is ever transmitted.
 
 ## Agent Room & replay
 
