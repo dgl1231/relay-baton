@@ -65,6 +65,15 @@ describe("SchemaMigrator", () => {
     expect(line.schemaVersion).toBe(1);
   });
 
+  it("normalizes legacy conversation.jsonl events", () => {
+    const repo = legacyRepo();
+    const p = path.join(repo, ".ai-session", "conversation.jsonl");
+    fs.writeFileSync(p, JSON.stringify({ id: "evt_1", ts: "t", role: "user", kind: "message", text: "hi" }) + "\n");
+    const result = new SchemaMigrator(repo).migrate({ dryRun: false });
+    expect(result.actions.some(a => a.artifact === "conversation" && a.applied)).toBe(true);
+    expect(JSON.parse(fs.readFileSync(p, "utf8").trim()).schemaVersion).toBe(1);
+  });
+
   it("is idempotent — a current session has nothing to migrate", () => {
     const repo = fs.mkdtempSync(path.join(os.tmpdir(), "rb-migrator-clean-"));
     new SessionManager(repo, defaultConfig).init("clean");

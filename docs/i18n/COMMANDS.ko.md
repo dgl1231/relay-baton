@@ -47,6 +47,11 @@ id나 path로 지정한 archive 하나를 `manifest.json` 기준으로 검증한
 `missing`/`corrupt` 목록과 `intact` 플래그로 결과를 요약한다. read-only: 복사/적용/
 복원은 하지 않는다.
 
+### `session export <archive> --to <dir> [--overwrite] [--json]`
+보관된 세션(id 또는 path)을 공유/백업용으로 대상 디렉터리에 복사한다. 아카이브는
+읽기 전용이며 `<dir>/<id>`에만 쓴다. 대상이 이미 있으면 `--overwrite` 없이는
+덮어쓰지 않는다.
+
 ### `session prune [--max-age-days <n>] [--max-count <n>] [--apply] [--json]`
 세션 아카이브 루트에 보존 정책을 적용한다. **기본 비활성** — `--max-age-days`/
 `--max-count`가 없으면 아무것도 prune하지 않는다. 주어진 제약을 하나라도 위반하면

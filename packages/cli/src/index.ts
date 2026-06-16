@@ -30,7 +30,7 @@ import { chatCommand } from "./commands/chat";
 import { replayCommand } from "./commands/replay";
 import { conversationAppendCommand } from "./commands/conversation";
 import { gitStatusCommand } from "./commands/git";
-import { sessionArchiveCommand, sessionListCommand, sessionInspectCommand, sessionResumeCommand, sessionPruneCommand } from "./commands/session";
+import { sessionArchiveCommand, sessionListCommand, sessionInspectCommand, sessionResumeCommand, sessionPruneCommand, sessionExportCommand } from "./commands/session";
 import { loginCommand } from "./commands/login";
 import {
   projectAddCommand,
@@ -337,6 +337,15 @@ session
   .option("--project <name-or-id>", "registered project name or id")
   .option("--path <repoPath>", "repository path")
   .action(sessionResumeCommand);
+session
+  .command("export")
+  .description("Copy an archived session out to a destination directory for sharing/backup (read-only on the archive)")
+  .argument("<archive>", "archive id or path under the archive root")
+  .requiredOption("--to <dir>", "destination directory")
+  .option("--overwrite", "overwrite an existing destination")
+  .option("--json", "print machine-readable JSON")
+  .option("--out <dir>", "archive root directory (default: ~/.relay-baton/session-archives)")
+  .action(sessionExportCommand);
 session
   .command("prune")
   .description("Apply an archive retention policy (disabled by default; dry-run unless --apply)")

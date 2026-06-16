@@ -46,6 +46,7 @@ export class SchemaInspector {
       this.checkJson("sessionJson"),
       this.checkJson("gitBaseline"),
       this.checkJsonl("checkpoints"),
+      this.checkJsonl("conversation"),
     ];
 
     const ok = checks.every(c => c.status !== "outdated" && c.status !== "ahead" && c.status !== "unreadable");

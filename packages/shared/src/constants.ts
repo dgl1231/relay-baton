@@ -19,6 +19,7 @@ export const ARTIFACT_SCHEMA_VERSIONS = {
   sessionJson: 1,
   checkpoints: 1,
   gitBaseline: 1,
+  conversation: 1,
 } as const;
 
 export type VersionedArtifact = keyof typeof ARTIFACT_SCHEMA_VERSIONS;

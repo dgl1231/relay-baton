@@ -51,6 +51,19 @@ describe("SessionArchiveStore", () => {
     expect(inspect.corrupt.length).toBeGreaterThan(0);
   });
 
+  it("exports an archive to a destination directory", () => {
+    const { archiveRoot } = makeArchive();
+    const store = new SessionArchiveStore({ archiveRoot });
+    const id = store.list().archives[0].id;
+    const dest = fs.mkdtempSync(path.join(os.tmpdir(), "rb-export-dest-"));
+    const r = store.exportArchive(id, dest);
+    expect(r.available).toBe(true);
+    expect(fs.existsSync(path.join(r.dest!, "manifest.json"))).toBe(true);
+    // refuses to overwrite without the flag
+    expect(store.exportArchive(id, dest).available).toBe(false);
+    expect(store.exportArchive(id, dest, { overwrite: true }).available).toBe(true);
+  });
+
   it("reports archive not found on inspect", () => {
     const { archiveRoot } = makeArchive();
     const inspect = new SessionArchiveStore({ archiveRoot }).inspect("does-not-exist");

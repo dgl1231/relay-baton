@@ -50,6 +50,14 @@ export interface SessionArchivePruneOptions {
   now?: Date;
 }
 
+export interface SessionArchiveExportResult {
+  available: boolean;
+  id: string;
+  source: string;
+  dest: string | null;
+  reason?: string;
+}
+
 export interface InspectedFile {
   target: string;
   size: number;
@@ -161,6 +169,26 @@ export class SessionArchiveStore {
       base.pruned.push({ id: a.id, archiveDir: a.archiveDir, createdAt: a.createdAt, reason: reasons.join(", "), deleted });
     }
     return base;
+  }
+
+  /**
+   * Copy an archive out to a destination directory for sharing/backup. Read-only
+   * on the archive; writes only under `destDir/<id>`. Refuses to overwrite an
+   * existing destination unless `overwrite` is set.
+   */
+  exportArchive(idOrPath: string, destDir: string, options: { overwrite?: boolean } = {}): SessionArchiveExportResult {
+    const archiveDir = path.isAbsolute(idOrPath) ? idOrPath : path.join(this.archiveRoot, idOrPath);
+    const id = path.basename(archiveDir);
+    if (!fs.existsSync(archiveDir) || !fs.statSync(archiveDir).isDirectory()) {
+      return { available: false, id, source: archiveDir, dest: null, reason: "archive not found" };
+    }
+    const dest = path.join(destDir, id);
+    if (fs.existsSync(dest) && options.overwrite !== true) {
+      return { available: false, id, source: archiveDir, dest, reason: "destination already exists (pass overwrite)" };
+    }
+    fs.mkdirSync(destDir, { recursive: true });
+    fs.cpSync(archiveDir, dest, { recursive: true, force: true });
+    return { available: true, id, source: archiveDir, dest };
   }
 
   inspect(idOrPath: string): SessionArchiveInspectResult {

@@ -74,7 +74,8 @@ export class SchemaMigrator {
     let next: string | null = null;
     try {
       const raw = fs.readFileSync(path, "utf8");
-      next = artifact === "checkpoints" ? this.stampJsonl(raw, to) : this.stampJson(raw, to);
+      const isJsonl = artifact === "checkpoints" || artifact === "conversation";
+      next = isJsonl ? this.stampJsonl(raw, to) : this.stampJson(raw, to);
     } catch (e: any) {
       action.note = `failed to read: ${e?.message ?? e}`;
       return action;

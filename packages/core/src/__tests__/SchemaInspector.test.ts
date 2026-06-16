@@ -63,6 +63,13 @@ describe("SchemaInspector", () => {
     expect(new SchemaInspector(repo).inspect().migratable).toBe(true);
   });
 
+  it("flags a legacy conversation.jsonl event (no schemaVersion)", () => {
+    const repo = repoWithSession();
+    const p = path.join(repo, ".ai-session", "conversation.jsonl");
+    fs.writeFileSync(p, JSON.stringify({ id: "evt_1", ts: "t", role: "user", kind: "message", text: "hi" }) + "\n");
+    expect(checkFor(repo, "conversation.jsonl").status).toBe("legacy");
+  });
+
   it("flags an ahead checkpoints schema as not ok", () => {
     const repo = repoWithSession();
     new ExecutionCheckpoints(repo, defaultConfig).append({ step: 1, result: "ok" });

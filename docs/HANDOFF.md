@@ -24,13 +24,14 @@ schema bump is defined). Releases stay alpha (v2.0.0-alpha.N)._
   project intelligence (`workspace`, `profile`, `inventory`, desktop inspector).
 - **v1.7 alpha is SHIPPED** on tag **`v1.7.0-alpha.0`** — guarded execution
   (`checkpoint`, `guard`, `risk`, desktop guarded-execution view).
-- **v2.0 is IN PROGRESS** — migration checks (`alpha.0`), schema migrator
-  (`alpha.1`), desktop contract & hard-constraints (`alpha.2`), installer/update
-  finalize + public docs (`alpha.3`), git-baseline schema (`alpha.4`) SHIPPED.
-  CI release-creation race fixed on `main` (post-alpha.4). Latest local: v1.6
-  **prune policy** (`session prune`) + stale-marker cleanup, not yet released.
-  Roadmap backlog now nearly empty — only open items: schema v2 conversation-event
-  coverage + version bumps (when breaking), session export, v1.2 local-build note.
+- **v2.0 is FEATURE-COMPLETE** — alpha.0..alpha.5 shipped (migration checks,
+  schema migrator, desktop contract, hard constraints, installer/docs finalize,
+  git-baseline schema, prune policy + CI race fix). Latest local (not yet
+  released): conversation-event schema versioning + `session export`, closing the
+  last v2.0/v1.6 `[~]` items. Every planned v1.x/v2.0 roadmap box is now `[x]`.
+  Future direction captured in ROADMAP "Beyond v2.0 — proposed" (additions +
+  hardening; nothing committed). Only remaining `[~]`: v1.2 desktop local-build
+  note (environment caveat, not code).
 - **v1.6 alpha is SHIPPED** on tag **`v1.6.0-alpha.0`** — session archives &
   recovery (read-only `session archive`/`list`/`inspect`/`resume` + desktop
   panel). Release run `27330492827` succeeded with all 8 assets published.

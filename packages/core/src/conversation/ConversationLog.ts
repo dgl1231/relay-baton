@@ -5,6 +5,7 @@ import type {
   ConversationEventKind,
   ConversationRole,
 } from "@relay-baton/shared";
+import { ARTIFACT_SCHEMA_VERSIONS } from "@relay-baton/shared";
 import { SessionFiles } from "../session/SessionFiles";
 
 export interface AppendEventInput {
@@ -35,6 +36,7 @@ export class ConversationLog {
 
   append(input: AppendEventInput): ConversationEvent {
     const event: ConversationEvent = {
+      schemaVersion: ARTIFACT_SCHEMA_VERSIONS.conversation,
       id: `evt_${crypto.randomUUID()}`,
       ts: new Date().toISOString(),
       sessionId: input.sessionId,

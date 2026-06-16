@@ -194,6 +194,8 @@ export type ConversationEventKind =
   | "budget";
 
 export interface ConversationEvent {
+  /** v2.0 versioned-contract marker; absent in pre-v2.0 events (legacy v1). */
+  schemaVersion?: number;
   /** Stable id, e.g. "evt_<uuid>". */
   id: string;
   /** ISO timestamp. */

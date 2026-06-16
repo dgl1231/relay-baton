@@ -111,6 +111,32 @@ export async function sessionPruneCommand(opts: SessionPruneOpts = {}) {
   if (result.dryRun && result.pruned.length > 0) console.log("re-run with --apply to delete the above.");
 }
 
+export interface SessionExportOpts {
+  json?: boolean;
+  out?: string;
+  to?: string;
+  overwrite?: boolean;
+}
+
+export async function sessionExportCommand(archive: string, opts: SessionExportOpts = {}) {
+  if (!opts.to) {
+    console.error("[relay-baton] missing required option: --to <dir>");
+    process.exit(2);
+  }
+  const result = new SessionArchiveStore({ archiveRoot: opts.out }).exportArchive(archive, opts.to, { overwrite: opts.overwrite });
+
+  if (opts.json) {
+    console.log(JSON.stringify(result, null, 2));
+    return;
+  }
+  if (!result.available) {
+    console.log(`[relay-baton] cannot export: ${result.reason}`);
+    return;
+  }
+  console.log(`[relay-baton] exported ${result.id}`);
+  console.log(`to: ${result.dest}`);
+}
+
 export interface SessionInspectOpts {
   json?: boolean;
   out?: string;

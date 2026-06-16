@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import { SessionManager, defaultConfig } from "@relay-baton/core";
-import { sessionArchiveCommand, sessionListCommand, sessionInspectCommand, sessionResumeCommand, sessionPruneCommand } from "../commands/session";
+import { sessionArchiveCommand, sessionListCommand, sessionInspectCommand, sessionResumeCommand, sessionPruneCommand, sessionExportCommand } from "../commands/session";
 
 describe("session archive command", () => {
   let logs: string[];
@@ -75,6 +75,23 @@ describe("session archive command", () => {
     expect(result.kept).toHaveLength(0);
     expect(result.pruned).toHaveLength(1);
     expect(result.pruned[0].deleted).toBe(false);
+  });
+
+  it("exports an archive to a destination as JSON", async () => {
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "rb-session-export-"));
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), "rb-session-export-out-"));
+    const dest = fs.mkdtempSync(path.join(os.tmpdir(), "rb-session-export-dest-"));
+    new SessionManager(repo, defaultConfig).init("export via cli");
+    await sessionArchiveCommand({ path: repo, out });
+    logs.length = 0;
+    await sessionListCommand({ json: true, out });
+    const id = JSON.parse(logs.join("\n")).archives[0].id;
+
+    logs.length = 0;
+    await sessionExportCommand(id, { out, to: dest, json: true });
+    const result = JSON.parse(logs.join("\n"));
+    expect(result.available).toBe(true);
+    expect(fs.existsSync(path.join(result.dest, "manifest.json"))).toBe(true);
   });
 
   it("prune with no policy prunes nothing", async () => {

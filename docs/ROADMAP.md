@@ -224,11 +224,9 @@ work, especially across multiple projects and desktop sessions.
   bounded `.ai-session/` artifacts into a timestamped archive under a local
   relay-baton data directory. Keep source files untouched. Directory archive
   only for now; zip/bundle UX remains follow-up.
-- [~] **Session list/open/export** — `relay-baton session list --json` and
-  `relay-baton session inspect <archive> --json` read archives newest-first and
-  validate manifest/file integrity (read-only). Desktop dashboard now has a
-  read-only session-archive panel (list + inspect + resume) through the CLI
-  sidecar. Export remains follow-up.
+- [x] **Session list/open/export** — `session list` / `inspect` (read-only,
+  manifest+integrity), desktop archive panel (list + inspect + resume), and
+  `session export <id> --to <dir>` to copy an archive out for sharing/backup.
 - [x] **Resume diagnostics** — `relay-baton session resume [--json]` classifies
   the session as missing/incomplete/stale/ok from required-file presence,
   `session.json` validity, git baseline drift, and `updatedAt` age, then suggests
@@ -317,14 +315,13 @@ instead of a thin release shell.
   status/budget, git tracking, session archives, replay, handoff preview, guarded
   execution, project inspector, and team handoff. i18n parity (en/ko/ja/zh) is
   now enforced by an automated test (`desktopI18n.test.ts`).
-- [~] **Stable artifact schema v2** — migrator framework shipped:
-  `relay-baton migrate --apply [--dry-run]` normalizes legacy artifacts (stamps
-  `schemaVersion`) with timestamped backups and idempotency. Versioned-contract
-  coverage now includes `session.json`, `checkpoints.jsonl`, and
-  `git-baseline.json` (registry: `ARTIFACT_SCHEMA_VERSIONS`); archives and
-  bundle manifests already carry `schemaVersion`. Remaining: bring conversation
-  events under the registry; per-artifact version *bumps* land as breaking
-  changes require them.
+- [x] **Stable artifact schema v2** — `ARTIFACT_SCHEMA_VERSIONS` registry +
+  `relay-baton migrate --apply [--dry-run]` (legacy normalization, timestamped
+  backups, idempotent). Versioned-contract coverage spans `session.json`,
+  `checkpoints.jsonl`, `git-baseline.json`, and `conversation.jsonl`; archive and
+  bundle manifests carry `schemaVersion`. Future per-artifact version *bumps*
+  plug version-to-version migrators into the same registry as breaking changes
+  require them.
 - [x] **Upgrade/migration checks** — `relay-baton migrate --check` /
   `doctor --deep` detect each versioned artifact's schema (ok/outdated/ahead/
   legacy/unreadable) via `ARTIFACT_SCHEMA_VERSIONS`; `migrate --apply` normalizes
@@ -344,6 +341,51 @@ instead of a thin release shell.
   dependency" are locked by an automated test (`hardConstraints.test.ts`). The
   remaining constraints (no auto commit/push/PR, no daemon, no real-time chat,
   no default semantic indexing) hold by design and are documented.
+
+## Beyond v2.0 — proposed directions
+
+The v1.x → v2.0 lines are complete. These are candidate directions for the next
+stable line, grouped into capability additions and hardening. All must respect
+the existing hard constraints (local-first, subprocess-only, deterministic, no
+direct LLM API client, no auto commit/push/PR, no daemon requirement, no default
+semantic/vector indexing). Nothing here is committed yet.
+
+### Additions (capabilities)
+
+- [ ] **First-class multi-agent matrix** — promote the OpenCode / Gemini / Aider
+  scaffolds to supported adapters (real fallback patterns + `login` flows) and
+  add new CLIs (e.g. Cursor CLI) behind the same adapter contract.
+- [ ] **N-way & reverse relay** — support Claude→Codex and longer relay chains,
+  not just Codex→Claude, with a deterministic "who's next" policy.
+- [ ] **Deterministic compaction v2** — symbol/heading-aware repo map and
+  relevance-ranked diff selection (changed-file proximity), still no embeddings.
+- [ ] **Bounded auto-orchestration (`run --until`)** — a guarded multi-step loop
+  gated by the existing checkpoints + guardrails (max steps/files/budget,
+  confirmation), never an unattended daemon.
+- [ ] **Project recipes / hooks** — per-project pre-handoff / post-execute hooks
+  and command defaults, declared in config (no daemon, no network).
+- [ ] **Local usage insight** — per-session token/quota-proxy accounting for
+  budgeting; local only, never transmitted.
+
+### Hardening (security & reliability)
+
+- [ ] **Windows agent spawn reliability** — `spawn(..., { shell:false })` may not
+  resolve npm-global shims (`claude.cmd`/PATHEXT) → ENOENT. Add safe executable
+  resolution so users aren't pushed toward unsafe `shell:true` workarounds.
+- [ ] **Redact before handoff, not just bundle** — run `RedactionScanner` on the
+  generated handoff / continuation prompt so secrets never reach the next agent,
+  not only when exporting a bundle.
+- [ ] **Untrusted-bundle / path-traversal safety** — when inspecting/importing an
+  externally-received bundle or archive, reject manifest `target` paths that are
+  absolute or escape the root (`..`, symlinks); add size caps.
+- [ ] **Signed releases + provenance by default** — move from
+  conditional-on-secrets signing to default signing where possible, and publish
+  build provenance/attestations (e.g. SLSA, `actions/attest-build-provenance`).
+- [ ] **Supply-chain hardening** — pin GitHub Actions by commit SHA, enable
+  Dependabot, and diff the SBOM between releases to flag dependency drift.
+- [ ] **Secret-leak regression scan** — a test/scan asserting no artifact
+  (`commands.log`, `handoff.md`, conversation) can capture provider key *values*,
+  and an audit-trail event when `--allow-api-key-env` is used (names, not values).
 
 ## v0.6 — Trust & Verify
 

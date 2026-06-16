@@ -50,6 +50,11 @@ Validate a single archive by id or path against its `manifest.json`. Reports
 (presence + size + SHA-256). `missing`/`corrupt` lists and an `intact` flag
 summarize the result. Read-only: it never copies, applies, or restores anything.
 
+### `session export <archive> --to <dir> [--overwrite] [--json]`
+Copy an archived session (by id or path) out to a destination directory for
+sharing or backup. Read-only on the archive; writes only under `<dir>/<id>`.
+Refuses to overwrite an existing destination unless `--overwrite` is passed.
+
 ### `session prune [--max-age-days <n>] [--max-count <n>] [--apply] [--json]`
 Apply a retention policy to the session-archive root. **Disabled by default** —
 with no `--max-age-days`/`--max-count` nothing is pruned. An archive is a prune
