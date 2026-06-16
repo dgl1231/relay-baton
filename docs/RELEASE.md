@@ -104,6 +104,14 @@ These each cost a patch release (v1.1.0 → v1.1.3). Keep them in mind:
    **`desktop/src-tauri/tauri.conf.json` `version` a plain `x.y.z`** (the
    installer's ProductVersion); the prerelease lives in the git tag / release
    name, not the MSI. First hit on `v1.2.0-alpha.0` (desktop windows-x64 only).
+6. **Parallel matrix jobs must not each create the Release.** When all three
+   `build-binaries` jobs called `softprops/action-gh-release` to create the
+   release at once, the losers failed with *"Validation Failed: tag_name
+   already_exists"* and skipped `build-desktop` + `release-finalize` (hit on
+   `v2.0.0-alpha.4`). Fix: a dedicated `create-release` job runs first
+   (idempotent `gh release create`), and the matrix only uploads assets to the
+   existing release. Recover a half-failed release with
+   `gh run rerun <id> --failed`.
 
 ## Requirements / settings
 

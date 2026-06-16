@@ -18,8 +18,29 @@ permissions:
   id-token: write
 
 jobs:
+  # Create the GitHub Release exactly once, before the parallel build matrix.
+  # Without this, the 3 build jobs race to create the release and one loses with
+  # "Validation Failed: tag_name already_exists" (seen on v2.0.0-alpha.4). The
+  # build jobs now only upload assets to this already-existing release.
+  create-release:
+    name: create release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create the GitHub Release (idempotent)
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "release $TAG already exists — reusing it"
+          else
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --title "$TAG" --notes "Automated release for $TAG"
+          fi
+
   build-binaries:
     name: build ${{ matrix.label }}
+    needs: create-release
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     strategy:
