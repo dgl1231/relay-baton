@@ -108,6 +108,10 @@ handoff 문서를 생성하고 선택적으로 다음 agent 실행. 옵션: `--t
 `--force` 없이는 다음 agent 실행을 차단한다. 절대 home 경로/과대 콘텐츠는
 medium-severity 경고만.
 
+`--allow-api-key-env`는 audit된다: 차단 대상 provider key env를 child agent로
+통과시키면 relay-baton이 변수 **이름만**(값은 읽지/기록/저장하지 않음) conversation
+이벤트로 남긴다.
+
 ### `handoff history`
 과거 handoff 문서 목록(현재 + 타임스탬프 백업).
 

@@ -18,6 +18,8 @@ export interface AgentRunResult {
   exitCode: number | null;
   fallbackReason: string | null;
   removedEnvVars: string[];
+  /** Blocked env vars that were allowed through to the child (names only, for audit). */
+  passedThroughEnvVars: string[];
   error?: string;
 }
 
@@ -25,24 +27,27 @@ export function createAgentEnv(
   baseEnv: NodeJS.ProcessEnv,
   authPolicy: AuthPolicy,
   allowApiKeyEnvOverride?: boolean,
-): { env: NodeJS.ProcessEnv; removed: string[] } {
+): { env: NodeJS.ProcessEnv; removed: string[]; passedThrough: string[] } {
   const env: NodeJS.ProcessEnv = { ...baseEnv };
   const allow = allowApiKeyEnvOverride === true || authPolicy.allowApiKeyEnv === true;
   const removed: string[] = [];
-  if (!allow) {
-    for (const name of authPolicy.blockedEnvVars) {
-      if (env[name] !== undefined) {
-        delete env[name];
-        removed.push(name);
-      }
+  const passedThrough: string[] = [];
+  for (const name of authPolicy.blockedEnvVars) {
+    if (env[name] === undefined) continue;
+    if (allow) {
+      // Intentionally allowed through — record the NAME only for the audit trail.
+      passedThrough.push(name);
+    } else {
+      delete env[name];
+      removed.push(name);
     }
   }
-  return { env, removed };
+  return { env, removed, passedThrough };
 }
 
 export async function runAgent(opts: AgentRunOptions): Promise<AgentRunResult> {
   const { command, logFile, authPolicy, allowApiKeyEnv, fallbackDetector, onStdout, onStderr, onFallback } = opts;
-  const { env, removed } = createAgentEnv(process.env, authPolicy, allowApiKeyEnv);
+  const { env, removed, passedThrough } = createAgentEnv(process.env, authPolicy, allowApiKeyEnv);
 
   fs.appendFileSync(logFile,
     `\n--- ${new Date().toISOString()} START ${command.command} ${command.args.join(" ")} ---\n` +
@@ -61,7 +66,7 @@ export async function runAgent(opts: AgentRunOptions): Promise<AgentRunResult> {
     } catch (e: any) {
       const msg = `[relay-baton] failed to spawn ${command.command}: ${e?.message ?? e}`;
       fs.appendFileSync(logFile, msg + "\n", "utf8");
-      resolve({ exitCode: null, fallbackReason: null, removedEnvVars: removed, error: msg });
+      resolve({ exitCode: null, fallbackReason: null, removedEnvVars: removed, passedThroughEnvVars: passedThrough, error: msg });
       return;
     }
 
@@ -98,14 +103,14 @@ export async function runAgent(opts: AgentRunOptions): Promise<AgentRunResult> {
       const friendly = isENOENT
         ? `Command not found: "${command.command}". Install it and ensure it is on PATH.`
         : msg;
-      resolve({ exitCode: null, fallbackReason, removedEnvVars: removed, error: friendly });
+      resolve({ exitCode: null, fallbackReason, removedEnvVars: removed, passedThroughEnvVars: passedThrough, error: friendly });
     });
 
     child.on("close", (code) => {
       if (buf.stdout) emitLine("stdout", buf.stdout);
       if (buf.stderr) emitLine("stderr", buf.stderr);
       fs.appendFileSync(logFile, `--- exit ${code} ---\n`, "utf8");
-      resolve({ exitCode: code, fallbackReason, removedEnvVars: removed });
+      resolve({ exitCode: code, fallbackReason, removedEnvVars: removed, passedThroughEnvVars: passedThrough });
     });
   });
 }

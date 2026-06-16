@@ -115,6 +115,10 @@ the next agent reads) is scanned for secrets/API keys/private keys; high-severit
 findings block launching the next agent unless `--force`. Absolute home paths and
 oversized content are medium-severity warnings only.
 
+`--allow-api-key-env` is audited: when it passes a blocked provider key env var
+through to the child agent, relay-baton records a conversation event with the
+variable **names only** (values are never read, logged, or stored).
+
 ### `handoff history`
 List past handoff documents (current + timestamped backups).
 

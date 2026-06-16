@@ -6,6 +6,7 @@ import {
 } from "@relay-baton/core";
 import type { DietProfileName } from "@relay-baton/shared";
 import { ProjectOpts, resolveProjectContext } from "./projectOptions";
+import { auditApiKeyEnv } from "./auditApiKeyEnv";
 
 export interface HandoffOpts extends ProjectOpts {
   to: string;
@@ -110,6 +111,7 @@ export async function handoffCommand(opts: HandoffOpts) {
     onStdout: l => process.stdout.write(l + "\n"),
     onStderr: l => process.stderr.write(l + "\n"),
   });
+  auditApiKeyEnv(repoRoot, r.passedThroughEnvVars, sm.getMeta()?.id);
   if (r.error) {
     console.error(r.error);
     const endedAt = new Date().toISOString();

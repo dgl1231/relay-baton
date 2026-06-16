@@ -366,9 +366,11 @@ Fix real local-execution bugs and make sure secrets never leave the machine.
   `handoff` enforce a **Redaction Gate** that blocks launching the next agent on
   high-severity findings (secrets/keys/private keys) unless `--force`, and warns
   on medium ones (home paths, oversized).
-- [ ] **Secret-leak regression scan** — a test/scan asserting no artifact
-  (`commands.log`, `handoff.md`, conversation) can capture provider key *values*,
-  plus an audit-trail event when `--allow-api-key-env` is used (names, not values).
+- [x] **Secret-leak regression scan** — `secretLeak.test.ts` asserts provider key
+  env vars are stripped from the child by default (values can't reach the agent or
+  its logs) and that only *names* are recorded when allowed through. `run`/`handoff`
+  emit an audit conversation event (names only) when `--allow-api-key-env` passes
+  a key through; `createAgentEnv` now returns `passedThrough` for that audit.
 
 ### v2.2 — Trust & supply chain
 

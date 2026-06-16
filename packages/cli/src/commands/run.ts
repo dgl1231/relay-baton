@@ -5,6 +5,7 @@ import {
 } from "@relay-baton/core";
 import type { DietProfileName } from "@relay-baton/shared";
 import { ProjectOpts, resolveProjectContext } from "./projectOptions";
+import { auditApiKeyEnv } from "./auditApiKeyEnv";
 
 export interface RunOpts extends ProjectOpts {
   diet?: string;
@@ -62,6 +63,7 @@ export async function runCommand(task: string, opts: RunOpts) {
     onStderr: l => process.stderr.write(l + "\n"),
     onFallback: hit => console.error(`[relay-baton] fallback pattern detected: ${hit.pattern}`),
   });
+  auditApiKeyEnv(repoRoot, r.passedThroughEnvVars, sm.getMeta()?.id);
 
   if (r.error) {
     console.error(r.error);
@@ -159,6 +161,7 @@ export async function runCommand(task: string, opts: RunOpts) {
     onStdout: l => process.stdout.write(l + "\n"),
     onStderr: l => process.stderr.write(l + "\n"),
   });
+  auditApiKeyEnv(repoRoot, r2.passedThroughEnvVars, sm.getMeta()?.id);
 
   if (r2.error) {
     console.error(r2.error);
