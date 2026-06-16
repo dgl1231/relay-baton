@@ -342,12 +342,14 @@ instead of a thin release shell.
   remaining constraints (no auto commit/push/PR, no daemon, no real-time chat,
   no default semantic indexing) hold by design and are documented.
 
-## Beyond v2.0 — proposed line (v2.1 → v2.5)
+## Beyond v2.0 — proposed line (v2.1 → v2.6)
 
 The v1.x → v2.0 lines are complete. The next stable line is sequenced
 hardening-first (security/reliability before new surface area), then capability
-breadth. Every item respects the existing hard constraints (local-first,
-subprocess-only, deterministic, no direct LLM API client, no auto
+breadth, and finally **v2.6 — public release & distribution (GA)**, which removes
+the non-feature blockers (license, npm/package-manager install, code signing) to
+a real public launch. Every item respects the existing hard constraints
+(local-first, subprocess-only, deterministic, no direct LLM API client, no auto
 commit/push/PR, no daemon requirement, no default semantic/vector indexing).
 Proposed only — nothing committed; cut as alpha increments like v2.0.
 
@@ -425,6 +427,45 @@ Longer unattended-but-bounded runs and per-project customization.
   confirmation), never an unattended daemon.
 - [ ] **Project recipes / hooks** — per-project pre-handoff / post-execute hooks
   and command defaults, declared in config (no daemon, no network).
+
+### v2.6 — Public release & distribution (GA)
+
+relay-baton is a **local CLI + desktop tool**, not a hosted service — "shipping"
+means easy install, OS trust, and legal clarity, not infra/ops. The codebase is
+already feature-mature; this milestone removes the non-feature blockers to a
+public, real-user release. Sequenced in two phases: Phase 0 makes it legally
+usable and installable without code-signing cost; Phase 1 removes install
+friction; Phase 2 announces.
+
+**Phase 0 — legal + installable (no signing cost):**
+
+- [ ] **LICENSE** — add a top-level `LICENSE` (decide MIT vs Apache-2.0; repo
+  currently has `licenseInfo: null`, so it is legally "all rights reserved" and
+  nobody can use it). Set `license` in published `package.json`(s).
+- [ ] **npm distribution** — drop `private: true` on the publishable package(s),
+  finalize the `bin`/`files`/`publishConfig`, and publish so `npx relay-baton` /
+  `npm i -g relay-baton` work. Keep internal-only packages private.
+- [ ] **GA versioning + CHANGELOG** — decide the stable line (graduate off the
+  perpetual `-alpha.N` label to a public `1.0.0`/GA scheme) and add a
+  user-facing CHANGELOG derived from `release-notes/`.
+- [ ] **Onboarding polish** — README prerequisites (codex + claude CLIs installed
+  & logged in), a 30-second quickstart, and a demo (asciinema/GIF); a
+  CONTRIBUTING + issue templates for inbound users.
+
+**Phase 1 — remove install friction (cost / accounts):**
+
+- [ ] **Code signing & notarization (default)** — turn on macOS notarization
+  (Apple Developer account) and Windows signing (Azure Trusted Signing) so
+  installers don't trip Gatekeeper / SmartScreen. Provenance (v2.2) proves supply
+  chain but does NOT remove OS install warnings — that needs real signing.
+- [ ] **Package managers** — ship a Homebrew tap, a Scoop bucket, and a Winget
+  manifest, wired to the existing `SHA256SUMS` so they verify on install.
+
+**Phase 2 — announce:**
+
+- [ ] **Soft launch + announce** — dogfood + a small beta cohort for feedback,
+  then a public announcement (Show HN, r/commandline, r/ClaudeAI, the Codex /
+  Claude communities). No telemetry by default; respect the local-first contract.
 
 ## v0.6 — Trust & Verify
 
