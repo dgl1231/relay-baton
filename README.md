@@ -10,7 +10,7 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 [![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-[![Latest](https://img.shields.io/badge/release-v2.2.0--alpha.0-blue.svg)](./release-notes/v2.2.0-alpha.0.md)
+[![Latest](https://img.shields.io/badge/release-v2.3.0--alpha.0-blue.svg)](./release-notes/v2.3.0-alpha.0.md)
 [![Download](https://img.shields.io/badge/download-binaries-238636.svg)](https://github.com/dgl1231/relay-baton/releases/latest)
 
 **English**
@@ -628,7 +628,7 @@ any real run). Design only for now — **not implemented yet**. Full design:
 
 Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-notes/README.md)). They are user-facing changelogs, not agent handoff material — that role belongs to `.ai-session/handoff.md`.
 
-**Latest:** v2.2.0-alpha.0 — [English](./release-notes/v2.2.0-alpha.0.md) · [한국어](./release-notes/ko/v2.2.0-alpha.0.md)
+**Latest:** v2.3.0-alpha.0 — [English](./release-notes/v2.3.0-alpha.0.md) · [한국어](./release-notes/ko/v2.3.0-alpha.0.md)
 
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
