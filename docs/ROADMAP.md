@@ -361,8 +361,11 @@ Fix real local-execution bugs and make sure secrets never leave the machine.
   `shell:false`, fixing the ENOENT/EINVAL that made `doctor` mis-report agents as
   missing. Applied to AgentRunner, all five adapters, `doctor`, `login`, and the
   TUI. Injection-safe (verified by test).
-- [ ] **Redact before handoff, not just bundle** — run `RedactionScanner` on the
-  generated handoff / continuation prompt so secrets never reach the next agent.
+- [x] **Redact before handoff, not just bundle** — `buildHandoff` scans the
+  generated handoff (what the next agent reads) with `RedactionScanner`; `run` and
+  `handoff` enforce a **Redaction Gate** that blocks launching the next agent on
+  high-severity findings (secrets/keys/private keys) unless `--force`, and warns
+  on medium ones (home paths, oversized).
 - [ ] **Secret-leak regression scan** — a test/scan asserting no artifact
   (`commands.log`, `handoff.md`, conversation) can capture provider key *values*,
   plus an audit-trail event when `--allow-api-key-env` is used (names, not values).

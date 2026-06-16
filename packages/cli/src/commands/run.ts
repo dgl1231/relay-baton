@@ -134,6 +134,15 @@ export async function runCommand(task: string, opts: RunOpts) {
   if (!gate.ok) { console.error("Handoff Quality Gate failed:"); for (const f of gate.failures) console.error("  - " + f); blocked = true; }
   if (!dietGate.ok) { console.error("Token Diet Quality Gate failed:"); for (const f of dietGate.failures) console.error("  - " + f); blocked = true; }
   for (const w of dietGate.warnings) console.error("warn: " + w);
+  const highFindings = h.redaction.findings.filter(f => f.severity === "high");
+  if (highFindings.length > 0) {
+    console.error("Redaction Gate failed (handoff would leak secrets to the next agent):");
+    for (const f of highFindings) console.error(`  - ${f.category}: ${f.file}${f.line ? ":" + f.line : ""} (${f.hint})`);
+    blocked = true;
+  }
+  for (const f of h.redaction.findings.filter(f => f.severity !== "high")) {
+    console.error(`warn: redaction ${f.category} in ${f.file}${f.line ? ":" + f.line : ""} (${f.hint})`);
+  }
   if (blocked && !opts.force) {
     console.error("[relay-baton] aborting fallback launch. Use --force to override.");
     process.exit(3);

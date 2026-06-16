@@ -11,6 +11,7 @@ import { LogCompactor } from "../token-diet/LogCompactor";
 import { StateCompactor } from "../token-diet/StateCompactor";
 import { HandoffGenerator } from "../handoff/HandoffGenerator";
 import { HandoffCompactor } from "../token-diet/HandoffCompactor";
+import { RedactionScanner, type RedactionReport } from "../handoff/RedactionScanner";
 
 export interface BuildHandoffOpts {
   profileName: DietProfileName;
@@ -24,6 +25,8 @@ export interface BuildHandoffResult {
   truncated: boolean;
   usedChars: number;
   budgetSnapshot: any;
+  /** Deterministic secret/path scan of the generated handoff (what the next agent reads). */
+  redaction: RedactionReport;
 }
 
 export class BatonWorkflow {
@@ -110,6 +113,14 @@ export class BatonWorkflow {
     const compacted = new HandoffCompactor().compact(handoffMd, profile.maxHandoffChars);
     fs.writeFileSync(files.p("handoff"), compacted.text, "utf8");
 
+    // Scan the exact text the next agent will read, so secrets/home paths are
+    // caught before they leave the machine in a continuation prompt.
+    const redaction: RedactionReport = {
+      clean: true, findings: [], byCategory: { secret: 0, "api-key": 0, "home-path": 0, oversized: 0 },
+    };
+    new RedactionScanner().scanText(redaction, "handoff.md", compacted.text);
+    redaction.clean = redaction.findings.length === 0;
+
     const snapshot = {
       profile: opts.profileName,
       maxHandoffChars: profile.maxHandoffChars,
@@ -130,6 +141,7 @@ export class BatonWorkflow {
       truncated: compacted.truncated,
       usedChars: compacted.text.length,
       budgetSnapshot: snapshot,
+      redaction,
     };
   }
 }

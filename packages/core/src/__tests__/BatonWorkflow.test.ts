@@ -262,4 +262,33 @@ describe("BatonWorkflow", () => {
       expect(fs.readFileSync(sm.files.p("changedFiles"), "utf8")).toContain("foo.ts");
     });
   });
+
+  describe("redaction scan of the generated handoff", () => {
+    it("has no high-severity findings for a normal handoff", () => {
+      const dir = setupFixture();
+      const sm = new SessionManager(dir, defaultConfig);
+      const r = new BatonWorkflow(sm, defaultConfig).buildHandoff({
+        profileName: "balanced", fallbackReason: null, previousAgent: "codex", nextAgent: "claude",
+      });
+      // No secrets/keys (the gate blocks only on "high"). Absolute home paths can
+      // legitimately appear (e.g. the repo root) and are medium-severity warnings.
+      expect(r.redaction.findings.some(f => f.severity === "high")).toBe(false);
+    });
+
+    it("flags a high-severity secret that flows into the handoff", () => {
+      const dir = setupFixture();
+      const sm = new SessionManager(dir, defaultConfig);
+      // A secret in state.md flows into compact-state.md and the handoff body.
+      fs.writeFileSync(
+        sm.files.p("state"),
+        "# Current State\n\n## Next Step\nuse OPENAI_API_KEY=sk-abcdef0123456789abcdefghij\n",
+        "utf8",
+      );
+      const r = new BatonWorkflow(sm, defaultConfig).buildHandoff({
+        profileName: "balanced", fallbackReason: null, previousAgent: "codex", nextAgent: "claude",
+      });
+      expect(r.redaction.clean).toBe(false);
+      expect(r.redaction.findings.some(f => f.severity === "high")).toBe(true);
+    });
+  });
 });

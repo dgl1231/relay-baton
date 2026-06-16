@@ -75,6 +75,19 @@ export async function handoffCommand(opts: HandoffOpts) {
   }
   for (const w of dietGate.warnings) console.error("[relay-baton] warn: " + w);
 
+  // Redaction gate: never let high-severity secrets reach the next agent.
+  // Medium findings (home paths, oversized) are warnings only.
+  const redaction = result.redaction;
+  const highFindings = redaction.findings.filter(f => f.severity === "high");
+  if (highFindings.length > 0) {
+    console.error("[relay-baton] Redaction Gate failed (handoff would leak secrets to the next agent):");
+    for (const f of highFindings) console.error(`  - ${f.category}: ${f.file}${f.line ? ":" + f.line : ""} (${f.hint})`);
+    blocked = true;
+  }
+  for (const f of redaction.findings.filter(f => f.severity !== "high")) {
+    console.error(`[relay-baton] warn: redaction ${f.category} in ${f.file}${f.line ? ":" + f.line : ""} (${f.hint})`);
+  }
+
   if (blocked && !opts.force) {
     console.error("[relay-baton] aborting. Use --force to override.");
     process.exit(3);

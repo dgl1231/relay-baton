@@ -103,6 +103,11 @@ Codex CLI를 먼저 실행하고, usage/rate/token/context/quota fallback 시 ha
 handoff 문서를 생성하고 선택적으로 다음 agent 실행. 옵션: `--to <agent>`(필수,
 예: `claude`), `--diet`, `--force`, `--no-run`(실행 안 함), `--allow-api-key-env`.
 
+`run`과 `handoff`는 **Redaction Gate**를 적용한다: 생성된 handoff(다음 agent가 읽는
+내용)를 secret/API key/private key에 대해 스캔하고, high-severity finding이 있으면
+`--force` 없이는 다음 agent 실행을 차단한다. 절대 home 경로/과대 콘텐츠는
+medium-severity 경고만.
+
 ### `handoff history`
 과거 handoff 문서 목록(현재 + 타임스탬프 백업).
 

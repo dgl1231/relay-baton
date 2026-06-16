@@ -110,6 +110,11 @@ Generate a handoff document and optionally launch the next agent. Options:
 `--to <agent>` (required, e.g. `claude`), `--diet`, `--force`, `--no-run` (do not
 launch), `--allow-api-key-env`.
 
+Both `run` and `handoff` apply a **Redaction Gate**: the generated handoff (what
+the next agent reads) is scanned for secrets/API keys/private keys; high-severity
+findings block launching the next agent unless `--force`. Absolute home paths and
+oversized content are medium-severity warnings only.
+
 ### `handoff history`
 List past handoff documents (current + timestamped backups).
 
