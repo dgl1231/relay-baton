@@ -30,9 +30,12 @@ Go/Rust/Java + Markdown headings) feeds a "## Symbols" section in the repo map;
 `.ai-session/usage.jsonl` token proxy (`ceil(chars/4)`), recorded by
 `run`/`handoff`; new `relay-baton usage [--json]` (totals, per-type/agent,
 budget ratio). Local only, never transmitted. New `CompactionV2.test.ts` +
-`UsageLedger.test.ts`. Build green, 286 core + 88 cli tests pass. Next: cut
-`v2.4.0-alpha.0` per RELEASE.md, then start v2.5 (guarded automation &
-extensibility). Releases stay alpha (v2.x.0-alpha.N).
+`UsageLedger.test.ts`. Build green, 286 core + 88 cli tests pass. **SHIPPED &
+VERIFIED on `v2.4.0-alpha.0`** — release run `27657546301` green; provenance
+verifies (SLSA v1) and `sbom-diff.md` published (no dep changes vs
+v2.3.0-alpha.0). 9 assets on the Release. Next: start v2.5 (guarded automation &
+extensibility — bounded `run --until`, project recipes/hooks). Releases stay
+alpha (v2.x.0-alpha.N).
 
 Prior: **v2.2 SHIPPED & VERIFIED on `v2.2.0-alpha.0`** (run `27597659547` green;
 provenance attestation verifies, `sbom-diff.md` published). Roadmap milestone
