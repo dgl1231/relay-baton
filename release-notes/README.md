@@ -14,6 +14,7 @@ Release notes are user-facing changelogs, not agent handoff material — that ro
 
 ## Versions
 
+- [v2.4.0-alpha.0](./v2.4.0-alpha.0.md) / [한국어](./ko/v2.4.0-alpha.0.md) - Smarter handoff: deterministic compaction v2 (symbol/heading-aware repo map via `SymbolOutline` + relevance-ranked diff `compactRanked`) and local usage insight (`UsageLedger` + `relay-baton usage`, token proxy, never transmitted). No embeddings.
 - [v2.3.0-alpha.0](./v2.3.0-alpha.0.md) / [한국어](./ko/v2.3.0-alpha.0.md) - Multi-agent breadth: central agent registry (tier/install/login/fallback), OpenCode/Gemini/Aider promoted to supported + Cursor CLI added, registry-driven `login`/`doctor`, and N-way + reverse relay (`run --chain`/`--primary`/`--fallback`).
 - [v2.2.0-alpha.0](./v2.2.0-alpha.0.md) / [한국어](./ko/v2.2.0-alpha.0.md) - Trust & supply chain: untrusted-bundle/path-traversal safety (`resolveWithin` guard + size cap + `trust:` flag), SLSA build provenance by default (`attest-build-provenance`), and supply-chain hardening (SHA-pinned actions, Dependabot, SBOM diff).
 - [v2.1.0-alpha.2](./v2.1.0-alpha.2.md) / [한국어](./ko/v2.1.0-alpha.2.md) - Secret-leak regression scan + `--allow-api-key-env` audit (names only); v2.1 reliability & secret-safety line complete.
