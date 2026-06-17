@@ -14,6 +14,7 @@ Release notes are user-facing changelogs, not agent handoff material — that ro
 
 ## Versions
 
+- [v2.6.0-alpha.0](./v2.6.0-alpha.0.md) / [한국어](./ko/v2.6.0-alpha.0.md) - Multi-session workspace: named work items (`session new|switch|items`, `WorkspaceManager`, legacy flat = `default`, zero migration), per-agent assignment (`session assign`, `run` honors it), and safe parallelism via git worktrees (`session worktree add`, `run` executes in the isolated checkout).
 - [v2.5.0-alpha.0](./v2.5.0-alpha.0.md) / [한국어](./ko/v2.5.0-alpha.0.md) - Guarded automation & extensibility: bounded auto-orchestration (`run --until <n>`, confirmation-first, `BoundedOrchestrator` = LoopController + GuardrailPolicy) and project recipes/hooks (`hooks.preHandoff`/`postExecute` via `HookRunner`, local-only). Never an unattended daemon.
 - [v2.4.0-alpha.0](./v2.4.0-alpha.0.md) / [한국어](./ko/v2.4.0-alpha.0.md) - Smarter handoff: deterministic compaction v2 (symbol/heading-aware repo map via `SymbolOutline` + relevance-ranked diff `compactRanked`) and local usage insight (`UsageLedger` + `relay-baton usage`, token proxy, never transmitted). No embeddings.
 - [v2.3.0-alpha.0](./v2.3.0-alpha.0.md) / [한국어](./ko/v2.3.0-alpha.0.md) - Multi-agent breadth: central agent registry (tier/install/login/fallback), OpenCode/Gemini/Aider promoted to supported + Cursor CLI added, registry-driven `login`/`doctor`, and N-way + reverse relay (`run --chain`/`--primary`/`--fallback`).

@@ -1,6 +1,6 @@
 {
   "name": "@relay-baton/tui",
-  "version": "2.5.0-alpha.0",
+  "version": "2.6.0-alpha.0",
   "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
