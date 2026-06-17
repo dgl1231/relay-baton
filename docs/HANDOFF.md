@@ -42,12 +42,16 @@ project recipes/hooks: optional `hooks.preHandoff`/`hooks.postExecute` config
 arrays run by `HookRunner` (core), local-only, env-sanitized, no network, no-op
 when absent, stop-on-first-failure; wired into `run`+`handoff`. New
 `BoundedOrchestrator.test.ts` + `HookRunner.test.ts`. Build green, 296 core + 88
-cli tests pass. Next: cut `v2.5.0-alpha.0` per RELEASE.md, then v2.6 (public
-release & distribution).
+cli tests pass. SHIPPED on `v2.5.0-alpha.0`. Next: **v2.6 — Multi-session
+workspace** (named sessions/work-item registry, per-agent assignment, git-worktree
+isolation for safe parallelism), then **v2.7 — GA**.
 
-**Decisions (this session):** GA will be cut as **v1.0.0 at v2.6** (after the
-Phase-0 blockers: LICENSE, npm publish, GA versioning). v2.x stays alpha until
-then._
+**Decisions (this session):**
+- Multi-session/multi-task is now its own **v2.6** line (pulled in before GA):
+  unifies per-agent session assignment + multi-tasking as named "work items";
+  parallel execution only via per-item git worktrees (no daemon, deterministic).
+- GA will be cut as **v1.0.0 at v2.7** (after Phase-0 blockers: LICENSE, npm
+  publish, GA versioning). v2.x stays alpha until then._
 
 Prior: **v2.2 SHIPPED & VERIFIED on `v2.2.0-alpha.0`** (run `27597659547` green;
 provenance attestation verifies, `sbom-diff.md` published). Roadmap milestone

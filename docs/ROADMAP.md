@@ -342,11 +342,12 @@ instead of a thin release shell.
   remaining constraints (no auto commit/push/PR, no daemon, no real-time chat,
   no default semantic indexing) hold by design and are documented.
 
-## Beyond v2.0 — proposed line (v2.1 → v2.6)
+## Beyond v2.0 — proposed line (v2.1 → v2.7)
 
 The v1.x → v2.0 lines are complete. The next stable line is sequenced
 hardening-first (security/reliability before new surface area), then capability
-breadth, and finally **v2.6 — public release & distribution (GA)**, which removes
+breadth, a multi-session workspace (v2.6), and finally **v2.7 — public release &
+distribution (GA)**, which removes
 the non-feature blockers (license, npm/package-manager install, code signing) to
 a real public launch. Every item respects the existing hard constraints
 (local-first, subprocess-only, deterministic, no direct LLM API client, no auto
@@ -460,7 +461,31 @@ Longer unattended-but-bounded runs and per-project customization.
   output mirrored to `commands.log`. Wired into `run` and `handoff`. Tests:
   `HookRunner.test.ts`.
 
-### v2.6 — Public release & distribution (GA)
+### v2.6 — Multi-session workspace (concurrent work items)
+
+Today relay-baton is single-session per repo: one `.ai-session/`, one
+`session.json` (one task, one active/last agent), and `run` overwrites it — so
+you cannot track multiple AI tasks at once, nor pin a task to a specific agent.
+This line unifies **per-agent session assignment** and **multi-tasking** into one
+concept — a *named work item* — while keeping every hard constraint (local-first,
+deterministic, no daemon, no real-time chat). Pulled in before GA.
+
+- [ ] **Named sessions (work-item registry)** — promote `.ai-session/` to hold
+  multiple named sessions (`.ai-session/sessions/<name>/…`) with an `active`
+  pointer. New `session new|list|switch|use <name>`; existing commands
+  (`run`/`handoff`/`status`/`usage`/…) operate on the active session. The current
+  single session migrates to a `default` work item (backward compatible).
+- [ ] **Per-agent session assignment** — each work item carries an
+  `assignedAgent` (or a relay chain) so a task is pinned to codex / claude / etc.
+  `run` defaults to the work item's assignment; `--primary`/`--chain` still
+  override.
+- [ ] **Safe parallelism via git worktrees** — true concurrent execution only
+  when a work item is isolated in its own git worktree (its own working tree +
+  `.ai-session`), so two agents never clobber each other's git state.
+  Tracking/switching is always available; parallel *execution* requires the
+  worktree isolation. Still confirmation-first, still no daemon.
+
+### v2.7 — Public release & distribution (GA)
 
 relay-baton is a **local CLI + desktop tool**, not a hosted service — "shipping"
 means easy install, OS trust, and legal clarity, not infra/ops. The codebase is
