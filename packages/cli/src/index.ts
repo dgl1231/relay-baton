@@ -32,7 +32,7 @@ import { replayCommand } from "./commands/replay";
 import { conversationAppendCommand } from "./commands/conversation";
 import { gitStatusCommand } from "./commands/git";
 import { sessionArchiveCommand, sessionListCommand, sessionInspectCommand, sessionResumeCommand, sessionPruneCommand, sessionExportCommand } from "./commands/session";
-import { sessionNewCommand, sessionSwitchCommand, sessionItemsCommand, sessionAssignCommand, sessionRemoveCommand } from "./commands/sessionWorkspace";
+import { sessionNewCommand, sessionSwitchCommand, sessionItemsCommand, sessionAssignCommand, sessionRemoveCommand, sessionWorktreeAddCommand, sessionWorktreeRemoveCommand } from "./commands/sessionWorkspace";
 import { loginCommand } from "./commands/login";
 import {
   projectAddCommand,
@@ -360,6 +360,27 @@ session
   .option("--project <name-or-id>", "registered project name or id")
   .option("--path <repoPath>", "repository path")
   .action(sessionRemoveCommand);
+
+const sessionWorktree = session
+  .command("worktree")
+  .description("Back a work item with an isolated git worktree for safe parallel execution");
+sessionWorktree
+  .command("add")
+  .description("Create a git worktree for a work item; run/handoff then execute there")
+  .argument("<name>", "work-item name")
+  .option("--branch <b>", "branch to create (default: relay/<name>)")
+  .option("--worktree-path <dir>", "worktree location (default: <parent>/<repo>.worktrees/<name>)")
+  .option("--project <name-or-id>", "registered project name or id")
+  .option("--path <repoPath>", "repository path")
+  .action(sessionWorktreeAddCommand);
+sessionWorktree
+  .command("remove")
+  .description("Remove a work item's git worktree (commit/stash first, or --force)")
+  .argument("<name>", "work-item name")
+  .option("--force", "remove even if the worktree has changes")
+  .option("--project <name-or-id>", "registered project name or id")
+  .option("--path <repoPath>", "repository path")
+  .action(sessionWorktreeRemoveCommand);
 
 session
   .command("archive")

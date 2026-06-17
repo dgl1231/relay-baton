@@ -190,6 +190,40 @@ export class GitService {
     return "changed";
   }
 
+  // ---- v2.6 git worktree support (safe parallel work items) ----
+
+  /** List worktree paths registered for this repo (porcelain). */
+  listWorktrees(): string[] {
+    const out = this.safe(["worktree", "list", "--porcelain"]);
+    const paths: string[] = [];
+    for (const line of out.split(/\r?\n/)) {
+      const m = /^worktree\s+(.+)$/.exec(line.trim());
+      if (m) paths.push(m[1]);
+    }
+    return paths;
+  }
+
+  /**
+   * Add a git worktree at `dir`, optionally creating branch `branch`. Returns
+   * `{ ok, error? }`. Mutating, so it surfaces failures instead of swallowing.
+   */
+  addWorktree(dir: string, branch?: string): { ok: boolean; error?: string } {
+    const args = branch ? ["worktree", "add", "-b", branch, dir] : ["worktree", "add", dir];
+    return this.mutate(args);
+  }
+
+  /** Remove a git worktree (use force to drop a dirty one). */
+  removeWorktree(dir: string, force = false): { ok: boolean; error?: string } {
+    const args = force ? ["worktree", "remove", "--force", dir] : ["worktree", "remove", dir];
+    return this.mutate(args);
+  }
+
+  private mutate(args: string[]): { ok: boolean; error?: string } {
+    const r = spawnSync("git", args, { cwd: this.repoRoot, encoding: "utf8" });
+    if (r.status === 0) return { ok: true };
+    return { ok: false, error: (r.stderr || r.stdout || `git ${args[0]} failed`).trim() };
+  }
+
   private safe(args: string[]): string {
     try {
       return execSync(`git ${args.map(a => JSON.stringify(a)).join(" ")}`, {

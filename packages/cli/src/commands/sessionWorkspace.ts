@@ -1,4 +1,6 @@
-import { ConfigLoader, SessionManager, WorkspaceManager } from "@relay-baton/core";
+import * as path from "path";
+import * as fs from "fs";
+import { ConfigLoader, SessionManager, WorkspaceManager, GitService } from "@relay-baton/core";
 import { isAgentId } from "@relay-baton/core";
 import { ProjectOpts, resolveRepoRoot } from "./projectOptions";
 
@@ -8,6 +10,14 @@ export interface SessionWorkOpts extends ProjectOpts {
   agent?: string;
   init?: boolean;
   deleteFiles?: boolean;
+  branch?: string;
+  worktreePath?: string;
+  force?: boolean;
+}
+
+/** Default isolated worktree location: `<parent>/<repo>.worktrees/<name>`. */
+function defaultWorktreePath(repoRoot: string, name: string): string {
+  return path.join(path.dirname(repoRoot), `${path.basename(repoRoot)}.worktrees`, name);
 }
 
 /** `session new <name>` — create a named work item (optionally switch + init). */
@@ -86,6 +96,56 @@ export async function sessionAssignCommand(name: string, agent: string, opts: Se
     process.exit(2);
   }
   console.log(`[relay-baton] session "${name}" agent → ${agent}`);
+}
+
+/** `session worktree add <name>` — back a work item with an isolated git worktree. */
+export async function sessionWorktreeAddCommand(name: string, opts: SessionWorkOpts = {}) {
+  const repoRoot = resolveRepoRoot(opts);
+  ConfigLoader.load(repoRoot);
+  const wm = new WorkspaceManager(repoRoot);
+  if (!wm.has(name)) {
+    console.error(`[relay-baton] unknown session: ${name} (create it first with \`session new ${name}\`)`);
+    process.exit(2);
+  }
+  const git = new GitService(repoRoot);
+  if (!git.isGitRepo()) {
+    console.error("[relay-baton] not a git repository. worktrees require git.");
+    process.exit(2);
+  }
+  const dir = opts.worktreePath ? path.resolve(opts.worktreePath) : defaultWorktreePath(repoRoot, name);
+  if (fs.existsSync(dir)) {
+    console.error(`[relay-baton] worktree path already exists: ${dir}`);
+    process.exit(2);
+  }
+  const branch = opts.branch ?? `relay/${name}`;
+  const res = git.addWorktree(dir, branch);
+  if (!res.ok) {
+    console.error(`[relay-baton] git worktree add failed: ${res.error}`);
+    process.exit(1);
+  }
+  wm.setWorktree(name, dir);
+  console.log(`[relay-baton] worktree for "${name}" → ${dir} (branch ${branch})`);
+  console.log(`  run/handoff for "${name}" now execute in this isolated checkout.`);
+}
+
+/** `session worktree remove <name>` — detach + remove the work item's worktree. */
+export async function sessionWorktreeRemoveCommand(name: string, opts: SessionWorkOpts = {}) {
+  const repoRoot = resolveRepoRoot(opts);
+  ConfigLoader.load(repoRoot);
+  const wm = new WorkspaceManager(repoRoot);
+  const entry = wm.load().sessions.find(s => s.name === name);
+  if (!entry?.worktree) {
+    console.error(`[relay-baton] session "${name}" has no worktree.`);
+    process.exit(2);
+  }
+  const res = new GitService(repoRoot).removeWorktree(entry.worktree, opts.force);
+  if (!res.ok) {
+    console.error(`[relay-baton] git worktree remove failed: ${res.error}`);
+    console.error("  (commit/stash changes in the worktree, or pass --force)");
+    process.exit(1);
+  }
+  wm.setWorktree(name, undefined);
+  console.log(`[relay-baton] removed worktree for "${name}".`);
 }
 
 /** `session remove <name>` — drop a named work item (never default). */

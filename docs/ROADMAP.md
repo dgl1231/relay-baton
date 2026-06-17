@@ -481,11 +481,14 @@ deterministic, no daemon, no real-time chat). Pulled in before GA.
   `assignedAgent` (`session new --agent` / `session assign <name> <agent>`).
   `run` uses it as the default primary in the relay chain (beats project/config
   defaults, loses to explicit `--primary`/`--chain`).
-- [ ] **Safe parallelism via git worktrees** — true concurrent execution only
-  when a work item is isolated in its own git worktree (its own working tree +
-  `.ai-session`), so two agents never clobber each other's git state.
-  Tracking/switching is always available; parallel *execution* requires the
-  worktree isolation. Still confirmation-first, still no daemon.
+- [x] **Safe parallelism via git worktrees** — `GitService` gains
+  `addWorktree`/`listWorktrees`/`removeWorktree`; `session worktree add|remove
+  <name>` backs a work item with its own git worktree (default
+  `<parent>/<repo>.worktrees/<name>`, branch `relay/<name>`), recorded as
+  `worktree` on the item. When the active item has a worktree, `run` executes in
+  that isolated checkout (own working tree + own `.ai-session`), so parallel work
+  items never clobber each other's git state. The registry stays in the main
+  repo; still confirmation-first, still no daemon. Tests: `GitWorktree.test.ts`.
 
 ### v2.7 — Public release & distribution (GA)
 

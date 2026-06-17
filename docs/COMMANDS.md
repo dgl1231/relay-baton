@@ -53,6 +53,15 @@ default primary in the relay chain.
 ### `session remove <name> [--delete-files]`
 Remove a named work item (never `default`); `--delete-files` also deletes its dir.
 
+### `session worktree add <name> [--branch <b>] [--worktree-path <dir>]`
+Back a work item with an isolated **git worktree** (default
+`<parent>/<repo>.worktrees/<name>`, branch `relay/<name>`). After this, `run` for
+that active item executes in the worktree (own working tree + own `.ai-session`),
+so parallel work items never clobber each other's git state.
+
+### `session worktree remove <name> [--force]`
+Remove the work item's worktree (commit/stash changes first, or `--force`).
+
 ### `session archive [--json] [--dry-run] [--out <dir>]`
 Archive the current `.ai-session/` artifacts into a local relay-baton archive
 directory without modifying the source repository.

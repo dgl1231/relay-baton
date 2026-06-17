@@ -7,6 +7,7 @@ import {
   WorkspaceManager,
 } from "@relay-baton/core";
 import * as readline from "readline";
+import * as fs from "fs";
 import type { AgentId, DietProfileName } from "@relay-baton/shared";
 import { ProjectOpts, resolveProjectContext } from "./projectOptions";
 import { adapterFor } from "./agentFor";
@@ -75,7 +76,14 @@ export function resolveChain(
 
 export async function runCommand(task: string, opts: RunOpts) {
   const projectContext = resolveProjectContext(opts, true);
-  const repoRoot = projectContext.repoRoot;
+  const mainRoot = projectContext.repoRoot;
+  // v2.6 item 3: if the active work item is backed by a git worktree, execute in
+  // that isolated checkout (own working tree + own .ai-session) so parallel work
+  // items never clobber each other's git state. The workspace registry stays in
+  // the main repo.
+  const activeItem = new WorkspaceManager(mainRoot).activeSession();
+  const repoRoot = activeItem?.worktree && fs.existsSync(activeItem.worktree) ? activeItem.worktree : mainRoot;
+  if (repoRoot !== mainRoot) console.log(`[relay-baton] session "${activeItem!.name}" → worktree ${repoRoot}`);
   const { config } = ConfigLoader.load(repoRoot);
   const sm = new SessionManager(repoRoot, config);
   if (!sm.getMeta()) sm.init(task);
@@ -94,10 +102,9 @@ export async function runCommand(task: string, opts: RunOpts) {
   }
 
   // v2.6: honor the active work item's assigned agent as the default primary.
-  const ws = new WorkspaceManager(repoRoot).load();
-  const assignedAgent = ws.sessions.find(s => s.name === ws.active)?.assignedAgent;
+  const assignedAgent = activeItem?.assignedAgent;
   const chain = resolveChain(opts, projectContext.project, config, assignedAgent);
-  console.log(`[relay-baton] relay chain: ${chain.join(" → ")}${assignedAgent && !opts.primary && !opts.chain ? ` (session "${ws.active}" → ${assignedAgent})` : ""}`);
+  console.log(`[relay-baton] relay chain: ${chain.join(" → ")}${assignedAgent && !opts.primary && !opts.chain ? ` (session "${activeItem!.name}" → ${assignedAgent})` : ""}`);
 
   const startedAt = new Date().toISOString();
   sm.updateMeta({

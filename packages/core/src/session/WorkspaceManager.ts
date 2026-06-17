@@ -19,6 +19,12 @@ export interface WorkspaceSession {
   createdAt: string;
   /** v2.6 item 2 hook: pin this work item to an agent / relay chain. */
   assignedAgent?: AgentId;
+  /**
+   * v2.6 item 3: absolute path to a git worktree backing this item. When set,
+   * `run`/`handoff` execute in that isolated checkout (own working tree + own
+   * `.ai-session`), so parallel work items never clobber each other's git state.
+   */
+  worktree?: string;
 }
 
 export interface Workspace {
@@ -118,6 +124,22 @@ export class WorkspaceManager {
     entry.assignedAgent = agent;
     this.save(ws);
     return ws;
+  }
+
+  /** Record (or clear) the git worktree backing a work item (v2.6 item 3). */
+  setWorktree(name: string, worktree: string | undefined): Workspace {
+    const ws = this.load();
+    const entry = ws.sessions.find(s => s.name === name);
+    if (!entry) throw new Error(`unknown session: ${name}`);
+    entry.worktree = worktree;
+    this.save(ws);
+    return ws;
+  }
+
+  /** The active work item's record (or undefined for synthesized default). */
+  activeSession(): WorkspaceSession | undefined {
+    const ws = this.load();
+    return ws.sessions.find(s => s.name === ws.active);
   }
 
   /** Remove a named work item (never `default`). Optionally delete its files. */
