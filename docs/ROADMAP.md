@@ -470,15 +470,17 @@ This line unifies **per-agent session assignment** and **multi-tasking** into on
 concept — a *named work item* — while keeping every hard constraint (local-first,
 deterministic, no daemon, no real-time chat). Pulled in before GA.
 
-- [ ] **Named sessions (work-item registry)** — promote `.ai-session/` to hold
-  multiple named sessions (`.ai-session/sessions/<name>/…`) with an `active`
-  pointer. New `session new|list|switch|use <name>`; existing commands
-  (`run`/`handoff`/`status`/`usage`/…) operate on the active session. The current
-  single session migrates to a `default` work item (backward compatible).
-- [ ] **Per-agent session assignment** — each work item carries an
-  `assignedAgent` (or a relay chain) so a task is pinned to codex / claude / etc.
-  `run` defaults to the work item's assignment; `--primary`/`--chain` still
-  override.
+- [x] **Named sessions (work-item registry)** — `WorkspaceManager` owns
+  `.ai-session/workspace.json` (active pointer + work-item list). Named items live
+  under `.ai-session/sessions/<name>/`; the legacy flat `.ai-session/` IS the
+  `default` item, so existing repos need **zero migration**. `SessionFiles`
+  resolves the active item, so all existing commands (`run`/`handoff`/`status`/
+  `usage`/…) transparently operate on it. New CLI: `session new|switch|use|items|
+  assign|remove`. Tests: `WorkspaceManager.test.ts`.
+- [x] **Per-agent session assignment** — each work item carries an
+  `assignedAgent` (`session new --agent` / `session assign <name> <agent>`).
+  `run` uses it as the default primary in the relay chain (beats project/config
+  defaults, loses to explicit `--primary`/`--chain`).
 - [ ] **Safe parallelism via git worktrees** — true concurrent execution only
   when a work item is isolated in its own git worktree (its own working tree +
   `.ai-session`), so two agents never clobber each other's git state.

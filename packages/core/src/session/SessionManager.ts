@@ -16,8 +16,8 @@ export interface InitResult {
 
 export class SessionManager {
   readonly files: SessionFiles;
-  constructor(public repoRoot: string, public config: RelayBatonConfig) {
-    this.files = new SessionFiles(repoRoot);
+  constructor(public repoRoot: string, public config: RelayBatonConfig, sessionName?: string) {
+    this.files = new SessionFiles(repoRoot, sessionName);
   }
 
   init(task = ""): InitResult {

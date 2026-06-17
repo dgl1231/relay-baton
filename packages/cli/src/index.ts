@@ -32,6 +32,7 @@ import { replayCommand } from "./commands/replay";
 import { conversationAppendCommand } from "./commands/conversation";
 import { gitStatusCommand } from "./commands/git";
 import { sessionArchiveCommand, sessionListCommand, sessionInspectCommand, sessionResumeCommand, sessionPruneCommand, sessionExportCommand } from "./commands/session";
+import { sessionNewCommand, sessionSwitchCommand, sessionItemsCommand, sessionAssignCommand, sessionRemoveCommand } from "./commands/sessionWorkspace";
 import { loginCommand } from "./commands/login";
 import {
   projectAddCommand,
@@ -313,7 +314,53 @@ git
   .option("--path <repoPath>", "repository path")
   .action(gitStatusCommand);
 
-const session = program.command("session").description("Manage session archives and recovery");
+const session = program.command("session").description("Manage work items (named sessions) + archives/recovery");
+
+// v2.6 multi-session workspace — named work items within one repo.
+session
+  .command("new")
+  .description("Create a named work item (session); the legacy flat session is `default`")
+  .argument("<name>", "work-item name (letters/digits/._-)")
+  .option("--switch", "switch the active session to the new one")
+  .option("--agent <id>", "pin this work item to an agent (codex|claude|opencode|gemini|aider|cursor)")
+  .option("--no-init", "do not initialize .ai-session artifacts for the new item")
+  .option("--json", "print machine-readable JSON")
+  .option("--project <name-or-id>", "registered project name or id")
+  .option("--path <repoPath>", "repository path")
+  .action(sessionNewCommand);
+session
+  .command("switch")
+  .aliases(["use"])
+  .description("Switch the active work item (use `default` for the legacy flat session)")
+  .argument("<name>", "work-item name")
+  .option("--json", "print machine-readable JSON")
+  .option("--project <name-or-id>", "registered project name or id")
+  .option("--path <repoPath>", "repository path")
+  .action(sessionSwitchCommand);
+session
+  .command("items")
+  .description("List work items in this repo and which one is active (read-only)")
+  .option("--json", "print machine-readable JSON")
+  .option("--project <name-or-id>", "registered project name or id")
+  .option("--path <repoPath>", "repository path")
+  .action(sessionItemsCommand);
+session
+  .command("assign")
+  .description("Pin a work item to an agent (or `none` to clear)")
+  .argument("<name>", "work-item name")
+  .argument("<agent>", "agent id or `none`")
+  .option("--project <name-or-id>", "registered project name or id")
+  .option("--path <repoPath>", "repository path")
+  .action(sessionAssignCommand);
+session
+  .command("remove")
+  .description("Remove a named work item (never `default`)")
+  .argument("<name>", "work-item name")
+  .option("--delete-files", "also delete the work item's .ai-session/sessions/<name> dir")
+  .option("--project <name-or-id>", "registered project name or id")
+  .option("--path <repoPath>", "repository path")
+  .action(sessionRemoveCommand);
+
 session
   .command("archive")
   .description("Archive the current .ai-session artifacts without modifying the source repo")

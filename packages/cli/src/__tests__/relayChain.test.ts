@@ -18,6 +18,14 @@ describe("resolveChain — deterministic who's-next policy (v2.3)", () => {
     expect(resolveChain({ primary: "cursor" }, project, config)).toEqual(["cursor", "aider"]);
   });
 
+  it("uses the work item's assigned agent as default primary (loses to flags)", () => {
+    expect(resolveChain({}, undefined, config, "gemini")).toEqual(["gemini", "claude"]);
+    // explicit --primary still wins over the assignment
+    expect(resolveChain({ primary: "codex" }, undefined, config, "gemini")).toEqual(["codex", "claude"]);
+    // assignment beats project override
+    expect(resolveChain({}, { primaryAgent: "aider" }, config, "cursor")).toEqual(["cursor", "claude"]);
+  });
+
   it("supports an explicit N-way chain that overrides primary/fallback", () => {
     expect(resolveChain({ chain: "claude,codex,gemini" }, undefined, config)).toEqual(["claude", "codex", "gemini"]);
     expect(resolveChain({ chain: "codex, claude , cursor" }, undefined, config)).toEqual(["codex", "claude", "cursor"]);

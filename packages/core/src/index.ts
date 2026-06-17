@@ -3,6 +3,7 @@ export * from "./config/ConfigSchema";
 export * from "./config/defaultConfig";
 export * from "./logging/Logger";
 export * from "./session/SessionFiles";
+export * from "./session/WorkspaceManager";
 export * from "./session/SessionMetaSchema";
 export * from "./session/ArtifactValidator";
 export * from "./session/SchemaInspector";

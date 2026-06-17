@@ -4,6 +4,7 @@ import {
   HandoffQualityGate, TokenDietQualityGate, PromptBuilder, ContextCompressor,
   agentFallbackPatterns, isAgentId, UsageLedger,
   BoundedOrchestrator, GuardrailPolicy, ExecutionCheckpoints, HookRunner,
+  WorkspaceManager,
 } from "@relay-baton/core";
 import * as readline from "readline";
 import type { AgentId, DietProfileName } from "@relay-baton/shared";
@@ -44,12 +45,19 @@ function confirm(question: string): Promise<boolean> {
  * flags > project overrides > config. Supports reverse (claude->codex) and
  * longer chains, not just codex->claude.
  */
-export function resolveChain(opts: RunOpts, project: { primaryAgent?: AgentId; fallbackAgent?: AgentId } | undefined, config: { primaryAgent: AgentId; fallbackAgent: AgentId }): AgentId[] {
+export function resolveChain(
+  opts: RunOpts,
+  project: { primaryAgent?: AgentId; fallbackAgent?: AgentId } | undefined,
+  config: { primaryAgent: AgentId; fallbackAgent: AgentId },
+  assignedAgent?: AgentId,
+): AgentId[] {
   let ids: string[];
   if (opts.chain) {
     ids = opts.chain.split(",").map(s => s.trim()).filter(Boolean);
   } else {
-    const primary = opts.primary ?? project?.primaryAgent ?? config.primaryAgent;
+    // v2.6: a work item's assigned agent beats project/config defaults, but loses
+    // to explicit --primary/--chain flags.
+    const primary = opts.primary ?? assignedAgent ?? project?.primaryAgent ?? config.primaryAgent;
     const fallback = opts.fallback ?? project?.fallbackAgent ?? config.fallbackAgent;
     ids = fallback && fallback !== primary ? [primary, fallback] : [primary];
   }
@@ -85,8 +93,11 @@ export async function runCommand(task: string, opts: RunOpts) {
     process.exit(2);
   }
 
-  const chain = resolveChain(opts, projectContext.project, config);
-  console.log(`[relay-baton] relay chain: ${chain.join(" → ")}`);
+  // v2.6: honor the active work item's assigned agent as the default primary.
+  const ws = new WorkspaceManager(repoRoot).load();
+  const assignedAgent = ws.sessions.find(s => s.name === ws.active)?.assignedAgent;
+  const chain = resolveChain(opts, projectContext.project, config, assignedAgent);
+  console.log(`[relay-baton] relay chain: ${chain.join(" → ")}${assignedAgent && !opts.primary && !opts.chain ? ` (session "${ws.active}" → ${assignedAgent})` : ""}`);
 
   const startedAt = new Date().toISOString();
   sm.updateMeta({

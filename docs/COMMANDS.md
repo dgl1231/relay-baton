@@ -29,6 +29,30 @@ existing files).
 ### `status [--json]`
 Show the current session status (`session.json` summary).
 
+## Work items (named sessions, v2.6)
+
+A repo can hold multiple named work items. The legacy flat `.ai-session/` is the
+`default` item (zero migration); named items live under
+`.ai-session/sessions/<name>/`. All commands (`run`/`handoff`/`status`/`usage`/…)
+operate on the **active** item.
+
+### `session new <name> [--switch] [--agent <id>] [--no-init] [--json]`
+Create a named work item. `--switch` makes it active; `--agent` pins it to an
+agent; `--no-init` skips creating its `.ai-session` artifacts.
+
+### `session switch <name>` (alias `use`)
+Set the active work item (`default` = the legacy flat session).
+
+### `session items [--json]`
+List work items and which one is active (read-only).
+
+### `session assign <name> <agent>`
+Pin a work item to an agent (or `none` to clear). `run` then uses it as the
+default primary in the relay chain.
+
+### `session remove <name> [--delete-files]`
+Remove a named work item (never `default`); `--delete-files` also deletes its dir.
+
 ### `session archive [--json] [--dry-run] [--out <dir>]`
 Archive the current `.ai-session/` artifacts into a local relay-baton archive
 directory without modifying the source repository.

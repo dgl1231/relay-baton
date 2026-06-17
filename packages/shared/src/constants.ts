@@ -1,6 +1,16 @@
 export const SESSION_DIR = ".ai-session";
 
 /**
+ * v2.6 multi-session workspace. Named work items live under
+ * `.ai-session/sessions/<name>/`; the legacy flat `.ai-session/` IS the
+ * `default` work item (so existing repos need no migration). The active pointer
+ * + work-item list live in `.ai-session/workspace.json`.
+ */
+export const WORKSPACE_FILE = "workspace.json";
+export const SESSIONS_SUBDIR = "sessions";
+export const DEFAULT_SESSION = "default";
+
+/**
  * v1.0 stability contract. These are the frozen schema versions for the two
  * persisted contracts relay-baton owns. Bump ONLY on a breaking shape change;
  * loaders normalize older payloads up to the current version.

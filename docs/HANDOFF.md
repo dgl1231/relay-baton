@@ -42,9 +42,18 @@ project recipes/hooks: optional `hooks.preHandoff`/`hooks.postExecute` config
 arrays run by `HookRunner` (core), local-only, env-sanitized, no network, no-op
 when absent, stop-on-first-failure; wired into `run`+`handoff`. New
 `BoundedOrchestrator.test.ts` + `HookRunner.test.ts`. Build green, 296 core + 88
-cli tests pass. SHIPPED on `v2.5.0-alpha.0`. Next: **v2.6 — Multi-session
-workspace** (named sessions/work-item registry, per-agent assignment, git-worktree
-isolation for safe parallelism), then **v2.7 — GA**.
+cli tests pass. SHIPPED on `v2.5.0-alpha.0`.
+
+**v2.6 (Multi-session workspace) — items 1+2 DONE locally (not released).** Item
+1 named sessions: `WorkspaceManager` owns `.ai-session/workspace.json` (active +
+list); named items under `.ai-session/sessions/<name>/`, legacy flat `.ai-session`
+= `default` (zero migration); `SessionFiles` resolves the active item so all
+commands follow it; new `session new|switch|use|items|assign|remove`. Item 2
+per-agent assignment: work items carry `assignedAgent`; `run` uses it as default
+primary (beats project/config, loses to `--primary`/`--chain`). New
+`WorkspaceManager.test.ts` + relayChain assignment test. Build green, 302 core +
+89 cli tests pass. **Item 3 REMAINING:** git-worktree isolation for safe parallel
+execution (`[ ]`). Next: finish item 3, then cut `v2.6.0-alpha.0`, then v2.7 GA.
 
 **Decisions (this session):**
 - Multi-session/multi-task is now its own **v2.6** line (pulled in before GA):
