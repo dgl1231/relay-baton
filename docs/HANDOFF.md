@@ -56,8 +56,12 @@ project/config, loses to `--primary`/`--chain`). Item 3 git-worktree isolation:
 add|remove`; `run` executes in the work item's worktree when set (own tree + own
 `.ai-session`) for safe parallelism; registry stays in main repo. New
 `WorkspaceManager.test.ts` + `GitWorktree.test.ts` + relayChain assignment test.
-Build green, 304 core + 89 cli tests pass. Next: cut `v2.6.0-alpha.0`, then v2.7
-GA.
+Build green, 304 core + 89 cli tests pass. **SHIPPED & VERIFIED on
+`v2.6.0-alpha.0`** — release run `27669752717` green (first release with the
+macOS DMG-retry fix; no flake), provenance verifies (SLSA v1), `sbom-diff.md`
+published (no dep changes vs v2.5.0-alpha.0), 9 assets. Next: **v2.7 — GA** (first
+public release as v1.0.0: LICENSE, npm publish, GA versioning, code signing,
+package managers).
 
 **Decisions (this session):**
 - Multi-session/multi-task is now its own **v2.6** line (pulled in before GA):
