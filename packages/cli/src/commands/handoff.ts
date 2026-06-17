@@ -3,7 +3,7 @@ import {
   ConfigLoader, SessionManager, BatonWorkflow,
   HandoffQualityGate, TokenDietQualityGate,
   ClaudeCodeAdapter, PromptBuilder, runAgent, GitService,
-  UsageLedger, isAgentId,
+  UsageLedger, isAgentId, HookRunner,
 } from "@relay-baton/core";
 import type { DietProfileName } from "@relay-baton/shared";
 import { ProjectOpts, resolveProjectContext } from "./projectOptions";
@@ -43,6 +43,18 @@ export async function handoffCommand(opts: HandoffOpts) {
   sm.updateMeta({ startedAt, endedAt: undefined, durationMs: undefined });
 
   const prevMeta = sm.getMeta()!;
+  // v2.5 pre-handoff hooks (opt-in, local-only; no-op when unconfigured).
+  const hooks = new HookRunner(repoRoot, config);
+  const runHooks = (phase: "preHandoff" | "postExecute") => {
+    for (const r of hooks.run(phase, {
+      allowApiKeyEnv: opts.allowApiKeyEnv,
+      onStdout: l => process.stdout.write(l + "\n"),
+      onStderr: l => process.stderr.write(l + "\n"),
+    })) {
+      if (!r.ok) console.error(`[relay-baton] hook failed (${phase}): ${r.command} → ${r.exitCode ?? r.error}`);
+    }
+  };
+  runHooks("preHandoff");
   const wf = new BatonWorkflow(sm, config);
   const result = wf.buildHandoff({
     profileName,
@@ -124,6 +136,7 @@ export async function handoffCommand(opts: HandoffOpts) {
     });
     process.exit(1);
   }
+  if (r.exitCode === 0) runHooks("postExecute");
   const endedAt = new Date().toISOString();
   sm.updateMeta({
     status: r.exitCode === 0 ? "completed" : "failed",

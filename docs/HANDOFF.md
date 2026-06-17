@@ -30,12 +30,24 @@ Go/Rust/Java + Markdown headings) feeds a "## Symbols" section in the repo map;
 `.ai-session/usage.jsonl` token proxy (`ceil(chars/4)`), recorded by
 `run`/`handoff`; new `relay-baton usage [--json]` (totals, per-type/agent,
 budget ratio). Local only, never transmitted. New `CompactionV2.test.ts` +
-`UsageLedger.test.ts`. Build green, 286 core + 88 cli tests pass. **SHIPPED &
-VERIFIED on `v2.4.0-alpha.0`** — release run `27657546301` green; provenance
-verifies (SLSA v1) and `sbom-diff.md` published (no dep changes vs
-v2.3.0-alpha.0). 9 assets on the Release. Next: start v2.5 (guarded automation &
-extensibility — bounded `run --until`, project recipes/hooks). Releases stay
-alpha (v2.x.0-alpha.N).
+`UsageLedger.test.ts`. SHIPPED & VERIFIED on `v2.4.0-alpha.0` (run `27657546301`).
+
+**v2.5 (Guarded automation & extensibility) FEATURE-COMPLETE locally (not yet
+released).** Both boxes `[x]`. Item 1 — bounded auto-orchestration:
+`BoundedOrchestrator` (core) = `LoopController` + `GuardrailPolicy`; `run --until
+<n>` runs ≤N extra continue-steps on the completing agent, confirmation-first
+(prompts unless `--yes`), checkpoint+usage per step. Strictly bounded, no daemon
+(respects CLAUDE.md "no autopilot" — chosen "strict bounded" approach). Item 2 —
+project recipes/hooks: optional `hooks.preHandoff`/`hooks.postExecute` config
+arrays run by `HookRunner` (core), local-only, env-sanitized, no network, no-op
+when absent, stop-on-first-failure; wired into `run`+`handoff`. New
+`BoundedOrchestrator.test.ts` + `HookRunner.test.ts`. Build green, 296 core + 88
+cli tests pass. Next: cut `v2.5.0-alpha.0` per RELEASE.md, then v2.6 (public
+release & distribution).
+
+**Decisions (this session):** GA will be cut as **v1.0.0 at v2.6** (after the
+Phase-0 blockers: LICENSE, npm publish, GA versioning). v2.x stays alpha until
+then._
 
 Prior: **v2.2 SHIPPED & VERIFIED on `v2.2.0-alpha.0`** (run `27597659547` green;
 provenance attestation verifies, `sbom-diff.md` published). Roadmap milestone

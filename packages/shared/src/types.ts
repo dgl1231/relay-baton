@@ -82,6 +82,14 @@ export interface RelayBatonConfig {
      */
     perAgent?: Partial<Record<AgentId, number>>;
   };
+  // v2.5 project recipes / hooks — optional, opt-in, local-only command hooks run
+  // at lifecycle points. No daemon, no network. Absent = nothing runs.
+  hooks?: {
+    /** Shell commands run before building a handoff (in order). */
+    preHandoff?: string[];
+    /** Shell commands run after an agent finishes a run/handoff (in order). */
+    postExecute?: string[];
+  };
   // v1.7 guarded execution — optional stop-condition caps (advisory, read-only).
   // Defaults applied when absent. Never auto-halts an agent; relay-baton reports
   // and the human/agent decides.

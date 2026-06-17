@@ -444,11 +444,21 @@ Spend fewer tokens per handoff without adding embeddings.
 
 Longer unattended-but-bounded runs and per-project customization.
 
-- [ ] **Bounded auto-orchestration (`run --until`)** — a guarded multi-step loop
-  gated by the existing checkpoints + guardrails (max steps/files/budget,
-  confirmation), never an unattended daemon.
-- [ ] **Project recipes / hooks** — per-project pre-handoff / post-execute hooks
-  and command defaults, declared in config (no daemon, no network).
+- [x] **Bounded auto-orchestration (`run --until <n>`)** — `BoundedOrchestrator`
+  (core) combines `LoopController` (step cap / budget / divergence) with
+  `GuardrailPolicy` (changed-file / step / budget caps) into one deterministic
+  "may I take one more step?" decision. `run --until N` runs up to N extra
+  continue-steps on the completing agent, **confirmation-first** (each step
+  prompts unless `--yes`), recording a checkpoint + usage event per step. Strictly
+  bounded — never an unattended daemon; removing the cap or confirmation gate is
+  out of scope by design (respects CLAUDE.md "no autopilot"). Tests:
+  `BoundedOrchestrator.test.ts`.
+- [x] **Project recipes / hooks** — optional `hooks.preHandoff` / `hooks.postExecute`
+  config arrays of shell commands run at lifecycle points by `HookRunner` (core).
+  Local-only: env sanitized like an agent's (provider keys stripped by default),
+  no daemon, no network; absent config = no-op; chain stops on first failure;
+  output mirrored to `commands.log`. Wired into `run` and `handoff`. Tests:
+  `HookRunner.test.ts`.
 
 ### v2.6 — Public release & distribution (GA)
 

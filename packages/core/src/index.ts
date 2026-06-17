@@ -61,6 +61,8 @@ export * from "./conversation/ConversationReplay";
 export * from "./room/RoomCommands";
 export * from "./room/RoomEngine";
 export * from "./runtime/LoopController";
+export * from "./runtime/BoundedOrchestrator";
+export * from "./runtime/HookRunner";
 export * from "./workflow/BatonWorkflow";
 export * from "./workflow/WorkflowStage";
 export * from "./projects/ProjectRegistry";

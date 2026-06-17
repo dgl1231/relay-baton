@@ -41,6 +41,7 @@ export class ConfigLoader {
       contextCompression: override.contextCompression
         ? { ...base.contextCompression!, ...override.contextCompression }
         : base.contextCompression,
+      hooks: override.hooks ? { ...base.hooks, ...override.hooks } : base.hooks,
     };
   }
 }

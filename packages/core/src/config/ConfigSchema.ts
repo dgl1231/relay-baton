@@ -50,6 +50,20 @@ export function validateConfig(config: RelayBatonConfig): ValidationResult {
     warnings.push("fallbackPatterns is empty; fallback detection will never trigger");
   }
 
+  // v2.5 hooks: optional, but when present must be string arrays.
+  if (config.hooks !== undefined) {
+    if (typeof config.hooks !== "object" || config.hooks === null) {
+      errors.push("hooks must be an object when present");
+    } else {
+      for (const phase of ["preHandoff", "postExecute"] as const) {
+        const v = (config.hooks as any)[phase];
+        if (v !== undefined && (!Array.isArray(v) || v.some((c: unknown) => typeof c !== "string"))) {
+          errors.push(`hooks.${phase} must be an array of strings`);
+        }
+      }
+    }
+  }
+
   // Safety policy (mirrors CLAUDE.md): blocked env vars must stay blocked.
   const blocked = config.authPolicy?.blockedEnvVars ?? [];
   for (const required of ["OPENAI_API_KEY", "ANTHROPIC_API_KEY"]) {

@@ -126,6 +126,26 @@ Supports reverse relay (e.g. `--primary claude --fallback codex`) and longer
 chains, not just codex→claude. Other options: `--diet`, `--force`,
 `--allow-api-key-env`, `--project`, `--path`.
 
+**Bounded auto-orchestration (v2.5):** `--until <n>` runs up to N extra
+continue-steps on the completing agent — strictly bounded and **confirmation-first**
+(each step prompts unless `--yes`). It is gated by the guardrail policy (max
+steps/changed-files/budget) and stops on divergence or budget ceiling. Never an
+unattended daemon; each step records a checkpoint + usage event.
+
+### Project recipes / hooks (v2.5)
+Optional, opt-in, **local-only** command hooks declared in config — no daemon,
+no network, env sanitized like an agent's (provider keys stripped by default).
+Absent config = nothing runs; the chain stops on the first failing command.
+
+```jsonc
+{
+  "hooks": {
+    "preHandoff":  ["pnpm build"],          // before each handoff is built
+    "postExecute": ["pnpm test", "pnpm lint"] // after an agent finishes
+  }
+}
+```
+
 ### `handoff --to <agent>`
 Generate a handoff document and optionally launch the next agent. Options:
 `--to <agent>` (required, e.g. `claude`), `--diet`, `--force`, `--no-run` (do not
