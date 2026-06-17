@@ -266,12 +266,42 @@ jobs:
           NODE
 
       - name: Build desktop app
-        if: runner.os != 'macOS' || env.HAS_APPLE_SIGNING != 'true'
+        if: runner.os != 'macOS'
         working-directory: desktop
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: npm run build
+
+      # macOS (unsigned) DMG bundling via tauri's bundle_dmg.sh intermittently
+      # fails when hdiutil cannot detach the mounted image on CI runners (a known
+      # flake, unrelated to our code). Retry a few times, cleaning up any leftover
+      # mounted volume between attempts so the next `hdiutil attach` is clean.
+      - name: Build desktop app (macOS unsigned, retry DMG flake)
+        if: runner.os == 'macOS' && env.HAS_APPLE_SIGNING != 'true'
+        working-directory: desktop
+        shell: bash
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          set +e
+          attempts=3
+          for i in $(seq 1 $attempts); do
+            echo "::group::desktop build attempt $i/$attempts"
+            npm run build
+            code=$?
+            echo "::endgroup::"
+            if [ $code -eq 0 ]; then
+              echo "desktop build succeeded on attempt $i"
+              exit 0
+            fi
+            echo "::warning::desktop DMG bundling failed (attempt $i/$attempts, exit $code); cleaning up and retrying"
+            for v in /Volumes/relay-baton*; do [ -e "$v" ] && hdiutil detach "$v" -force || true; done
+            sleep 15
+          done
+          echo "::error::desktop build failed after $attempts attempts"
+          exit 1
 
       - name: Build desktop app (signed macOS)
         if: runner.os == 'macOS' && env.HAS_APPLE_SIGNING == 'true'
