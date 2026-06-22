@@ -70,16 +70,17 @@ not a judge-AI control loop).
 **v2.7 GA — Phase 0 IN PROGRESS (local, not released).** Decisions: **MIT**
 license + GA cut as **1.0.0** (off the alpha line). Done: top-level `LICENSE`
 (MIT, © 2026 DongGeon Lee) + per-package copies + `license` fields; all four
-packages versioned 1.0.0 (+ CLI `--version`); CLI package renamed
-`@relay-baton/cli` → unscoped **`relaybaton`** (NOTE: `relay-baton` is already
-taken on npm by an unrelated pkg @ v4.0.5; bin stays `relay-baton`; root `dev`
-filter + README/CHANGELOG updated) with `publishConfig.access:public`/`files`/
-`engines`/`repository` on all four; libs stay `@relay-baton/*` (scope is free);
-`CHANGELOG.md` + `CONTRIBUTING.md` + issue templates added; README npm quickstart
-+ badge. Build green, 304 core + 89 cli tests pass; `pnpm pack` confirms
-`workspace:*`→`1.0.0`. **Remaining in Phase 0:** actual `npm publish` (MANUAL —
-needs maintainer npm login; publish CLI as `relaybaton` + libs under
-`@relay-baton/*` via `pnpm -r publish`), demo GIF (deferred, non-deterministic). Then Phase 1 (signing, package managers) + Phase 2 (announce). No
+packages versioned 1.0.0 (+ CLI `--version`); all four publish under the
+**`@relay-baton` scope** (npm org `relay-baton`, free): **`@relay-baton/cli`** +
+core/shared/tui. (Naming history: unscoped `relay-baton` is taken on npm @
+v4.0.5, and `relaybaton` was rejected by npm as "too similar" — so the CLI lives
+in the scope; bin stays `relay-baton`.) `publishConfig.access:public`/`files`/
+`engines`/`repository` on all four; `CHANGELOG.md` + `CONTRIBUTING.md` + issue
+templates added; README npm quickstart (`npm i -g @relay-baton/cli`) + badge.
+**PUBLISHED to npm @ 1.0.0:** `@relay-baton/shared`, `@relay-baton/core`,
+`@relay-baton/tui` are live; `@relay-baton/cli` pending re-run after the rename
+(2FA needs an automation token; `git push` + `v1.0.0` tag still pending).
+**Remaining in Phase 0:** publish `@relay-baton/cli`, demo GIF (deferred). Then Phase 1 (signing, package managers) + Phase 2 (announce). No
 commit/push yet (awaiting user request).
 
 **Decisions (this session):**

@@ -505,10 +505,12 @@ friction; Phase 2 announces.
   was previously unlicensed ("all rights reserved"). `license: "MIT"` set in the
   root + all four package manifests, and `LICENSE` copied into each package dir
   so published tarballs are legally complete.
-- [x] **npm distribution** — CLI package renamed `@relay-baton/cli` →
-  unscoped **`relaybaton`** (the name `relay-baton` was already taken on npm by
-  an unrelated package; the bin stays `relay-baton`, so `npm i -g relaybaton` /
-  `npx relaybaton` install the familiar `relay-baton` command);
+- [x] **npm distribution** — published under the `@relay-baton` scope (npm org):
+  **`@relay-baton/cli`** + `core`/`shared`/`tui` libs. Unscoped names were
+  blocked by npm (`relay-baton` taken @ v4.0.5; `relaybaton` rejected as
+  too-similar), so the CLI lives in the scope; the bin stays `relay-baton`, so
+  `npm i -g @relay-baton/cli` / `npx @relay-baton/cli` install the familiar
+  `relay-baton` command;
   `private: true` dropped on all four packages, each given
   `publishConfig.access:public`, `files`, `engines`, `repository`/`homepage`/
   `bugs`. `pnpm pack` verified `workspace:*` → `1.0.0` substitution. **Actual

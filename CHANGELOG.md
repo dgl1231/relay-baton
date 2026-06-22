@@ -16,12 +16,12 @@ release makes the project legally usable and installable.
 ### Added
 - **MIT `LICENSE`** at the repository root (previously unlicensed / "all rights
   reserved"). `license: "MIT"` declared in every package manifest.
-- **npm distribution** — the CLI publishes as the unscoped package
-  **`relaybaton`** (the unhyphenated name; `relay-baton` was already taken on
-  npm). It installs the familiar `relay-baton` command, so `npm i -g relaybaton`
-  / `npx relaybaton` work without a clone or build. The `@relay-baton/core`,
-  `@relay-baton/shared`, and `@relay-baton/tui` libraries publish as public
-  scoped packages.
+- **npm distribution** — published under the `@relay-baton` scope:
+  **`@relay-baton/cli`** (the CLI; unscoped `relay-baton` / `relaybaton` were
+  blocked by npm — taken / too-similar), plus the `@relay-baton/core`,
+  `@relay-baton/shared`, and `@relay-baton/tui` libraries, all public. The CLI
+  installs the familiar `relay-baton` command, so `npm i -g @relay-baton/cli` /
+  `npx @relay-baton/cli` work without a clone or build.
 - **`CHANGELOG.md`** (this file), derived from `release-notes/`.
 - README: npm-based quickstart path alongside the from-source flow.
 

@@ -221,15 +221,15 @@ Neither `verify` nor `doctor --deep` makes any network or model call, and
 
 ## Quick start
 
-Fastest path (once published to npm — no clone, no build). The package is
-`relaybaton` (no hyphen); the command it installs is `relay-baton`:
+Fastest path (no clone, no build). The package is `@relay-baton/cli`; the
+command it installs is `relay-baton`:
 
 ```bash
-npm i -g relaybaton             # installs the `relay-baton` command
+npm i -g @relay-baton/cli       # installs the `relay-baton` command
 relay-baton doctor              # check codex/claude + environment
 relay-baton login               # log in to both CLIs
 relay-baton run "Fix the mail attachment upload flow" --diet balanced
-# one-off without installing: npx relaybaton doctor
+# one-off without installing: npx @relay-baton/cli doctor
 ```
 
 From source (for development):
@@ -249,7 +249,7 @@ pnpm relay-baton doctor
 pnpm relay-baton run "Fix the mail attachment upload flow" --diet balanced
 ```
 
-> `pnpm relay-baton` is an alias for `node packages/cli/dist/index.js`. For a global binary, link it with `pnpm -F relaybaton link --global` (optional). Once published, `npm i -g relaybaton` (command: `relay-baton`) or `npx relaybaton` works without a build.
+> `pnpm relay-baton` is an alias for `node packages/cli/dist/index.js`. For a global binary, link it with `pnpm -F @relay-baton/cli link --global` (optional). Published as `@relay-baton/cli`, so `npm i -g @relay-baton/cli` (command: `relay-baton`) or `npx @relay-baton/cli` works without a build.
 
 ### One-line install via an agent
 
