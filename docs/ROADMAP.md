@@ -342,7 +342,7 @@ instead of a thin release shell.
   remaining constraints (no auto commit/push/PR, no daemon, no real-time chat,
   no default semantic indexing) hold by design and are documented.
 
-## Beyond v2.0 — proposed line (v2.1 → v2.7)
+## Beyond v2.0 — proposed line (v2.1 → v2.8)
 
 The v1.x → v2.0 lines are complete. The next stable line is sequenced
 hardening-first (security/reliability before new surface area), then capability
@@ -501,18 +501,28 @@ friction; Phase 2 announces.
 
 **Phase 0 — legal + installable (no signing cost):**
 
-- [ ] **LICENSE** — add a top-level `LICENSE` (decide MIT vs Apache-2.0; repo
-  currently has `licenseInfo: null`, so it is legally "all rights reserved" and
-  nobody can use it). Set `license` in published `package.json`(s).
-- [ ] **npm distribution** — drop `private: true` on the publishable package(s),
-  finalize the `bin`/`files`/`publishConfig`, and publish so `npx relay-baton` /
-  `npm i -g relay-baton` work. Keep internal-only packages private.
-- [ ] **GA versioning + CHANGELOG** — decide the stable line (graduate off the
-  perpetual `-alpha.N` label to a public `1.0.0`/GA scheme) and add a
-  user-facing CHANGELOG derived from `release-notes/`.
-- [ ] **Onboarding polish** — README prerequisites (codex + claude CLIs installed
-  & logged in), a 30-second quickstart, and a demo (asciinema/GIF); a
-  CONTRIBUTING + issue templates for inbound users.
+- [x] **LICENSE** — top-level `LICENSE` (MIT, © 2026 DongGeon Lee) added; repo
+  was previously unlicensed ("all rights reserved"). `license: "MIT"` set in the
+  root + all four package manifests, and `LICENSE` copied into each package dir
+  so published tarballs are legally complete.
+- [x] **npm distribution** — CLI package renamed `@relay-baton/cli` →
+  unscoped **`relaybaton`** (the name `relay-baton` was already taken on npm by
+  an unrelated package; the bin stays `relay-baton`, so `npm i -g relaybaton` /
+  `npx relaybaton` install the familiar `relay-baton` command);
+  `private: true` dropped on all four packages, each given
+  `publishConfig.access:public`, `files`, `engines`, `repository`/`homepage`/
+  `bugs`. `pnpm pack` verified `workspace:*` → `1.0.0` substitution. **Actual
+  `npm publish` is a manual step** (needs the maintainer's npm login + the
+  `@relay-baton` scope; publish via `pnpm -r publish`, not `npm publish`, so the
+  workspace protocol is rewritten).
+- [x] **GA versioning + CHANGELOG** — graduated off `-alpha.N` to **1.0.0**
+  (root + 4 packages + CLI `--version`); added user-facing
+  [`CHANGELOG.md`](../CHANGELOG.md) derived from `release-notes/`.
+- [~] **Onboarding polish** — README prerequisites (codex + claude CLIs) +
+  Logging-in section already present; added an npm-based 30-second quickstart and
+  bumped the release badge. Added [`CONTRIBUTING.md`](../CONTRIBUTING.md) +
+  GitHub issue templates (bug/feature + config with security link). **Remaining:**
+  demo (asciinema/GIF) — cannot be produced deterministically, deferred.
 
 **Phase 1 — remove install friction (cost / accounts):**
 
@@ -528,6 +538,32 @@ friction; Phase 2 announces.
 - [ ] **Soft launch + announce** — dogfood + a small beta cohort for feedback,
   then a public announcement (Show HN, r/commandline, r/ClaudeAI, the Codex /
   Claude communities). No telemetry by default; respect the local-first contract.
+
+### v2.8 — Smarter relay (proposed, post-GA)
+
+Borrowed *narrowly* from orchestrator tools (Hermes / OpenCode) **without**
+adopting their architecture. relay-baton stays a handoff/baton-touch harness, not
+a resident judge-AI that routes work across models in real time. So no resident
+orchestrator, no daemon, no direct LLM API calls — only deterministic,
+confirmation-first improvements to *when* and *to whom* the baton passes.
+
+> Explicitly NOT borrowed: a always-on "main judging AI" control loop, dynamic
+> multi-agent collaboration, autopilot. Those spend tokens and break the auth +
+> token-diet contracts; relay-baton's value is *cheap* session continuity, the
+> opposite problem.
+
+- [ ] **Broadened fallback triggers** — today fallback is detected only from an
+  agent's usage/rate/quota error patterns. Add deterministic, opt-in triggers:
+  a **manual** "hand off now" trigger (`run --handoff-now` / room command) and
+  **threshold-based** triggers (budget ratio, `UsageLedger` token-proxy, or
+  changed-files cap) that *suggest* a handoff. Still confirmation-first; never an
+  unattended daemon. Reuses `GuardrailPolicy` caps + `UsageLedger`.
+- [ ] **Deterministic routing hints (advisory only)** — `AgentRegistry` gains
+  per-agent strength tags (e.g. planning vs. bulk-edit vs. review); given a task
+  string, a deterministic keyword match *proposes* a chain ordering for
+  `resolveChain`. Pure suggestion surfaced in the preview — the human still
+  confirms, explicit `--chain`/`--primary` always wins. No model call, no
+  auto-pick.
 
 ## v0.6 — Trust & Verify
 

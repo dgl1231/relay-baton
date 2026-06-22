@@ -61,7 +61,26 @@ Build green, 304 core + 89 cli tests pass. **SHIPPED & VERIFIED on
 macOS DMG-retry fix; no flake), provenance verifies (SLSA v1), `sbom-diff.md`
 published (no dep changes vs v2.5.0-alpha.0), 9 assets. Next: **v2.7 — GA** (first
 public release as v1.0.0: LICENSE, npm publish, GA versioning, code signing,
-package managers).
+package managers). Post-GA proposed line **v2.8 — Smarter relay** added to
+ROADMAP: deterministic ideas borrowed narrowly from Hermes/OpenCode (broadened
+fallback triggers + advisory routing hints) — explicitly NOT their resident
+orchestrator-AI architecture (decision: relay-baton stays a baton-touch harness,
+not a judge-AI control loop).
+
+**v2.7 GA — Phase 0 IN PROGRESS (local, not released).** Decisions: **MIT**
+license + GA cut as **1.0.0** (off the alpha line). Done: top-level `LICENSE`
+(MIT, © 2026 DongGeon Lee) + per-package copies + `license` fields; all four
+packages versioned 1.0.0 (+ CLI `--version`); CLI package renamed
+`@relay-baton/cli` → unscoped **`relaybaton`** (NOTE: `relay-baton` is already
+taken on npm by an unrelated pkg @ v4.0.5; bin stays `relay-baton`; root `dev`
+filter + README/CHANGELOG updated) with `publishConfig.access:public`/`files`/
+`engines`/`repository` on all four; libs stay `@relay-baton/*` (scope is free);
+`CHANGELOG.md` + `CONTRIBUTING.md` + issue templates added; README npm quickstart
++ badge. Build green, 304 core + 89 cli tests pass; `pnpm pack` confirms
+`workspace:*`→`1.0.0`. **Remaining in Phase 0:** actual `npm publish` (MANUAL —
+needs maintainer npm login; publish CLI as `relaybaton` + libs under
+`@relay-baton/*` via `pnpm -r publish`), demo GIF (deferred, non-deterministic). Then Phase 1 (signing, package managers) + Phase 2 (announce). No
+commit/push yet (awaiting user request).
 
 **Decisions (this session):**
 - Multi-session/multi-task is now its own **v2.6** line (pulled in before GA):

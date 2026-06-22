@@ -1,10 +1,40 @@
 {
-  "name": "@relay-baton/cli",
-  "version": "2.6.0-alpha.0",
-  "private": true,
+  "name": "relaybaton",
+  "version": "1.0.0",
+  "description": "Token-aware handoff harness that lets Codex CLI and Claude Code take turns on the same repo",
+  "license": "MIT",
+  "author": "DongGeon Lee",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dgl1231/relay-baton.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/dgl1231/relay-baton#readme",
+  "bugs": {
+    "url": "https://github.com/dgl1231/relay-baton/issues"
+  },
+  "keywords": [
+    "codex",
+    "claude",
+    "handoff",
+    "cli",
+    "token-diet",
+    "ai-agents"
+  ],
   "main": "dist/index.js",
   "bin": {
     "relay-baton": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

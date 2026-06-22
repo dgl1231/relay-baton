@@ -1,9 +1,27 @@
 {
   "name": "@relay-baton/shared",
-  "version": "2.6.0-alpha.0",
-  "private": true,
+  "version": "1.0.0",
+  "description": "Shared utilities for relay-baton (safe-path guards and common helpers)",
+  "license": "MIT",
+  "author": "DongGeon Lee",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dgl1231/relay-baton.git",
+    "directory": "packages/shared"
+  },
+  "homepage": "https://github.com/dgl1231/relay-baton#readme",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",

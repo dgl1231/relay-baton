@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/dgl1231/relay-baton#readme
+    about: README, GUIDE, COMMANDS, and the safety model.
+  - name: Security report
+    url: https://github.com/dgl1231/relay-baton/security/advisories/new
+    about: Report a vulnerability privately. Do not open a public issue.

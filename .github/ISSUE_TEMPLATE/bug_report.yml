@@ -1,0 +1,46 @@
+name: Bug report
+description: Something in relay-baton is not working as expected
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug! **Never paste API keys, tokens, or secrets** —
+        relay-baton's redaction is best-effort, not a guarantee.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what actually happened?
+      placeholder: I ran `relay-baton run "..."` and ...
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: The exact `relay-baton …` command(s) and any relevant config.
+      render: shell
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      placeholder: "Windows 11 / macOS 14 / Ubuntu 24.04"
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: Output of `relay-baton --version`, `node -v`, and your `codex` / `claude` CLI versions.
+      placeholder: "relay-baton 1.0.0, node v20.x, codex x, claude x"
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: doctor output (optional)
+      description: Output of `relay-baton doctor --deep` (redact anything sensitive).
+      render: shell

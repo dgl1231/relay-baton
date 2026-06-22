@@ -1,9 +1,27 @@
 {
   "name": "@relay-baton/core",
-  "version": "2.6.0-alpha.0",
-  "private": true,
+  "version": "1.0.0",
+  "description": "Core engine for relay-baton (UI-independent handoff, compaction, and orchestration logic)",
+  "license": "MIT",
+  "author": "DongGeon Lee",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dgl1231/relay-baton.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/dgl1231/relay-baton#readme",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",

@@ -10,7 +10,7 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 [![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-[![Latest](https://img.shields.io/badge/release-v2.6.0--alpha.0-blue.svg)](./release-notes/v2.6.0-alpha.0.md)
+[![Latest](https://img.shields.io/badge/release-v1.0.0-blue.svg)](./CHANGELOG.md)
 [![Download](https://img.shields.io/badge/download-binaries-238636.svg)](https://github.com/dgl1231/relay-baton/releases/latest)
 
 **English**
@@ -221,6 +221,19 @@ Neither `verify` nor `doctor --deep` makes any network or model call, and
 
 ## Quick start
 
+Fastest path (once published to npm — no clone, no build). The package is
+`relaybaton` (no hyphen); the command it installs is `relay-baton`:
+
+```bash
+npm i -g relaybaton             # installs the `relay-baton` command
+relay-baton doctor              # check codex/claude + environment
+relay-baton login               # log in to both CLIs
+relay-baton run "Fix the mail attachment upload flow" --diet balanced
+# one-off without installing: npx relaybaton doctor
+```
+
+From source (for development):
+
 ```bash
 # 1) Install & build
 pnpm install
@@ -236,7 +249,7 @@ pnpm relay-baton doctor
 pnpm relay-baton run "Fix the mail attachment upload flow" --diet balanced
 ```
 
-> `pnpm relay-baton` is an alias for `node packages/cli/dist/index.js`. For a global binary, link it with `pnpm -F @relay-baton/cli link --global` (optional).
+> `pnpm relay-baton` is an alias for `node packages/cli/dist/index.js`. For a global binary, link it with `pnpm -F relaybaton link --global` (optional). Once published, `npm i -g relaybaton` (command: `relay-baton`) or `npx relaybaton` works without a build.
 
 ### One-line install via an agent
 

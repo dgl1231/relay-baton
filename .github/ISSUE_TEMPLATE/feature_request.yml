@@ -1,0 +1,38 @@
+name: Feature request
+description: Suggest an idea that fits relay-baton's scope
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        relay-baton is a **local handoff + token-diet harness** (subprocess-only,
+        deterministic, no daemon, no direct LLM API calls). Requests that break
+        those hard constraints are out of scope — see CONTRIBUTING.md.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to do that relay-baton makes hard today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What would you like relay-baton to do? CLI command shape, flags, etc.
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Does this respect the hard constraints?
+      description: subprocess-only, deterministic, no daemon, no auto commit/push/PR, no direct API calls.
+      options:
+        - "Yes"
+        - "Not sure"
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered (optional)
