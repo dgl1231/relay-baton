@@ -30,8 +30,12 @@ describe("GitService worktrees (v2.6)", () => {
     expect(add.ok).toBe(true);
     expect(fs.existsSync(wt)).toBe(true);
 
-    const list = gs.listWorktrees().map(p => fs.realpathSync(p));
-    expect(list).toContain(fs.realpathSync(wt));
+    // Canonicalize via the native realpath so Windows 8.3 short paths
+    // (e.g. C:\Users\RUNNER~1\...) expand to the same long form git reports,
+    // and compare case-insensitively (Windows paths are case-insensitive).
+    const canon = (p: string) => fs.realpathSync.native(p).toLowerCase();
+    const list = gs.listWorktrees().map(canon);
+    expect(list).toContain(canon(wt));
     // the worktree is itself a git work tree
     expect(new GitService(wt).isGitRepo()).toBe(true);
 
