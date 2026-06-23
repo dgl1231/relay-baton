@@ -85,8 +85,8 @@ publish steps (Homebrew needs a tap repo, Scoop a bucket repo, Winget a PR to
 
 ```bash
 brew tap dgl1231/relay-baton && brew install relay-baton          # macOS / Linux
-scoop bucket add relay-baton <bucket-url>; scoop install relay-baton  # Windows
-winget install dgl1231.relay-baton                                # Windows
+scoop bucket add relay-baton https://github.com/dgl1231/scoop-relay-baton; scoop install relay-baton  # Windows
+winget install dgl1231.relay-baton                                # Windows (after the winget-pkgs PR lands)
 ```
 
 **Desktop app** (Tauri shell over the same CLI — see [`desktop/`](./desktop)):

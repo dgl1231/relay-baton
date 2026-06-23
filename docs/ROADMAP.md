@@ -535,10 +535,12 @@ friction; Phase 2 announces.
   [`scoop/relay-baton.json`](../scoop/relay-baton.json), and a new
   [`winget/`](../winget) manifest set; each folder has a README with publish
   steps, and the README "Download" section lists the install commands.
-  **Remaining (external, one-time):** create the Homebrew **tap** repo
-  (`homebrew-relay-baton`) + Scoop **bucket** repo, and submit the Winget PR to
-  `microsoft/winget-pkgs` so the `brew/scoop/winget install` commands resolve for
-  end users.
+  **Live:** the Homebrew tap (`dgl1231/homebrew-relay-baton`) and Scoop bucket
+  (`dgl1231/scoop-relay-baton`) repos are published, so `brew tap dgl1231/
+  relay-baton && brew install relay-baton` and `scoop bucket add relay-baton
+  https://github.com/dgl1231/scoop-relay-baton && scoop install relay-baton`
+  work now. **Remaining:** submit the Winget PR to `microsoft/winget-pkgs` for
+  `winget install dgl1231.relay-baton`.
 
 **Phase 2 — announce:**
 
