@@ -539,8 +539,12 @@ friction; Phase 2 announces.
   (`dgl1231/scoop-relay-baton`) repos are published, so `brew tap dgl1231/
   relay-baton && brew install relay-baton` and `scoop bucket add relay-baton
   https://github.com/dgl1231/scoop-relay-baton && scoop install relay-baton`
-  work now. **Remaining:** submit the Winget PR to `microsoft/winget-pkgs` for
-  `winget install dgl1231.relay-baton`.
+  work now. Winget is submitted (PR microsoft/winget-pkgs#391897, CLA signed,
+  awaiting moderator merge). **Release automation:** `scripts/bump-version.mjs`
+  syncs every version in one shot, and `release.yml` gained `publish-npm` +
+  `update-brew-scoop` + `update-winget` jobs (each no-ops without its secret), so
+  one `git tag` fans out to all channels once `NPM_TOKEN` / `HOMEBREW_TAP_TOKEN` /
+  `WINGET_TOKEN` are configured.
 
 **Phase 2 — announce:**
 

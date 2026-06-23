@@ -445,3 +445,90 @@ jobs:
             release-assets/relay-baton-macos-arm64
             release-assets/relay-baton-windows-x64.exe
             release-assets/SHA256SUMS
+
+  # v2.7 Phase 1 — distribution fan-out. Each job no-ops when its secret is
+  # absent, so the release never fails just because a channel isn't configured.
+  #   NPM_TOKEN           = npm automation token (2FA bypass) for @relay-baton/*
+  #   HOMEBREW_TAP_TOKEN  = PAT with write to homebrew-relay-baton + scoop-relay-baton
+  #   WINGET_TOKEN        = PAT that can fork + PR microsoft/winget-pkgs
+  publish-npm:
+    name: publish to npm
+    needs: build-binaries
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Enable corepack
+        run: corepack enable
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "20"
+          cache: pnpm
+          registry-url: "https://registry.npmjs.org"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build workspace
+        run: pnpm build
+      - name: Publish (skipped if NPM_TOKEN unset)
+        if: ${{ env.NPM_TOKEN != '' }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+          # pnpm rewrites workspace:* and skips versions already on the registry
+          corepack pnpm -r publish --access public --no-git-checks
+
+  update-brew-scoop:
+    name: update Homebrew tap + Scoop bucket
+    needs: release-finalize
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Render + push manifests (skipped if HOMEBREW_TAP_TOKEN unset)
+        if: ${{ env.TAP_TOKEN != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          VER="${TAG#v}"
+          gh release download "$TAG" --pattern SHA256SUMS --dir /tmp --clobber
+          VERSION="$VER" node .github/scripts/render-pm-manifests.mjs /tmp/SHA256SUMS /tmp/pm
+          git clone "https://x-access-token:${TAP_TOKEN}@github.com/${OWNER}/homebrew-relay-baton.git" /tmp/tap
+          mkdir -p /tmp/tap/Formula && cp /tmp/pm/Formula/relay-baton.rb /tmp/tap/Formula/relay-baton.rb
+          git clone "https://x-access-token:${TAP_TOKEN}@github.com/${OWNER}/scoop-relay-baton.git" /tmp/bucket
+          mkdir -p /tmp/bucket/bucket && cp /tmp/pm/bucket/relay-baton.json /tmp/bucket/bucket/relay-baton.json
+          for d in /tmp/tap /tmp/bucket; do
+            git -C "$d" config user.name "github-actions[bot]"
+            git -C "$d" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git -C "$d" add -A
+            git -C "$d" commit -m "relay-baton ${VER}" || { echo "no changes in $d"; continue; }
+            git -C "$d" push
+          done
+
+  update-winget:
+    name: submit Winget update
+    needs: release-finalize
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: windows-latest
+    timeout-minutes: 15
+    env:
+      WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
+    steps:
+      - name: Submit PR to winget-pkgs (skipped if WINGET_TOKEN unset)
+        if: ${{ env.WINGET_TOKEN != '' }}
+        shell: pwsh
+        run: |
+          $ver = "${{ github.ref_name }}".TrimStart('v')
+          $url = "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/relay-baton-windows-x64.exe"
+          Invoke-WebRequest https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
+          .\wingetcreate.exe update dgl1231.relay-baton --version $ver --urls "$url" --submit --token $env:WINGET_TOKEN

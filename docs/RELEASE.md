@@ -34,19 +34,43 @@ additive (e.g. enabling a secret) rather than structural.
 ## TL;DR — cut a release
 
 ```bash
-# 1. bump versions (all packages + CLI --version + desktop)
-#    package.json, packages/*/package.json,
-#    packages/cli/src/index.ts (.version("x.y.z")),
-#    desktop/src-tauri/Cargo.toml, desktop/src-tauri/tauri.conf.json
-# 2. add release notes: release-notes/x.y.z.md (+ ko/x.y.z.md), index in release-notes/README.md
-# 3. update README latest badge -> x.y.z
-# 4. for Scoop/Homebrew starter files, bump version/URLs/hashes after the release assets exist
+# 1. bump every version in one shot (npm packages + CLI --version + desktop +
+#    homebrew/scoop/winget manifests). package-manager SHA-256 hashes are
+#    refreshed automatically by the release workflow.
+node scripts/bump-version.mjs X.Y.Z
+# 2. add release notes: release-notes/X.Y.Z.md (+ ko/X.Y.Z.md), index in release-notes/README.md
+# 3. update README latest badge -> X.Y.Z; add a CHANGELOG.md entry
 git add -A && git commit -m "release: vX.Y.Z — <summary>"
 git push
-git tag vX.Y.Z && git push origin vX.Y.Z   # ← this triggers the build
+git tag vX.Y.Z && git push origin vX.Y.Z   # ← this triggers the build + fan-out
 ```
 
 The `vX.Y.Z` tag push triggers [`.github/workflows/release.yml`](../.github/workflows/release.yml).
+
+### Automated distribution fan-out (v2.7 Phase 1)
+
+After the binaries + `SHA256SUMS` exist, the workflow also pushes to every
+package channel — **each job no-ops if its secret is missing**, so the release
+never fails just because a channel isn't configured:
+
+| Job | Secret | What it does |
+| --- | --- | --- |
+| `publish-npm` | `NPM_TOKEN` | `pnpm -r publish` the four `@relay-baton/*` packages (skips versions already on npm) |
+| `update-brew-scoop` | `HOMEBREW_TAP_TOKEN` | renders the formula/manifest with the real hashes and pushes to `homebrew-relay-baton` + `scoop-relay-baton` |
+| `update-winget` | `WINGET_TOKEN` | `wingetcreate update … --submit` opens the PR to `microsoft/winget-pkgs` |
+
+**One-time secret setup** (repo → Settings → Secrets and variables → Actions):
+
+- `NPM_TOKEN` — npm **automation** token (bypasses 2FA), access to the
+  `@relay-baton` org. Create at npmjs.com → Access Tokens.
+- `HOMEBREW_TAP_TOKEN` — a GitHub PAT with **write** to both
+  `dgl1231/homebrew-relay-baton` and `dgl1231/scoop-relay-baton` (fine-grained,
+  Contents: Read/Write on those two repos).
+- `WINGET_TOKEN` — a GitHub PAT (classic, `public_repo`) that can fork and PR
+  `microsoft/winget-pkgs`. The Microsoft CLA only needs signing once.
+
+Until a secret is added, run that channel by hand (see the per-channel notes
+below). With all three set, a single `git tag` ships every channel.
 
 ## What the pipeline does
 

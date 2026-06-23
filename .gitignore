@@ -14,3 +14,6 @@ coverage/
 
 # Agent scratch/skills (Codex/Claude local)
 .agents/
+
+# wingetcreate local output (source of truth is winget/)
+manifests/
