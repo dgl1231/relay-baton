@@ -9,7 +9,22 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-16 — **v2.3 (Multi-agent breadth) FEATURE-COMPLETE locally
+_Last updated: 2026-06-23 — **v1.0.0 GA SHIPPED.** Public release done: npm
+`@relay-baton/cli` + `core`/`shared`/`tui` all live @ 1.0.0 (under the
+`@relay-baton` npm org; CLI is scoped because unscoped `relay-baton` is taken and
+`relaybaton` was rejected as too-similar — bin stays `relay-baton`). GitHub
+Release **v1.0.0** is public with CLI binaries + desktop installers + SBOM +
+`SHA256SUMS` (release run `27925206710` green). The `v1.0.0` git tag was moved
+off the old internal "Stable Local Release" milestone onto the GA commit. Fixed a
+Windows-only CI failure (`GitWorktree.test.ts` 8.3 short-path compare → use
+`fs.realpathSync.native`; main CI green on `42f7166`). Desktop version strings
+aligned to 1.0.0 (`desktop/package.json`+lock, `tauri.conf.json`, `Cargo.toml`)
+so the NEXT release's installers drop the stale `2.6.0` name — uncommitted in the
+working tree as of this update. Remaining (Phase 1/2, post-GA): real code signing
++ package managers (Homebrew/Scoop/Winget), demo GIF, announce. Prior history
+below._
+
+_Earlier: 2026-06-16 — **v2.3 (Multi-agent breadth) FEATURE-COMPLETE locally
 (not yet released).** Both boxes `[x]`. Item 1: central **agent registry**
 (`packages/core/src/agents/AgentRegistry.ts`) — tier (first-class codex/claude vs
 supported), install URL, login spec, default args, per-agent fallback patterns;

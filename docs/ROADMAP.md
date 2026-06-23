@@ -513,10 +513,8 @@ friction; Phase 2 announces.
   `relay-baton` command;
   `private: true` dropped on all four packages, each given
   `publishConfig.access:public`, `files`, `engines`, `repository`/`homepage`/
-  `bugs`. `pnpm pack` verified `workspace:*` → `1.0.0` substitution. **Actual
-  `npm publish` is a manual step** (needs the maintainer's npm login + the
-  `@relay-baton` scope; publish via `pnpm -r publish`, not `npm publish`, so the
-  workspace protocol is rewritten).
+  `bugs`. **PUBLISHED to npm @ 1.0.0** (all four live) via `pnpm -r publish`
+  under the `@relay-baton` npm org, using an automation token (2FA bypass).
 - [x] **GA versioning + CHANGELOG** — graduated off `-alpha.N` to **1.0.0**
   (root + 4 packages + CLI `--version`); added user-facing
   [`CHANGELOG.md`](../CHANGELOG.md) derived from `release-notes/`.
