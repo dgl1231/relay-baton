@@ -1,15 +1,15 @@
 class RelayBaton < Formula
   desc "Token-aware handoff harness for Codex CLI and Claude Code"
   homepage "https://github.com/dgl1231/relay-baton"
-  version "1.3.0-alpha.1"
+  version "1.0.0"
   license "MIT"
 
   if OS.mac? && Hardware::CPU.arm?
-    url "https://github.com/dgl1231/relay-baton/releases/download/v1.3.0-alpha.1/relay-baton-macos-arm64"
-    sha256 "e4bd97aca98028c4a51c95a7c8e7318b52a7b8bfcbe38fa53aef431b941f980e"
+    url "https://github.com/dgl1231/relay-baton/releases/download/v1.0.0/relay-baton-macos-arm64"
+    sha256 "75ec1051220f1c42c0678f6afd1d48cb93bd631bb2a334ea289e2b4141b7d4a2"
   elsif OS.linux? && Hardware::CPU.intel?
-    url "https://github.com/dgl1231/relay-baton/releases/download/v1.3.0-alpha.1/relay-baton-linux-x64"
-    sha256 "dfe472df3abbe995e3ba06af576745f422f45235c002543b379bd8042bacf5aa"
+    url "https://github.com/dgl1231/relay-baton/releases/download/v1.0.0/relay-baton-linux-x64"
+    sha256 "603f5e4bfbe6ea07743f13ff9c39de145742174c2d778e9d240e2fe7b6c6ffa8"
   else
     odie "relay-baton prebuilt Homebrew formula supports macOS arm64 and Linux x64"
   end

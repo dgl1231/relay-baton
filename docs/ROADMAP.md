@@ -530,8 +530,15 @@ friction; Phase 2 announces.
   (Apple Developer account) and Windows signing (Azure Trusted Signing) so
   installers don't trip Gatekeeper / SmartScreen. Provenance (v2.2) proves supply
   chain but does NOT remove OS install warnings — that needs real signing.
-- [ ] **Package managers** — ship a Homebrew tap, a Scoop bucket, and a Winget
-  manifest, wired to the existing `SHA256SUMS` so they verify on install.
+- [~] **Package managers** — manifests are in-repo and pinned to **v1.0.0** with
+  real `SHA256SUMS` hashes: [`homebrew/relay-baton.rb`](../homebrew/relay-baton.rb),
+  [`scoop/relay-baton.json`](../scoop/relay-baton.json), and a new
+  [`winget/`](../winget) manifest set; each folder has a README with publish
+  steps, and the README "Download" section lists the install commands.
+  **Remaining (external, one-time):** create the Homebrew **tap** repo
+  (`homebrew-relay-baton`) + Scoop **bucket** repo, and submit the Winget PR to
+  `microsoft/winget-pkgs` so the `brew/scoop/winget install` commands resolve for
+  end users.
 
 **Phase 2 — announce:**
 

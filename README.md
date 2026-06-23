@@ -71,6 +71,24 @@ chmod +x relay-baton-macos-arm64
 .\relay-baton-windows-x64.exe --version
 ```
 
+**Via npm** (needs Node ≥ 20):
+
+```bash
+npm i -g @relay-baton/cli      # installs the `relay-baton` command
+npx @relay-baton/cli doctor    # or one-off without installing
+```
+
+**Via a package manager** — manifests live in [`homebrew/`](./homebrew),
+[`scoop/`](./scoop), and [`winget/`](./winget). Each folder's README has the
+publish steps (Homebrew needs a tap repo, Scoop a bucket repo, Winget a PR to
+`microsoft/winget-pkgs`):
+
+```bash
+brew tap dgl1231/relay-baton && brew install relay-baton          # macOS / Linux
+scoop bucket add relay-baton <bucket-url>; scoop install relay-baton  # Windows
+winget install dgl1231.relay-baton                                # Windows
+```
+
 **Desktop app** (Tauri shell over the same CLI — see [`desktop/`](./desktop)):
 
 | OS | Installer | Get it |

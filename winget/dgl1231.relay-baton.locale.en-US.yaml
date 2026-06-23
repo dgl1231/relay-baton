@@ -1,0 +1,22 @@
+PackageIdentifier: dgl1231.relay-baton
+PackageVersion: 1.0.0
+PackageLocale: en-US
+Publisher: DongGeon Lee
+PublisherUrl: https://github.com/dgl1231
+PackageName: relay-baton
+PackageUrl: https://github.com/dgl1231/relay-baton
+License: MIT
+LicenseUrl: https://github.com/dgl1231/relay-baton/blob/main/LICENSE
+ShortDescription: Token-aware handoff harness for Codex CLI and Claude Code.
+Description: >-
+  relay-baton is a local handoff + token-diet harness that lets Codex CLI and
+  Claude Code take turns on the same repository without re-pasting the chat log,
+  the diff, or the repo. Subprocess-only, deterministic, no direct LLM API calls.
+Tags:
+  - codex
+  - claude
+  - cli
+  - ai
+  - handoff
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0
