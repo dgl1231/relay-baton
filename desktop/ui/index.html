@@ -7,32 +7,39 @@
     <style>
       :root {
         color-scheme: dark;
-        --bg: #0d1117; --panel: #161b22; --inset: #0d1117;
-        --border: #21262d; --border2: #30363d;
-        --fg: #e6edf3; --muted: #8b949e; --faint: #6e7681;
-        --accent: #238636; --accent-hover: #2ea043;
-        --hot: #da3633; --err: #f85149; --amber: #f0b429;
-        --user: #58a6ff; --claude: #d2a8ff; --codex: #7ee787;
+        /* v2.8 friendly restyle — warm, calm palette (Claude-inspired). */
+        --bg: #1a1915; --panel: #232019; --inset: #16140f;
+        --border: #35322a; --border2: #45413a;
+        --fg: #ece9e2; --muted: #a8a292; --faint: #7d786b;
+        --accent: #d97757; --accent-hover: #e88b6b;
+        --hot: #c4442f; --err: #ef6a52; --amber: #d9a13f;
+        --user: #6fa8dc; --claude: #d97757; --codex: #7ec293;
+        --radius: 12px; --radius-sm: 8px;
+        --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+        --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        --shadow: 0 1px 3px rgba(0,0,0,.25);
       }
       html[data-theme="light"] {
         color-scheme: light;
-        --bg: #ffffff; --panel: #f6f8fa; --inset: #ffffff;
-        --border: #d0d7de; --border2: #d0d7de;
-        --fg: #1f2328; --muted: #636c76; --faint: #8c959f;
-        --accent: #1f883d; --accent-hover: #1a7f37;
-        --hot: #cf222e; --err: #cf222e; --amber: #9a6700;
-        --user: #0969da; --claude: #8250df; --codex: #1a7f37;
+        --bg: #faf9f5; --panel: #f0eee6; --inset: #ffffff;
+        --border: #e3e0d5; --border2: #d2cec2;
+        --fg: #3d3929; --muted: #73705f; --faint: #9c988a;
+        --accent: #c15f3c; --accent-hover: #d97757;
+        --hot: #b3402d; --err: #c4442f; --amber: #9a6700;
+        --user: #2e6fa8; --claude: #c15f3c; --codex: #2f7d4f;
+        --shadow: 0 1px 3px rgba(61,57,41,.08);
       }
       html, body { height: 100%; }
       body {
         margin: 0;
-        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-family: var(--font-sans);
         background: var(--bg);
         color: var(--fg);
         display: flex;
         flex-direction: column;
         overflow: hidden;
       }
+      pre, code, .kbd, textarea, input { font-family: var(--font-mono); }
       header {
         padding: 14px 20px;
         border-bottom: 1px solid var(--border);
@@ -41,7 +48,11 @@
         gap: 12px;
         flex-wrap: wrap;
       }
-      header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+      header h1 { font-size: 16px; margin: 0; font-weight: 650; display: flex; align-items: center; gap: 8px; }
+      .brand-dot {
+        width: 10px; height: 10px; border-radius: 3px; background: var(--accent);
+        display: inline-block; transform: rotate(45deg);
+      }
       header .tag { font-size: 12px; color: var(--muted); }
       header .spacer { flex: 1; }
       main { flex: 1; min-height: 0; display: flex; }
@@ -69,10 +80,11 @@
       .hints button[title] { cursor: help; }
       .card {
         border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 16px;
+        border-radius: var(--radius);
+        padding: 18px;
         background: var(--panel);
         min-width: 0;
+        box-shadow: var(--shadow);
       }
       .card.wide { grid-column: 1 / -1; }
       .card h2 {
@@ -86,18 +98,19 @@
       }
       pre.scroll { max-height: 320px; overflow: auto; }
       button {
-        background: var(--accent); color: #fff; border: 0; border-radius: 6px;
+        background: var(--accent); color: #fff; border: 0; border-radius: var(--radius-sm);
         padding: 7px 14px; font: inherit; font-size: 13px; cursor: pointer;
+        transition: background .12s ease;
       }
       button:hover { background: var(--accent-hover); }
       button.ghost { background: var(--border); color: var(--fg); border: 1px solid var(--border2); }
       button.ghost:hover { background: var(--border2); }
       select {
-        background: var(--border); color: var(--fg); border: 1px solid var(--border2);
-        border-radius: 6px; padding: 6px 10px; font: inherit; font-size: 13px;
+        background: var(--inset); color: var(--fg); border: 1px solid var(--border2);
+        border-radius: var(--radius-sm); padding: 6px 10px; font: inherit; font-size: 13px;
       }
       .seg {
-        display: inline-flex; border: 1px solid var(--border2); border-radius: 6px;
+        display: inline-flex; border: 1px solid var(--border2); border-radius: var(--radius-sm);
         overflow: hidden; background: var(--border);
       }
       .seg button {
@@ -133,7 +146,11 @@
         background: var(--inset); color: var(--muted); font-size: 12px;
       }
       .badge strong { color: var(--fg); font-weight: 600; }
-      .ev { display: grid; grid-template-columns: max-content 1fr; gap: 10px; font-size: 13px; }
+      .ev {
+        display: grid; grid-template-columns: max-content 1fr; gap: 10px; font-size: 13px;
+        background: var(--inset); border: 1px solid var(--border);
+        border-radius: var(--radius-sm); padding: 8px 12px;
+      }
       .ev .who { white-space: nowrap; }
       .ev .role { font-weight: 600; }
       .role-user { color: var(--user); }
@@ -150,13 +167,13 @@
       .actions button:hover { background: var(--border2); }
       .actions button.ro { border-color: var(--accent); }
       .confirm {
-        margin-top: 12px; border: 1px solid var(--border2); border-radius: 8px;
+        margin-top: 12px; border: 1px solid var(--border2); border-radius: var(--radius-sm);
         padding: 12px; background: var(--inset); display: none;
       }
       .confirm.show { display: block; }
       .confirm code {
         display: block; background: var(--panel); border: 1px solid var(--border);
-        border-radius: 6px; padding: 8px 10px; margin: 8px 0; font-size: 13px;
+        border-radius: var(--radius-sm); padding: 8px 10px; margin: 8px 0; font-size: 13px;
         white-space: pre-wrap; word-break: break-word;
       }
       .confirm .warn { color: var(--amber); font-size: 12px; }
@@ -169,19 +186,19 @@
       }
       .composer input {
         min-width: 0; background: var(--inset); color: var(--fg);
-        border: 1px solid var(--border2); border-radius: 6px; padding: 8px 10px;
+        border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 8px 10px;
         font: inherit; font-size: 13px;
       }
       .composer-wrap { position: relative; }
       .cmd-palette {
         display: none; position: absolute; left: 0; right: 0; bottom: 100%; margin-bottom: 6px;
-        background: var(--panel); border: 1px solid var(--border2); border-radius: 8px;
+        background: var(--panel); border: 1px solid var(--border2); border-radius: var(--radius-sm);
         max-height: 280px; overflow: auto; z-index: 5; padding: 4px;
       }
       .cmd-palette.show { display: block; }
       .cmd-item {
         display: grid; grid-template-columns: 130px 1fr; gap: 10px;
-        padding: 7px 10px; border-radius: 6px; cursor: pointer; align-items: baseline;
+        padding: 7px 10px; border-radius: var(--radius-sm); cursor: pointer; align-items: baseline;
       }
       .cmd-item:hover, .cmd-item.active { background: var(--border); }
       .cmd-item .c { color: var(--accent); font-weight: 600; font-size: 13px; }
@@ -200,7 +217,7 @@
       .overlay.show { display: flex; }
       .overlay .box {
         background: var(--panel); border: 1px solid var(--border2);
-        border-radius: 10px; padding: 20px 24px; min-width: 280px;
+        border-radius: var(--radius); padding: 20px 24px; min-width: 280px;
       }
       .overlay h3 { margin: 0 0 12px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
       .overlay h3 .spacer { flex: 1; }
@@ -224,7 +241,7 @@
       .arc-list { display: flex; flex-direction: column; gap: 6px; max-height: 280px; overflow: auto; }
       .arc {
         display: grid; grid-template-columns: 1fr max-content; gap: 4px 10px; align-items: baseline;
-        border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; background: var(--inset);
+        border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 10px; background: var(--inset);
       }
       .arc .id { font-size: 13px; color: var(--fg); word-break: break-all; }
       .arc .sub { grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
@@ -237,7 +254,7 @@
   </head>
   <body>
     <header>
-      <h1>relay-baton</h1>
+      <h1><span class="brand-dot" aria-hidden="true"></span>relay-baton</h1>
       <span class="tag" data-i18n="tagline">desktop · read-only dashboard</span>
       <span class="spacer"></span>
       <label class="muted" for="project" data-i18n="project">project</label>
