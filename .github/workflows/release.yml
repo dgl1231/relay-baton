@@ -476,8 +476,12 @@ jobs:
         run: pnpm build
       - name: Publish (skipped if NPM_TOKEN unset)
         if: ${{ env.NPM_TOKEN != '' }}
+        env:
+          # setup-node's registry-url writes an .npmrc that reads NODE_AUTH_TOKEN
+          # (it overrides any hand-written ~/.npmrc — a manual echo gets ignored
+          # and npm returns 404 on scoped PUTs when the token expands empty).
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
           # pnpm rewrites workspace:* and skips versions already on the registry
           corepack pnpm -r publish --access public --no-git-checks
 
