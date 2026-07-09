@@ -23,10 +23,10 @@
 # Codex läuft mitten in der Aufgabe gegen eine Quota-Wand. relay-baton erkennt das,
 # baut aus dem tatsächlichen Repo-State einen compacten Handoff, Claude übernimmt.
 $ relay-baton run "Upload-Pipeline refactoren" --diet caveman
-[relay-baton] codex: ... rate limit exceeded ...
-[relay-baton] fallback pattern detected: rate limit exceeded
-[relay-baton] building handoff for claude...
-[relay-baton] claude resumed from .ai-session/handoff.md
+● relay chain: codex → claude
+▲ codex hit a limit — fallback pattern detected: "rate limit exceeded"
+→ building a compact handoff for claude…
+✓ claude resumed from .ai-session/handoff.md
 ```
 
 ---
@@ -87,10 +87,9 @@ pnpm relay-baton run "Den Mail-Anhang-Upload-Flow reparieren" --diet balanced
 $ relay-baton init                  # .ai-session/ anlegen
 $ relay-baton run "flaky upload test fixen" --diet balanced
 ... codex-Output streamt live ...
-[relay-baton] fallback pattern detected: maximum context length
-[relay-baton] building handoff for claude...
-[relay-baton] HandoffQualityGate: ok
-[relay-baton] TokenDietQualityGate: ok
+▲ codex hit a limit — fallback pattern detected: "maximum context length"
+→ building a compact handoff for claude…
+✓ Handoff Quality Gate: ok · Token Diet Quality Gate: ok
 ... claude übernimmt, editiert Dateien, beendet ...
 
 $ relay-baton status                # Session-Status

@@ -30,10 +30,15 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 # Codex hits a quota wall mid-task. relay-baton notices, builds a compact
 # handoff from the repository's actual state, and resumes the work in Claude.
 $ relay-baton run "refactor the upload pipeline" --diet caveman
-[relay-baton] codex: ... rate limit exceeded ...
-[relay-baton] fallback pattern detected: rate limit exceeded
-[relay-baton] building handoff for claude...
-[relay-baton] claude resumed from .ai-session/handoff.md
+● relay chain: codex → claude
+
+Starting with codex  (hop 1/2)
+→ codex exec --sandbox workspace-write "refactor the upload pipeline"
+▲ codex hit a limit — fallback pattern detected: "rate limit exceeded"
+→ building a compact handoff for claude…
+✓ handoff ready — passing the baton: codex → claude
+✓ claude finished the task.
+  ↳ see what changed: relay-baton review · session state: relay-baton status
 ```
 
 ---
@@ -156,13 +161,17 @@ $ relay-baton init                  # create .ai-session/ in the current repo
 $ relay-baton doctor                # check git, codex, claude, env, config
 
 $ relay-baton run "fix flaky upload test" --diet balanced
-[relay-baton] running codex exec --sandbox workspace-write "fix flaky upload test"
+● relay chain: codex → claude
+
+Starting with codex  (hop 1/2)
+→ codex exec --sandbox workspace-write "fix flaky upload test"
 ... codex output streams here ...
-[relay-baton] fallback pattern detected: maximum context length
-[relay-baton] building handoff for claude...
-[relay-baton] HandoffQualityGate: ok
-[relay-baton] TokenDietQualityGate: ok
-[relay-baton] running claude --permission-mode acceptEdits -p "<continuation>"
+▲ codex hit a limit — fallback pattern detected: "maximum context length"
+→ building a compact handoff for claude…
+✓ handoff ready — passing the baton: codex → claude
+
+Continuing with claude  (hop 2/2)
+→ claude --permission-mode acceptEdits -p "<continuation>"
 ... claude resumes, edits files, finishes ...
 
 $ relay-baton status                # what state is the session in?

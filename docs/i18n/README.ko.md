@@ -23,10 +23,10 @@ Codex CLI, Claude Code, 그리고 그 다음에 나올 도구 사이로 — 채�
 # Codex가 작업 중 quota 벽에 부딪힘. relay-baton이 감지해서 저장소의
 # 실제 상태로 compact handoff를 만들고, Claude에서 그대로 이어받음.
 $ relay-baton run "업로드 파이프라인 리팩터" --diet caveman
-[relay-baton] codex: ... rate limit exceeded ...
-[relay-baton] fallback pattern detected: rate limit exceeded
-[relay-baton] building handoff for claude...
-[relay-baton] claude resumed from .ai-session/handoff.md
+● relay chain: codex → claude
+▲ codex hit a limit — fallback pattern detected: "rate limit exceeded"
+→ building a compact handoff for claude…
+✓ claude resumed from .ai-session/handoff.md
 ```
 
 ---
@@ -86,10 +86,9 @@ pnpm relay-baton run "메일 업로드 흐름을 고쳐줘" --diet balanced
 $ relay-baton init                  # .ai-session/ 생성
 $ relay-baton run "업로드 테스트 불안정 해결" --diet balanced
 ... codex 출력 스트림 ...
-[relay-baton] fallback pattern detected: maximum context length
-[relay-baton] building handoff for claude...
-[relay-baton] HandoffQualityGate: ok
-[relay-baton] TokenDietQualityGate: ok
+▲ codex hit a limit — fallback pattern detected: "maximum context length"
+→ building a compact handoff for claude…
+✓ Handoff Quality Gate: ok · Token Diet Quality Gate: ok
 ... claude가 이어받아서 파일 수정 후 종료 ...
 
 $ relay-baton status                # 세션 상태

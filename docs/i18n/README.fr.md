@@ -23,10 +23,10 @@ Transmet un état de codage compressé entre Codex CLI, Claude Code et ce qui vi
 # Codex frappe un mur de quota au milieu d'une tâche. relay-baton détecte,
 # construit un handoff compact à partir de l'état réel du dépôt, et Claude continue.
 $ relay-baton run "refactoriser le pipeline d'upload" --diet caveman
-[relay-baton] codex: ... rate limit exceeded ...
-[relay-baton] fallback pattern detected: rate limit exceeded
-[relay-baton] building handoff for claude...
-[relay-baton] claude resumed from .ai-session/handoff.md
+● relay chain: codex → claude
+▲ codex hit a limit — fallback pattern detected: "rate limit exceeded"
+→ building a compact handoff for claude…
+✓ claude resumed from .ai-session/handoff.md
 ```
 
 ---
@@ -87,10 +87,9 @@ pnpm relay-baton run "Corriger le flux d'upload des pièces jointes" --diet bala
 $ relay-baton init                  # crée .ai-session/
 $ relay-baton run "corriger le test d'upload flaky" --diet balanced
 ... la sortie de codex est diffusée en direct ...
-[relay-baton] fallback pattern detected: maximum context length
-[relay-baton] building handoff for claude...
-[relay-baton] HandoffQualityGate: ok
-[relay-baton] TokenDietQualityGate: ok
+▲ codex hit a limit — fallback pattern detected: "maximum context length"
+→ building a compact handoff for claude…
+✓ Handoff Quality Gate: ok · Token Diet Quality Gate: ok
 ... claude reprend, modifie les fichiers, termine ...
 
 $ relay-baton status                # état de la session

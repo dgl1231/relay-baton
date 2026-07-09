@@ -23,10 +23,10 @@
 # Codex 在任务中途撞上 quota 墙。relay-baton 检测到后,根据仓库的实际状态
 # 构建一个 compact handoff,Claude 接手继续。
 $ relay-baton run "重构 upload pipeline" --diet caveman
-[relay-baton] codex: ... rate limit exceeded ...
-[relay-baton] fallback pattern detected: rate limit exceeded
-[relay-baton] building handoff for claude...
-[relay-baton] claude resumed from .ai-session/handoff.md
+● relay chain: codex → claude
+▲ codex hit a limit — fallback pattern detected: "rate limit exceeded"
+→ building a compact handoff for claude…
+✓ claude resumed from .ai-session/handoff.md
 ```
 
 ---
@@ -86,10 +86,9 @@ pnpm relay-baton run "修复邮件附件上传流程" --diet balanced
 $ relay-baton init                  # 创建 .ai-session/
 $ relay-baton run "修复 flaky upload test" --diet balanced
 ... codex 输出实时流式打印 ...
-[relay-baton] fallback pattern detected: maximum context length
-[relay-baton] building handoff for claude...
-[relay-baton] HandoffQualityGate: ok
-[relay-baton] TokenDietQualityGate: ok
+▲ codex hit a limit — fallback pattern detected: "maximum context length"
+→ building a compact handoff for claude…
+✓ Handoff Quality Gate: ok · Token Diet Quality Gate: ok
 ... claude 接手编辑文件并完成 ...
 
 $ relay-baton status                # 会话状态
