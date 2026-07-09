@@ -530,7 +530,7 @@ friction; Phase 2 announces.
   (Apple Developer account) and Windows signing (Azure Trusted Signing) so
   installers don't trip Gatekeeper / SmartScreen. Provenance (v2.2) proves supply
   chain but does NOT remove OS install warnings — that needs real signing.
-- [~] **Package managers** — manifests are in-repo and pinned to **v1.0.0** with
+- [x] **Package managers** — manifests are in-repo and pinned to **v1.0.0** with
   real `SHA256SUMS` hashes: [`homebrew/relay-baton.rb`](../homebrew/relay-baton.rb),
   [`scoop/relay-baton.json`](../scoop/relay-baton.json), and a new
   [`winget/`](../winget) manifest set; each folder has a README with publish
@@ -539,12 +539,13 @@ friction; Phase 2 announces.
   (`dgl1231/scoop-relay-baton`) repos are published, so `brew tap dgl1231/
   relay-baton && brew install relay-baton` and `scoop bucket add relay-baton
   https://github.com/dgl1231/scoop-relay-baton && scoop install relay-baton`
-  work now. Winget is submitted (PR microsoft/winget-pkgs#391897, CLA signed,
-  awaiting moderator merge). **Release automation:** `scripts/bump-version.mjs`
-  syncs every version in one shot, and `release.yml` gained `publish-npm` +
-  `update-brew-scoop` + `update-winget` jobs (each no-ops without its secret), so
-  one `git tag` fans out to all channels once `NPM_TOKEN` / `HOMEBREW_TAP_TOKEN` /
-  `WINGET_TOKEN` are configured.
+  work now. Winget is **live** (PR microsoft/winget-pkgs#391897 merged
+  2026-07-07; `winget install dgl1231.relay-baton` works). **Release
+  automation:** `scripts/bump-version.mjs` syncs every version in one shot, and
+  `release.yml` gained `publish-npm` + `update-brew-scoop` + `update-winget` jobs
+  (each no-ops without its secret); `NPM_TOKEN` / `HOMEBREW_TAP_TOKEN` /
+  `WINGET_TOKEN` are all configured, so one `git tag` now fans out to every
+  channel automatically.
 
 **Phase 2 — announce:**
 
