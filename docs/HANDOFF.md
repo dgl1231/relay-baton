@@ -19,9 +19,24 @@ off the old internal "Stable Local Release" milestone onto the GA commit. Fixed 
 Windows-only CI failure (`GitWorktree.test.ts` 8.3 short-path compare → use
 `fs.realpathSync.native`; main CI green on `42f7166`). Desktop version strings
 aligned to 1.0.0 (`desktop/package.json`+lock, `tauri.conf.json`, `Cargo.toml`)
-so the NEXT release's installers drop the stale `2.6.0` name — uncommitted in the
-working tree as of this update. Remaining (Phase 1/2, post-GA): real code signing
-+ package managers (Homebrew/Scoop/Winget), demo GIF, announce. Prior history
+so the NEXT release's installers drop the stale `2.6.0` name. **Distribution is
+fully live:** npm (`@relay-baton/cli` + libs), Homebrew tap, Scoop bucket, and
+Winget (winget-pkgs#391897 merged) all install v1.0.0; release fan-out is
+automated (`scripts/bump-version.mjs` + release.yml `publish-npm`/
+`update-brew-scoop`/`update-winget` jobs, secrets configured). Remaining
+post-GA: code signing (paid, user decision — Phase 1은 진행 안 하기로 함), demo
+GIF, announce.
+
+**2026-07-09 — v2.8 (Smarter relay) FEATURE-COMPLETE locally (not released).**
+Both boxes `[x]`. Item 1: `HandoffTriggerPolicy` (core/plan) — opt-in
+`handoffTriggers` config (`budgetRatio`/`changedFiles`/`usageTokensProxy`),
+no-op when absent; `run --handoff-now` manual trigger (explicit consent);
+threshold hits prompt y/N (or `--yes`) before relaying on a clean exit
+(`relayReason` threading in `run.ts`). ConfigSchema validates the block. Item 2:
+`AgentRegistry` entries gain `strengths` tags; `suggestChain` (core,
+`RoutingHints.ts`) reorders the resolved chain by deterministic keyword match;
+`run` prints an advisory hint only (suppressed by `--chain`/`--primary`). Tests:
+`SmarterRelay.test.ts` (9). Build green, 313 core + 89 cli pass. Prior history
 below._
 
 _Earlier: 2026-06-16 — **v2.3 (Multi-agent breadth) FEATURE-COMPLETE locally

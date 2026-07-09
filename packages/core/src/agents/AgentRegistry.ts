@@ -42,6 +42,12 @@ export interface AgentDescriptor {
    * when this agent is the active one. Lowercase substrings.
    */
   fallbackPatterns: string[];
+  /**
+   * v2.8 advisory routing hints — task keywords this agent is a good first hop
+   * for. Deterministic keyword tags only (no model call); used by suggestChain
+   * to *propose* a chain order. Explicit --chain/--primary always wins.
+   */
+  strengths: string[];
 }
 
 export const AGENT_REGISTRY: Record<AgentId, AgentDescriptor> = {
@@ -58,6 +64,7 @@ export const AGENT_REGISTRY: Record<AgentId, AgentDescriptor> = {
       instructions: ["`codex login`을 실행합니다. 브라우저 인증을 마치면 자동으로 돌아옵니다."],
     },
     fallbackPatterns: ["usage limit reached", "rate limit", "quota exceeded", "context length exceeded"],
+    strengths: ["implement", "refactor", "fix", "bulk-edit", "migrate", "execute"],
   },
   claude: {
     id: "claude",
@@ -76,6 +83,7 @@ export const AGENT_REGISTRY: Record<AgentId, AgentDescriptor> = {
       ],
     },
     fallbackPatterns: ["usage limit", "rate_limit_error", "prompt is too long", "context low", "context left until auto-compact"],
+    strengths: ["plan", "review", "analyze", "design", "architect", "debug", "document"],
   },
   opencode: {
     id: "opencode",
@@ -90,6 +98,7 @@ export const AGENT_REGISTRY: Record<AgentId, AgentDescriptor> = {
       instructions: ["`opencode auth login`을 실행해 제공자(provider)를 선택하고 인증합니다."],
     },
     fallbackPatterns: ["rate limit", "context window", "quota exceeded"],
+    strengths: ["implement", "fix", "execute"],
   },
   gemini: {
     id: "gemini",
@@ -107,6 +116,7 @@ export const AGENT_REGISTRY: Record<AgentId, AgentDescriptor> = {
       ],
     },
     fallbackPatterns: ["resource_exhausted", "quota exceeded", "rate limit", "429"],
+    strengths: ["analyze", "summarize", "research"],
   },
   aider: {
     id: "aider",
@@ -124,6 +134,7 @@ export const AGENT_REGISTRY: Record<AgentId, AgentDescriptor> = {
       ],
     },
     fallbackPatterns: ["context window", "tokens exceed", "rate limit"],
+    strengths: ["fix", "patch", "edit"],
   },
   cursor: {
     id: "cursor",
@@ -138,6 +149,7 @@ export const AGENT_REGISTRY: Record<AgentId, AgentDescriptor> = {
       instructions: ["`cursor-agent login`을 실행합니다. 브라우저 인증을 마치면 자동으로 돌아옵니다."],
     },
     fallbackPatterns: ["rate limit", "usage limit", "context length"],
+    strengths: ["implement", "refactor", "edit"],
   },
 };
 

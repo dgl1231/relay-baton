@@ -87,7 +87,8 @@ program
   .option("--fallback <agent>", "second agent in the relay chain (default: config fallbackAgent)")
   .option("--chain <a,b,c>", "explicit N-way relay chain (overrides --primary/--fallback)")
   .option("--until <n>", "bounded auto-orchestration: up to N extra continue-steps (guardrail-gated, confirm each)")
-  .option("--yes", "pre-approve bounded --until steps (still capped + guardrail-gated)")
+  .option("--yes", "pre-approve bounded --until steps and threshold handoffs (still capped + gated)")
+  .option("--handoff-now", "relay to the next agent after each hop even without a fallback signal (manual trigger)")
   .option("--project <name-or-id>", "registered project name or id")
   .option("--path <repoPath>", "repository path")
   .action((task, opts) => runCommand(task, opts));

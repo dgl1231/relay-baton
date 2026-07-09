@@ -64,6 +64,25 @@ export function validateConfig(config: RelayBatonConfig): ValidationResult {
     }
   }
 
+  // v2.8 handoffTriggers: optional, but when present each threshold must be a
+  // non-negative number (budgetRatio additionally in [0,1]).
+  if (config.handoffTriggers !== undefined) {
+    const ht = config.handoffTriggers as any;
+    if (typeof ht !== "object" || ht === null) {
+      errors.push("handoffTriggers must be an object when present");
+    } else {
+      for (const key of ["budgetRatio", "changedFiles", "usageTokensProxy"] as const) {
+        const v = ht[key];
+        if (v !== undefined && (typeof v !== "number" || v < 0 || !Number.isFinite(v))) {
+          errors.push(`handoffTriggers.${key} must be a non-negative number`);
+        }
+      }
+      if (typeof ht.budgetRatio === "number" && ht.budgetRatio > 1) {
+        errors.push(`handoffTriggers.budgetRatio must be in [0,1] (got ${ht.budgetRatio})`);
+      }
+    }
+  }
+
   // Safety policy (mirrors CLAUDE.md): blocked env vars must stay blocked.
   const blocked = config.authPolicy?.blockedEnvVars ?? [];
   for (const required of ["OPENAI_API_KEY", "ANTHROPIC_API_KEY"]) {

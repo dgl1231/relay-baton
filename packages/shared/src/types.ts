@@ -103,6 +103,18 @@ export interface RelayBatonConfig {
     /** Surface that mutating steps still require explicit human confirmation. */
     requireConfirmation?: boolean;
   };
+  // v2.8 broadened handoff triggers — optional thresholds that *suggest* relaying
+  // to the next agent even when no fallback error pattern fired. Deterministic,
+  // opt-in, advisory: run asks for confirmation (or honors --yes); it never
+  // relays silently. Absent = detection stays error-pattern-only.
+  handoffTriggers?: {
+    /** Suggest handoff when handoff chars / maxHandoffChars ≥ this ratio (0..1). */
+    budgetRatio?: number;
+    /** Suggest handoff when the working tree has ≥ this many changed files. */
+    changedFiles?: number;
+    /** Suggest handoff when the session UsageLedger token proxy total ≥ this. */
+    usageTokensProxy?: number;
+  };
 }
 
 export interface SessionMeta {

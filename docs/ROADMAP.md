@@ -553,7 +553,7 @@ friction; Phase 2 announces.
   then a public announcement (Show HN, r/commandline, r/ClaudeAI, the Codex /
   Claude communities). No telemetry by default; respect the local-first contract.
 
-### v2.8 — Smarter relay (proposed, post-GA)
+### v2.8 — Smarter relay (post-GA) — FEATURE-COMPLETE locally
 
 Borrowed *narrowly* from orchestrator tools (Hermes / OpenCode) **without**
 adopting their architecture. relay-baton stays a handoff/baton-touch harness, not
@@ -566,18 +566,20 @@ confirmation-first improvements to *when* and *to whom* the baton passes.
 > token-diet contracts; relay-baton's value is *cheap* session continuity, the
 > opposite problem.
 
-- [ ] **Broadened fallback triggers** — today fallback is detected only from an
-  agent's usage/rate/quota error patterns. Add deterministic, opt-in triggers:
-  a **manual** "hand off now" trigger (`run --handoff-now` / room command) and
-  **threshold-based** triggers (budget ratio, `UsageLedger` token-proxy, or
-  changed-files cap) that *suggest* a handoff. Still confirmation-first; never an
-  unattended daemon. Reuses `GuardrailPolicy` caps + `UsageLedger`.
-- [ ] **Deterministic routing hints (advisory only)** — `AgentRegistry` gains
-  per-agent strength tags (e.g. planning vs. bulk-edit vs. review); given a task
-  string, a deterministic keyword match *proposes* a chain ordering for
-  `resolveChain`. Pure suggestion surfaced in the preview — the human still
-  confirms, explicit `--chain`/`--primary` always wins. No model call, no
-  auto-pick.
+- [x] **Broadened fallback triggers** — `HandoffTriggerPolicy` (core) evaluates
+  an opt-in `handoffTriggers` config block (`budgetRatio` / `changedFiles` /
+  `usageTokensProxy`); absent config = no-op, so detection stays
+  error-pattern-only by default. `run --handoff-now` is the manual trigger
+  (explicit consent → relays after each hop); threshold hits *suggest* a handoff
+  with a y/N confirmation (or `--yes`). Never silent, never a daemon. Config
+  validated by `ConfigSchema`. Tests: `SmarterRelay.test.ts`.
+- [x] **Deterministic routing hints (advisory only)** — `AgentRegistry` entries
+  gain `strengths` keyword tags; `suggestChain(task, chain)` (core) reorders the
+  resolved chain by keyword match (stable sort — unmatched tasks return the
+  chain unchanged). `run` prints a one-line advisory hint only when the
+  suggestion differs and no explicit `--chain`/`--primary` was given; it never
+  changes the actual chain. No model call, no auto-pick. Tests:
+  `SmarterRelay.test.ts`.
 
 ## v0.6 — Trust & Verify
 

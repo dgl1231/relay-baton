@@ -4,7 +4,7 @@ import {
   HandoffQualityGate, TokenDietQualityGate, PromptBuilder, ContextCompressor,
   agentFallbackPatterns, isAgentId, UsageLedger,
   BoundedOrchestrator, GuardrailPolicy, ExecutionCheckpoints, HookRunner,
-  WorkspaceManager,
+  WorkspaceManager, HandoffTriggerPolicy, suggestChain,
 } from "@relay-baton/core";
 import * as readline from "readline";
 import * as fs from "fs";
@@ -12,6 +12,7 @@ import type { AgentId, DietProfileName } from "@relay-baton/shared";
 import { ProjectOpts, resolveProjectContext } from "./projectOptions";
 import { adapterFor } from "./agentFor";
 import { auditApiKeyEnv } from "./auditApiKeyEnv";
+import { ui, color } from "../ui";
 
 export interface RunOpts extends ProjectOpts {
   diet?: string;
@@ -27,10 +28,20 @@ export interface RunOpts extends ProjectOpts {
   until?: string;
   /** Pre-approve bounded continue steps (still capped + guardrail-gated). */
   yes?: boolean;
+  /** v2.8 manual trigger: relay to the next agent after this hop even without a fallback signal. */
+  handoffNow?: boolean;
 }
 
-/** Confirmation prompt for a bounded continue step. Resolves true on y/yes. */
+/**
+ * Confirmation prompt for a bounded continue step. Resolves true on y/yes.
+ * v2.8 fix: when stdin is not a TTY (CI, piped input) there is nobody to
+ * answer — auto-decline instead of hanging forever, and say so.
+ */
 function confirm(question: string): Promise<boolean> {
+  if (!process.stdin.isTTY) {
+    ui.warn(`no interactive terminal to confirm "${question.trim()}" — declining (pass --yes to pre-approve).`);
+    return Promise.resolve(false);
+  }
   return new Promise((resolve) => {
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
     rl.question(question, (answer) => {
@@ -64,7 +75,8 @@ export function resolveChain(
   }
   for (const id of ids) {
     if (!isAgentId(id)) {
-      console.error(`[relay-baton] unknown agent in relay chain: ${id}`);
+      ui.fail(`unknown agent in relay chain: ${id}`);
+      ui.hint(`known agents: codex, claude, opencode, gemini, aider, cursor`);
       process.exit(2);
     }
   }
@@ -83,7 +95,7 @@ export async function runCommand(task: string, opts: RunOpts) {
   // the main repo.
   const activeItem = new WorkspaceManager(mainRoot).activeSession();
   const repoRoot = activeItem?.worktree && fs.existsSync(activeItem.worktree) ? activeItem.worktree : mainRoot;
-  if (repoRoot !== mainRoot) console.log(`[relay-baton] session "${activeItem!.name}" → worktree ${repoRoot}`);
+  if (repoRoot !== mainRoot) ui.info(`session ${color.bold(activeItem!.name)} runs in its worktree: ${color.dim(repoRoot)}`);
   const { config } = ConfigLoader.load(repoRoot);
   const sm = new SessionManager(repoRoot, config);
   if (!sm.getMeta()) sm.init(task);
@@ -91,20 +103,34 @@ export async function runCommand(task: string, opts: RunOpts) {
 
   const git = new GitService(repoRoot);
   if (!git.isGitRepo()) {
-    console.error("[relay-baton] not a git repository. aborting.");
+    ui.fail(`${repoRoot} is not a git repository, so relay-baton can't track state here.`);
+    ui.hint(`run ${color.bold("git init")} first, or point at a repo with --path <repoPath>.`);
     process.exit(2);
   }
 
   const profileName = (opts.diet ?? projectContext.project?.defaultDiet ?? config.tokenDiet.profile) as DietProfileName;
   if (!config.tokenDiet.profiles[profileName]) {
-    console.error(`unknown diet profile: ${profileName}`);
+    ui.fail(`unknown diet profile: ${profileName}`);
+    ui.hint(`valid profiles: off, lite, balanced, caveman, ultra`);
     process.exit(2);
   }
 
   // v2.6: honor the active work item's assigned agent as the default primary.
   const assignedAgent = activeItem?.assignedAgent;
   const chain = resolveChain(opts, projectContext.project, config, assignedAgent);
-  console.log(`[relay-baton] relay chain: ${chain.join(" → ")}${assignedAgent && !opts.primary && !opts.chain ? ` (session "${activeItem!.name}" → ${assignedAgent})` : ""}`);
+  ui.info(`relay chain: ${ui.chain(chain)}${assignedAgent && !opts.primary && !opts.chain ? color.dim(` (session "${activeItem!.name}" → ${assignedAgent})`) : ""}`);
+
+  // v2.8 advisory routing hint — deterministic keyword match against registry
+  // strength tags. Display only: never changes the resolved chain, and explicit
+  // --chain/--primary suppress it entirely.
+  if (!opts.chain && !opts.primary && chain.length > 1) {
+    const hint = suggestChain(task, chain);
+    if (hint.differs) {
+      const why = Object.entries(hint.matched).map(([id, tags]) => `${id}: ${(tags as string[]).join("/")}`).join("; ");
+      ui.info(`this task looks like a better fit for ${ui.chain(hint.chain)}${why ? color.dim(` — ${why}`) : ""}`);
+      ui.hint(`just a suggestion — keeping your chain. Apply it with --chain ${hint.chain.join(",")}`);
+    }
+  }
 
   const startedAt = new Date().toISOString();
   sm.updateMeta({
@@ -136,7 +162,7 @@ export async function runCommand(task: string, opts: RunOpts) {
       onStdout: l => process.stdout.write(l + "\n"),
       onStderr: l => process.stderr.write(l + "\n"),
     })) {
-      if (!r.ok) console.error(`[relay-baton] hook failed (${phase}): ${r.command} → ${r.exitCode ?? r.error}`);
+      if (!r.ok) ui.warn(`hook failed (${phase}): ${r.command} → ${r.exitCode ?? r.error}`);
     }
   };
 
@@ -163,7 +189,8 @@ export async function runCommand(task: string, opts: RunOpts) {
       : undefined;
 
     sm.updateMeta({ status: isFirst ? "running" : "running_fallback", activeAgent: agent });
-    console.log(`[relay-baton] running ${cmd.command} ${cmd.args.join(" ")}`);
+    ui.heading(`${isFirst ? "Starting" : "Continuing"} with ${color.bold(agent)}  ${color.dim(`(hop ${hop + 1}/${chain.length})`)}`);
+    ui.step(`${cmd.command} ${cmd.args.join(" ")}`);
     const r = await runAgent({
       command: cmd,
       logFile: sm.files.p("commandsLog"),
@@ -172,22 +199,44 @@ export async function runCommand(task: string, opts: RunOpts) {
       fallbackDetector: detector,
       onStdout: l => process.stdout.write(l + "\n"),
       onStderr: l => process.stderr.write(l + "\n"),
-      onFallback: hit => console.error(`[relay-baton] fallback pattern detected: ${hit.pattern}`),
+      onFallback: hit => ui.warn(`${agent} hit a limit — fallback pattern detected: "${hit.pattern}"`),
     });
     auditApiKeyEnv(repoRoot, r.passedThroughEnvVars, sm.getMeta()?.id);
 
     if (r.error) {
-      console.error(r.error);
+      ui.fail(`${agent} could not run: ${r.error}`);
+      ui.hint(`check the agent is installed and logged in — try ${color.bold("relay-baton doctor")}`);
       finalize("failed", agent, r.error);
       process.exit(1);
     }
 
-    const wantsFallback = r.fallbackReason !== null && nextAgent !== null;
+    // v2.8 broadened triggers: even on a clean exit, a manual --handoff-now or a
+    // configured threshold can *suggest* relaying to the next agent. Manual flag
+    // is explicit consent; thresholds are confirmation-first (or --yes).
+    let relayReason: string | null = r.fallbackReason;
+    if (relayReason === null && nextAgent !== null && r.exitCode === 0) {
+      if (opts.handoffNow) {
+        relayReason = "manual handoff (--handoff-now)";
+        ui.info(`--handoff-now: passing the baton to ${color.bold(nextAgent)} without waiting for a fallback signal.`);
+      } else {
+        const report = new HandoffTriggerPolicy(repoRoot, config).evaluate();
+        if (report.configured && report.triggered) {
+          ui.warn(`handoff trigger threshold(s) reached:`);
+          for (const hit of report.hits) ui.detail(hit.message);
+          const ok = opts.yes || await confirm(`hand off to ${nextAgent} now? [y/N] `);
+          if (ok) relayReason = `threshold trigger: ${report.hits.map(h => h.condition).join(", ")}`;
+          else ui.info(`okay, staying with ${agent} — finishing without a handoff.`);
+        }
+      }
+    }
+
+    const wantsFallback = relayReason !== null && nextAgent !== null;
     if (!wantsFallback) {
       // Terminal: either finished cleanly, or hit a limit with no one left to relay to.
       if (r.fallbackReason !== null) {
         sm.updateMeta({ fallbackReason: r.fallbackReason });
-        console.log(`[relay-baton] ${agent} hit a fallback signal but the relay chain is exhausted.`);
+        ui.warn(`${agent} hit a limit, but there is no one left in the chain to hand off to.`);
+        ui.hint(`add a fallback agent with --fallback <agent> or a longer --chain next time.`);
       }
       // v2.5: bounded auto-orchestration. Only when the agent finished cleanly
       // and --until is set. Strictly capped, guardrail-gated, confirmation-first.
@@ -197,27 +246,33 @@ export async function runCommand(task: string, opts: RunOpts) {
       }
       if (r.exitCode === 0) runHooks("postExecute");
       finalize(r.exitCode === 0 ? "completed" : "failed", agent, r.exitCode === 0 ? null : `${agent} exited with ${r.exitCode}`);
-      console.log(`[relay-baton] ${agent} finished. exiting.`);
+      if (r.exitCode === 0) {
+        ui.ok(`${color.bold(agent)} finished the task.`);
+        ui.hint(`see what changed: ${color.bold("relay-baton review")} · session state: ${color.bold("relay-baton status")}`);
+      } else {
+        ui.fail(`${agent} exited with code ${r.exitCode}.`);
+        ui.hint(`the full log is in .ai-session/commands.log — ${color.bold("relay-baton status")} shows the session state.`);
+      }
       return;
     }
 
     // Relay to the next agent: record fallback, (optionally) compress, build+gate handoff.
-    sm.updateMeta({ lastAgent: agent, activeAgent: "none", fallbackReason: r.fallbackReason, status: "fallback_detected", lastError: null });
+    sm.updateMeta({ lastAgent: agent, activeAgent: "none", fallbackReason: relayReason, status: "fallback_detected", lastError: null });
 
     if (config.contextCompression?.enabled && config.contextCompression?.auto) {
       const cc = new ContextCompressor(repoRoot, config);
       const res = cc.compressIfNeeded(config.tokenDiet.profiles[profileName], {});
       if (res.compressed) {
         sm.updateMeta({ status: "compressing" });
-        console.log(`[relay-baton] context compressed: ${res.before.total} -> ${res.after?.total} chars`);
+        ui.info(`context compressed: ${res.before.total} → ${res.after?.total} chars`);
         sm.updateMeta({ status: "fallback_detected" });
       }
     }
 
     runHooks("preHandoff");
-    console.log(`[relay-baton] building handoff for ${nextAgent}...`);
+    ui.step(`building a compact handoff for ${color.bold(nextAgent!)}…`);
     const wf = new BatonWorkflow(sm, config);
-    const h = wf.buildHandoff({ profileName, fallbackReason: r.fallbackReason, previousAgent: agent, nextAgent: nextAgent! });
+    const h = wf.buildHandoff({ profileName, fallbackReason: relayReason!, previousAgent: agent, nextAgent: nextAgent! });
     sm.updateMeta({ handoffCount: (sm.getMeta()?.handoffCount ?? 0) + 1 });
     // v2.4 local usage insight (token proxy; never transmitted).
     new UsageLedger(repoRoot).record("handoff", nextAgent!, h.usedChars, `${agent}→${nextAgent}`);
@@ -225,22 +280,24 @@ export async function runCommand(task: string, opts: RunOpts) {
     const gate = new HandoffQualityGate(repoRoot).check();
     const dietGate = new TokenDietQualityGate(repoRoot, profileName, config.tokenDiet.profiles[profileName]).check({ wasTruncated: h.truncated });
     let blocked = false;
-    if (!gate.ok) { console.error("Handoff Quality Gate failed:"); for (const f of gate.failures) console.error("  - " + f); blocked = true; }
-    if (!dietGate.ok) { console.error("Token Diet Quality Gate failed:"); for (const f of dietGate.failures) console.error("  - " + f); blocked = true; }
-    for (const w of dietGate.warnings) console.error("warn: " + w);
+    if (!gate.ok) { ui.fail("Handoff Quality Gate failed:"); for (const f of gate.failures) ui.detail(f); blocked = true; }
+    if (!dietGate.ok) { ui.fail("Token Diet Quality Gate failed:"); for (const f of dietGate.failures) ui.detail(f); blocked = true; }
+    for (const w of dietGate.warnings) ui.warn(w);
     const highFindings = h.redaction.findings.filter(f => f.severity === "high");
     if (highFindings.length > 0) {
-      console.error("Redaction Gate failed (handoff would leak secrets to the next agent):");
-      for (const f of highFindings) console.error(`  - ${f.category}: ${f.file}${f.line ? ":" + f.line : ""} (${f.hint})`);
+      ui.fail("Redaction Gate failed — the handoff would leak secrets to the next agent:");
+      for (const f of highFindings) ui.detail(`${f.category}: ${f.file}${f.line ? ":" + f.line : ""} (${f.hint})`);
       blocked = true;
     }
     for (const f of h.redaction.findings.filter(f => f.severity !== "high")) {
-      console.error(`warn: redaction ${f.category} in ${f.file}${f.line ? ":" + f.line : ""} (${f.hint})`);
+      ui.warn(`redaction ${f.category} in ${f.file}${f.line ? ":" + f.line : ""} (${f.hint})`);
     }
     if (blocked && !opts.force) {
-      console.error("[relay-baton] aborting fallback launch. Use --force to override.");
+      ui.fail(`stopping before the ${nextAgent} launch — the handoff didn't pass the gates above.`);
+      ui.hint(`fix the findings (safest), or re-run with --force if you're sure.`);
       process.exit(3);
     }
+    if (!blocked) ui.ok(`handoff ready — passing the baton: ${ui.chain(chain, hop + 1)}`);
     // loop continues to nextAgent
   }
 }
@@ -276,25 +333,25 @@ async function runUntilLoop(agent: AgentId, ctx: UntilCtx) {
   const ledger = new UsageLedger(repoRoot);
   const adapter = adapterFor(agent, config);
 
-  console.log(`[relay-baton] bounded auto-orchestration: up to ${maxSteps} extra step(s) on ${agent} (guardrail-gated${opts.yes ? "" : ", confirm each"})`);
+  ui.info(`bounded auto-orchestration: up to ${maxSteps} extra step(s) on ${color.bold(agent)} ${color.dim(`(guardrail-gated${opts.yes ? "" : ", confirm each"})`)}`);
 
   let obs: { budgetRatio?: number; progressKey?: string } = {};
   for (;;) {
     const d = orch.next(obs);
     if (!d.proceed) {
-      console.log(`[relay-baton] bounded loop stopped: ${d.reason ?? "done"}`);
-      if (d.guardrail?.blocked) for (const v of d.guardrail.violations) console.log(`  - ${v.message}`);
+      ui.info(`bounded loop stopped: ${d.reason ?? "done"}`);
+      if (d.guardrail?.blocked) for (const v of d.guardrail.violations) ui.detail(v.message);
       break;
     }
     if (d.requireConfirmation && !opts.yes) {
       const ok = await confirm(`[relay-baton] continue step ${d.step}/${maxSteps} on ${agent}? [y/N] `);
-      if (!ok) { console.log("[relay-baton] declined — stopping bounded loop."); break; }
+      if (!ok) { ui.info("okay — stopping the bounded loop here."); break; }
     }
 
     sm.updateMeta({ status: "running", activeAgent: agent });
     const continuation = PromptBuilder.continuation();
     const cmd = adapter.buildCommand({ task: continuation, prompt: continuation, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName });
-    console.log(`[relay-baton] [until ${d.step}/${maxSteps}] running ${cmd.command} ${cmd.args.join(" ")}`);
+    ui.step(`[until ${d.step}/${maxSteps}] ${cmd.command} ${cmd.args.join(" ")}`);
     const r = await runAgent({
       command: cmd,
       logFile: sm.files.p("commandsLog"),
@@ -306,7 +363,7 @@ async function runUntilLoop(agent: AgentId, ctx: UntilCtx) {
     auditApiKeyEnv(repoRoot, r.passedThroughEnvVars, sm.getMeta()?.id);
     if (r.error || r.exitCode !== 0) {
       finalize("failed", agent, r.error ?? `${agent} exited with ${r.exitCode}`);
-      console.error(`[relay-baton] bounded step failed; stopping.`);
+      ui.fail(`bounded step failed; stopping.`);
       process.exit(1);
     }
 
@@ -320,5 +377,5 @@ async function runUntilLoop(agent: AgentId, ctx: UntilCtx) {
 
   runHooks("postExecute");
   finalize("completed", agent, null);
-  console.log(`[relay-baton] ${agent} bounded loop finished. exiting.`);
+  ui.ok(`${color.bold(agent)} finished the bounded loop.`);
 }
