@@ -1,6 +1,6 @@
 {
   "name": "@relay-baton/shared",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Shared utilities for relay-baton (safe-path guards and common helpers)",
   "license": "MIT",
   "author": "DongGeon Lee",

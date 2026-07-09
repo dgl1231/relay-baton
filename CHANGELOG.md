@@ -7,6 +7,35 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Per-release detail (EN + KO) lives in [`release-notes/`](./release-notes/). This
 file is the condensed, user-facing history.
 
+## [1.2.0] — 2026-07-09
+
+First post-GA feature release ("Smarter relay", roadmap v2.8). The v1.1.x
+version numbers were consumed by the pre-GA "Distributable" tag line, so this
+release is 1.2.0.
+
+### Added
+- **Opt-in handoff trigger thresholds** — new `handoffTriggers` config
+  (`budgetRatio` / `changedFiles` / `usageTokensProxy`): when reached after a
+  clean agent exit, relay-baton *suggests* handing off to the next agent
+  (y/N confirm, or `--yes`). Absent config = unchanged error-pattern-only
+  detection.
+- **`run --handoff-now`** — manual trigger that relays to the next agent after
+  each hop without waiting for a fallback signal.
+- **Advisory routing hints** — agents carry `strengths` keyword tags; `run`
+  prints a one-line chain suggestion when the task matches a different order.
+  Display only; `--chain`/`--primary` always win.
+
+### Improved
+- Friendly CLI output (✓/✗/▲ symbols, "what to try next" hints, hop headings);
+  colors auto-disable when piped or `NO_COLOR` is set.
+- Warm desktop restyle (cream/warm-dark themes, terracotta accent, sans-serif
+  chrome, message-card timeline). Display-only.
+
+### Fixed
+- `run` confirmation prompts auto-decline instead of hanging when stdin is not
+  a TTY (CI/piped input).
+- Windows CI: worktree test path comparison expands 8.3 short paths.
+
 ## [1.0.0] — 2026-06-22
 
 First public, generally-available release. relay-baton graduates off the
@@ -73,4 +102,5 @@ Condensed; see `release-notes/` for the full notes of each tag.
   diet, fallback detection, project registry, TUI, plan/execute, trust/verify,
   review/diagnose, adapter expansion + Agent Room.
 
+[1.2.0]: https://github.com/dgl1231/relay-baton/releases/tag/v1.2.0
 [1.0.0]: https://github.com/dgl1231/relay-baton/releases/tag/v1.0.0

@@ -1,6 +1,6 @@
 {
   "name": "@relay-baton/tui",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Ink-based TUI dashboard for relay-baton (display-only; never launches agents)",
   "license": "MIT",
   "author": "DongGeon Lee",
