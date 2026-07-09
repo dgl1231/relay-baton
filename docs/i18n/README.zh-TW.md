@@ -229,7 +229,7 @@ pnpm relay-baton login claude
 
 ## 發布說明
 
-**最新: v1.2.0** — [English](../../release-notes/v1.2.0.md) · [한국어](../../release-notes/ko/v1.2.0.md)
+**最新: v1.2.0** — [English](../../release-notes/v1.2.0.md) · [한국어](../../release-notes/ko/v1.2.0.md) · [繁體中文](../../release-notes/zh-TW/v1.2.0.md)
 
 relay-baton 已 **正式發佈(GA)v1.0.0**,目前最新為 **v1.2.0**。
 

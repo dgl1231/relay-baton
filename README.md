@@ -668,7 +668,7 @@ Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-n
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
 | v1.2.0 | [Read →](./release-notes/v1.2.0.md) | [읽기 →](./release-notes/ko/v1.2.0.md) | Smarter relay (opt-in `handoffTriggers` + `run --handoff-now`, advisory routing hints) & friendly CLI/desktop UI. |
-| v1.0.0 (GA) | [CHANGELOG →](./CHANGELOG.md#100--2026-06-22) | — | First public release: MIT license, npm `@relay-baton/cli` + libs, Homebrew/Scoop/Winget, GA versioning. |
+| v1.0.0 (GA) | [Read →](./release-notes/v1.0.0-ga.md) | [읽기 →](./release-notes/ko/v1.0.0-ga.md) | First public release: MIT license, npm `@relay-baton/cli` + libs, Homebrew/Scoop/Winget, GA versioning. |
 | v2.1.0-alpha.2 | [Read →](./release-notes/v2.1.0-alpha.2.md) | [읽기 →](./release-notes/ko/v2.1.0-alpha.2.md) | Secret-leak regression scan + `--allow-api-key-env` audit (names only); v2.1 complete. |
 | v2.1.0-alpha.1 | [Read →](./release-notes/v2.1.0-alpha.1.md) | [읽기 →](./release-notes/ko/v2.1.0-alpha.1.md) | Redact before handoff: a Redaction Gate blocks launching the next agent on high-severity secret findings (unless `--force`). |
 | v2.1.0-alpha.0 | [Read →](./release-notes/v2.1.0-alpha.0.md) | [읽기 →](./release-notes/ko/v2.1.0-alpha.0.md) | Windows-safe agent spawn: `safeSpawn` (cross-spawn) resolves npm-global `.cmd` shims and escapes arguments, fixing `doctor`/`run`/`login` on Windows. |

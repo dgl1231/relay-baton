@@ -230,7 +230,7 @@ Que `claude --version` funcione **no** significa estar logueado. Si ves "Not log
 
 ## Notas de versión
 
-**Última: v1.2.0** — [English](../../release-notes/v1.2.0.md) · [한국어](../../release-notes/ko/v1.2.0.md)
+**Última: v1.2.0** — [English](../../release-notes/v1.2.0.md) · [한국어](../../release-notes/ko/v1.2.0.md) · [Español](../../release-notes/es/v1.2.0.md)
 
 relay-baton llegó a **disponibilidad general (GA) en v1.0.0**; la más reciente es **v1.2.0**.
 

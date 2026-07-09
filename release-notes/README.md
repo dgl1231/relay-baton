@@ -12,9 +12,17 @@ Each note should explain:
 
 Release notes are user-facing changelogs, not agent handoff material — that role belongs to `.ai-session/handoff.md`. Keep release notes free of one-shot validation logs or test inventories; those go stale and duplicate CI / git history.
 
+English notes live at the directory root; per-language translations live in
+subdirectories by locale code (`ko/`, `ja/`, `zh-CN/`, `zh-TW/`, `es/`, `fr/`,
+`de/`, `pt-BR/`, `ru/`). Current post-GA releases (v1.2.0, GA) are translated
+into all ten README locales; older alpha notes are English + Korean only.
+
 ## Versions
 
-- [v1.2.0](./v1.2.0.md) / [한국어](./ko/v1.2.0.md) - Smarter relay & friendly UI (first post-GA feature release; v1.1.x tag names were used by the pre-GA line): opt-in `handoffTriggers` thresholds + `run --handoff-now` manual trigger (confirmation-first), advisory routing hints from registry `strengths` tags, friendly CLI output (✓/✗/hints, non-TTY confirm fix), warm desktop restyle.
+- [v1.2.0](./v1.2.0.md) — Smarter relay & friendly UI (first post-GA feature release; v1.1.x tag names were used by the pre-GA line): opt-in `handoffTriggers` thresholds + `run --handoff-now` manual trigger (confirmation-first), advisory routing hints from registry `strengths` tags, friendly CLI output (✓/✗/hints, non-TTY confirm fix), warm desktop restyle.
+  - [한국어](./ko/v1.2.0.md) · [日本語](./ja/v1.2.0.md) · [简体中文](./zh-CN/v1.2.0.md) · [繁體中文](./zh-TW/v1.2.0.md) · [Español](./es/v1.2.0.md) · [Français](./fr/v1.2.0.md) · [Deutsch](./de/v1.2.0.md) · [Português](./pt-BR/v1.2.0.md) · [Русский](./ru/v1.2.0.md)
+- [v1.0.0 (GA)](./v1.0.0-ga.md) — First public release: MIT license, npm `@relay-baton/cli` + libs, Homebrew/Scoop/Winget, GA versioning, one-tag release fan-out. (The older [`v1.0.0.md`](./v1.0.0.md) is the pre-GA "Stable Local Release" milestone, kept for history.)
+  - [한국어](./ko/v1.0.0-ga.md) · [日本語](./ja/v1.0.0-ga.md) · [简体中文](./zh-CN/v1.0.0-ga.md) · [繁體中文](./zh-TW/v1.0.0-ga.md) · [Español](./es/v1.0.0-ga.md) · [Français](./fr/v1.0.0-ga.md) · [Deutsch](./de/v1.0.0-ga.md) · [Português](./pt-BR/v1.0.0-ga.md) · [Русский](./ru/v1.0.0-ga.md)
 - [v2.6.0-alpha.0](./v2.6.0-alpha.0.md) / [한국어](./ko/v2.6.0-alpha.0.md) - Multi-session workspace: named work items (`session new|switch|items`, `WorkspaceManager`, legacy flat = `default`, zero migration), per-agent assignment (`session assign`, `run` honors it), and safe parallelism via git worktrees (`session worktree add`, `run` executes in the isolated checkout).
 - [v2.5.0-alpha.0](./v2.5.0-alpha.0.md) / [한국어](./ko/v2.5.0-alpha.0.md) - Guarded automation & extensibility: bounded auto-orchestration (`run --until <n>`, confirmation-first, `BoundedOrchestrator` = LoopController + GuardrailPolicy) and project recipes/hooks (`hooks.preHandoff`/`postExecute` via `HookRunner`, local-only). Never an unattended daemon.
 - [v2.4.0-alpha.0](./v2.4.0-alpha.0.md) / [한국어](./ko/v2.4.0-alpha.0.md) - Smarter handoff: deterministic compaction v2 (symbol/heading-aware repo map via `SymbolOutline` + relevance-ranked diff `compactRanked`) and local usage insight (`UsageLedger` + `relay-baton usage`, token proxy, never transmitted). No embeddings.

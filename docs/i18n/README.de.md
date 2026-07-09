@@ -230,7 +230,7 @@ Dass `claude --version` durchläuft, heißt **nicht**, dass du eingeloggt bist. 
 
 ## Release-Notes
 
-**Aktuell: v1.2.0** — [English](../../release-notes/v1.2.0.md) · [한국어](../../release-notes/ko/v1.2.0.md)
+**Aktuell: v1.2.0** — [English](../../release-notes/v1.2.0.md) · [한국어](../../release-notes/ko/v1.2.0.md) · [Deutsch](../../release-notes/de/v1.2.0.md)
 
 relay-baton ist **seit v1.0.0 allgemein verfügbar (GA)**; aktuell ist **v1.2.0**.
 
