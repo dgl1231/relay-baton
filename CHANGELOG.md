@@ -7,6 +7,27 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Per-release detail (EN + KO) lives in [`release-notes/`](./release-notes/). This
 file is the condensed, user-facing history.
 
+## [1.3.0] — 2026-07-10
+
+Post-GA polish release.
+
+### Added
+- **`relay-baton route "<task>" [--json]`** — read-only preview of the advisory
+  routing hint: resolves the chain like `run`, shows how registry `strengths`
+  tags would reorder it, with matched keywords per agent. Never launches an
+  agent.
+- **Record-ready demo scenario** — `scripts/demo/demo.sh` + fake agents replay
+  the fallback → compact handoff → resume flow deterministically (no quota).
+
+### Improved
+- Friendly `ui` output extended to `doctor`, `init`, `status`, `login`, and
+  `handoff` (`doctor`/`login` previously hardcoded ANSI and ignored
+  `NO_COLOR`/non-TTY).
+- `doctor` reports whether the optional `handoffTriggers` block is configured.
+- v1.2.0 features (`--handoff-now`, `handoffTriggers`, routing hints) fully
+  documented in COMMANDS (EN+KO), the guide (EN+KO), and the README config
+  section.
+
 ## [1.2.0] — 2026-07-09
 
 First post-GA feature release ("Smarter relay", roadmap v2.8). The v1.1.x
@@ -102,5 +123,6 @@ Condensed; see `release-notes/` for the full notes of each tag.
   diet, fallback detection, project registry, TUI, plan/execute, trust/verify,
   review/diagnose, adapter expansion + Agent Room.
 
+[1.3.0]: https://github.com/dgl1231/relay-baton/releases/tag/v1.3.0
 [1.2.0]: https://github.com/dgl1231/relay-baton/releases/tag/v1.2.0
 [1.0.0]: https://github.com/dgl1231/relay-baton/releases/tag/v1.0.0

@@ -128,6 +128,7 @@ $ relay-baton run "새 metrics endpoint 연결"
 | `relay-baton verify` | 시뮬레이션 end-to-end 점검 — 실제 모델 호출 없음 |
 | `relay-baton login [agent]` | Codex / Claude 로그인 흐름 |
 | `relay-baton run "<task>"` | primary agent 실행 + fallback 감지 + handoff |
+| `relay-baton route "<task>"` | advisory 라우팅 힌트 미리보기 (읽기 전용, `--json`) |
 | `relay-baton handoff --to claude` | 수동 handoff (`--diet`, `--no-run`, `--force`) |
 | `relay-baton handoff history` | 현재 + 백업 handoff 문서 나열 (metadata만) |
 | `relay-baton plan "<task>"` | Plan-execute: planner가 `plan.md` 작성 (`--with`, `--no-run`, `--then-execute`) |
@@ -228,9 +229,9 @@ pnpm relay-baton login claude
 
 ## 릴리즈 노트
 
-**최신: v1.2.0** — [English](../../release-notes/v1.2.0.md) · [한국어](../../release-notes/ko/v1.2.0.md)
+**최신: v1.3.0** — [English](../../release-notes/v1.3.0.md) · [한국어](../../release-notes/ko/v1.3.0.md)
 
-relay-baton은 **v1.0.0으로 정식 출시(GA)**되었고, 현재 최신은 **v1.2.0**이다.
+relay-baton은 **v1.0.0으로 정식 출시(GA)**되었고, 현재 최신은 **v1.3.0**이다.
 
 - 전체 버전 기록: [`CHANGELOG.md`](../../CHANGELOG.md)
 - 버전별 상세 패치노트: [release-notes index](../../release-notes/README.md)

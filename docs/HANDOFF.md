@@ -113,7 +113,10 @@ templates added; README npm quickstart (`npm i -g @relay-baton/cli`) + badge.
 **Remaining in Phase 0:** publish `@relay-baton/cli`, demo GIF (deferred). Then Phase 1 (signing, package managers) + Phase 2 (announce). No
 commit/push yet (awaiting user request).
 
-**2026-07-10 — post-v1.2.0 polish (local, not released).** (1) v2.8 features now
+**2026-07-10 — released as v1.3.0** (tag pushed; first release where the npm
+publish job runs with the NODE_AUTH_TOKEN fix — verify all four channels).
+Multilingual notes (EN+ko+8 locales) + CHANGELOG + README/i18n Latest lines all
+updated to v1.3.0. Detail of what shipped: (1) v2.8 features now
 documented in `docs/COMMANDS.md` + `COMMANDS.ko.md` + GUIDE EN/KO + README config
 section (`--handoff-now`, `handoffTriggers` block, routing hints). (2) Friendly
 `ui.ts` output extended beyond `run` to `doctor`/`init`/`status`/`login`/

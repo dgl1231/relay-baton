@@ -228,9 +228,9 @@ pnpm relay-baton login claude
 
 ## リリースノート
 
-**最新: v1.2.0** — [English](../../release-notes/v1.2.0.md) · [한국어](../../release-notes/ko/v1.2.0.md) · [日本語](../../release-notes/ja/v1.2.0.md)
+**最新: v1.3.0** — [English](../../release-notes/v1.3.0.md) · [한국어](../../release-notes/ko/v1.3.0.md) · [日本語](../../release-notes/ja/v1.3.0.md)
 
-relay-baton は **v1.0.0 で正式リリース(GA)** され、現在の最新は **v1.2.0** です。
+relay-baton は **v1.0.0 で正式リリース(GA)** され、現在の最新は **v1.3.0** です。
 
 - 全バージョン履歴: [`CHANGELOG.md`](../../CHANGELOG.md)
 - 各バージョンの詳細な変更点: [release-notes index](../../release-notes/README.md)

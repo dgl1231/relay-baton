@@ -229,9 +229,9 @@ pnpm relay-baton login claude
 
 ## Notes de version
 
-**Dernière: v1.2.0** — [English](../../release-notes/v1.2.0.md) · [한국어](../../release-notes/ko/v1.2.0.md) · [Français](../../release-notes/fr/v1.2.0.md)
+**Dernière: v1.3.0** — [English](../../release-notes/v1.3.0.md) · [한국어](../../release-notes/ko/v1.3.0.md) · [Français](../../release-notes/fr/v1.3.0.md)
 
-relay-baton est **disponible en version stable (GA) depuis v1.0.0** ; la plus récente est **v1.2.0**.
+relay-baton est **disponible en version stable (GA) depuis v1.0.0** ; la plus récente est **v1.3.0**.
 
 - Historique complet des versions: [`CHANGELOG.md`](../../CHANGELOG.md)
 - Notes de correctif détaillées par version: [release-notes index](../../release-notes/README.md)

@@ -10,7 +10,7 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 [![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-[![Latest](https://img.shields.io/badge/release-v1.2.0-blue.svg)](./CHANGELOG.md)
+[![Latest](https://img.shields.io/badge/release-v1.3.0-blue.svg)](./CHANGELOG.md)
 [![Download](https://img.shields.io/badge/download-binaries-238636.svg)](https://github.com/dgl1231/relay-baton/releases/latest)
 
 **English**
@@ -376,6 +376,7 @@ relay-baton tui --project relay-baton
 | `relay-baton verify` | Simulated end-to-end check — no real model calls (`--diet`, `--verbose`, `--keep-temp`) |
 | `relay-baton login [agent]` | Run Codex / Claude auth flows (`codex` / `claude` / `all`) |
 | `relay-baton run "<task>"` | Run primary agent, detect fallback, hand off |
+| `relay-baton route "<task>"` | Preview the advisory routing hint (read-only, `--json`) |
 | `relay-baton handoff --to claude` | Manual handoff (`--diet`, `--no-run`, `--force`) |
 | `relay-baton handoff history` | List the current + backed-up handoff documents (metadata only) |
 | `relay-baton plan "<task>"` | Plan-execute mode: planner writes `plan.md` (`--with`, `--no-run`, `--then-execute`) |
@@ -679,7 +680,7 @@ any real run). Design only for now — **not implemented yet**. Full design:
 
 Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-notes/README.md)). They are user-facing changelogs, not agent handoff material — that role belongs to `.ai-session/handoff.md`.
 
-**Latest:** v1.2.0 — [English](./release-notes/v1.2.0.md) · [한국어](./release-notes/ko/v1.2.0.md) · full history in [`CHANGELOG.md`](./CHANGELOG.md)
+**Latest:** v1.3.0 — [English](./release-notes/v1.3.0.md) · [한국어](./release-notes/ko/v1.3.0.md) · full history in [`CHANGELOG.md`](./CHANGELOG.md)
 
 > relay-baton reached **general availability at v1.0.0** (MIT, published to npm /
 > Homebrew / Scoop / Winget). Pre-1.0 tags below used a perpetual `-alpha.N`
@@ -687,6 +688,7 @@ Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-n
 
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
+| v1.3.0 | [Read →](./release-notes/v1.3.0.md) | [읽기 →](./release-notes/ko/v1.3.0.md) | Route preview & polish: read-only `route` command, friendly output across doctor/init/status/login/handoff, trigger visibility in doctor, record-ready demo. |
 | v1.2.0 | [Read →](./release-notes/v1.2.0.md) | [읽기 →](./release-notes/ko/v1.2.0.md) | Smarter relay (opt-in `handoffTriggers` + `run --handoff-now`, advisory routing hints) & friendly CLI/desktop UI. |
 | v1.0.0 (GA) | [Read →](./release-notes/v1.0.0-ga.md) | [읽기 →](./release-notes/ko/v1.0.0-ga.md) | First public release: MIT license, npm `@relay-baton/cli` + libs, Homebrew/Scoop/Winget, GA versioning. |
 | v2.1.0-alpha.2 | [Read →](./release-notes/v2.1.0-alpha.2.md) | [읽기 →](./release-notes/ko/v2.1.0-alpha.2.md) | Secret-leak regression scan + `--allow-api-key-env` audit (names only); v2.1 complete. |
