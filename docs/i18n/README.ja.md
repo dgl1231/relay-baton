@@ -72,6 +72,28 @@ handoff は小さなファイル (`.ai-session/handoff.md`) と参照で構成�
 
 ## Quick Start
 
+**インストール(ビルド不要)**
+
+```bash
+# npm (全 OS)
+npm i -g @relay-baton/cli        # -> relay-baton
+
+# macOS / Linux — Homebrew
+brew tap dgl1231/relay-baton && brew install relay-baton
+
+# Windows — Scoop / Winget
+scoop bucket add relay-baton https://github.com/dgl1231/scoop-relay-baton && scoop install relay-baton
+winget install dgl1231.relay-baton
+```
+
+```bash
+relay-baton doctor
+relay-baton login
+relay-baton run "..." --diet balanced
+```
+
+**ソースから(開発用)**
+
 ```bash
 pnpm install
 pnpm build
@@ -128,6 +150,7 @@ $ relay-baton run "metrics endpoint を配線"
 | `relay-baton verify` | シミュレートされたE2Eチェック — 実モデル呼び出しなし |
 | `relay-baton login [agent]` | Codex / Claude ログインフロー |
 | `relay-baton run "<task>"` | primary agent 実行 + fallback 検知 + handoff |
+| `relay-baton route "<task>"` | advisory ルーティングヒントのプレビュー(読み取り専用, `--json`) |
 | `relay-baton handoff --to claude` | 手動 handoff (`--diet`, `--no-run`, `--force`) |
 | `relay-baton handoff history` | 現在 + バックアップの handoff 文書を一覧 (metadata のみ) |
 | `relay-baton plan "<task>"` | Plan-execute: planner が `plan.md` を書く (`--with`, `--no-run`, `--then-execute`) |

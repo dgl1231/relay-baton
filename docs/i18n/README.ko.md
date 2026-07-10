@@ -72,6 +72,28 @@ handoff는 작은 파일(`.ai-session/handoff.md`) + 참조다. 큰 자료(전�
 
 ## Quick Start
 
+**설치 (빌드 불필요)**
+
+```bash
+# npm (모든 OS)
+npm i -g @relay-baton/cli        # -> relay-baton
+
+# macOS / Linux — Homebrew
+brew tap dgl1231/relay-baton && brew install relay-baton
+
+# Windows — Scoop / Winget
+scoop bucket add relay-baton https://github.com/dgl1231/scoop-relay-baton && scoop install relay-baton
+winget install dgl1231.relay-baton
+```
+
+```bash
+relay-baton doctor
+relay-baton login
+relay-baton run "..." --diet balanced
+```
+
+**소스에서 (개발용)**
+
 ```bash
 pnpm install
 pnpm build

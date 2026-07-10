@@ -73,6 +73,28 @@ Le handoff est un petit fichier (`.ai-session/handoff.md`) + des références. L
 
 ## Quick Start
 
+**Installation (sans build)**
+
+```bash
+# npm (tous les OS)
+npm i -g @relay-baton/cli        # -> relay-baton
+
+# macOS / Linux — Homebrew
+brew tap dgl1231/relay-baton && brew install relay-baton
+
+# Windows — Scoop / Winget
+scoop bucket add relay-baton https://github.com/dgl1231/scoop-relay-baton && scoop install relay-baton
+winget install dgl1231.relay-baton
+```
+
+```bash
+relay-baton doctor
+relay-baton login
+relay-baton run "..." --diet balanced
+```
+
+**Depuis les sources (développement)**
+
 ```bash
 pnpm install
 pnpm build
@@ -129,6 +151,7 @@ $ relay-baton run "câbler le nouveau endpoint metrics"
 | `relay-baton verify` | Vérification end-to-end simulée — aucun appel réel au modèle |
 | `relay-baton login [agent]` | Flux de login Codex / Claude |
 | `relay-baton run "<task>"` | Lance l'agent primaire + détecte fallback + handoff |
+| `relay-baton route "<task>"` | Aperçu de l’indication de routage (lecture seule, `--json`) |
 | `relay-baton handoff --to claude` | Handoff manuel (`--diet`, `--no-run`, `--force`) |
 | `relay-baton handoff history` | Liste le handoff courant + les sauvegardes (métadonnées seulement) |
 | `relay-baton plan "<task>"` | Plan-execute : le planificateur écrit `plan.md` (`--with`, `--no-run`, `--then-execute`) |

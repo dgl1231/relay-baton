@@ -72,6 +72,28 @@ handoff 是一個小檔案 (`.ai-session/handoff.md`) 加參照。重量級內�
 
 ## Quick Start
 
+**安裝(無需建置)**
+
+```bash
+# npm (所有系統)
+npm i -g @relay-baton/cli        # -> relay-baton
+
+# macOS / Linux — Homebrew
+brew tap dgl1231/relay-baton && brew install relay-baton
+
+# Windows — Scoop / Winget
+scoop bucket add relay-baton https://github.com/dgl1231/scoop-relay-baton && scoop install relay-baton
+winget install dgl1231.relay-baton
+```
+
+```bash
+relay-baton doctor
+relay-baton login
+relay-baton run "..." --diet balanced
+```
+
+**從原始碼(開發用)**
+
 ```bash
 pnpm install
 pnpm build
@@ -128,6 +150,7 @@ $ relay-baton run "接上新的 metrics endpoint"
 | `relay-baton verify` | 模擬端到端檢查 — 不進行真實模型呼叫 |
 | `relay-baton login [agent]` | Codex / Claude 登入流程 |
 | `relay-baton run "<task>"` | 主代理執行 + fallback 偵測 + handoff |
+| `relay-baton route "<task>"` | 建議性路由提示預覽(唯讀, `--json`) |
 | `relay-baton handoff --to claude` | 手動 handoff (`--diet`、`--no-run`、`--force`) |
 | `relay-baton handoff history` | 列出目前 + 備份的 handoff 文件 (僅 metadata) |
 | `relay-baton plan "<task>"` | Plan-execute：planner 寫出 `plan.md`（`--with`、`--no-run`、`--then-execute`） |
