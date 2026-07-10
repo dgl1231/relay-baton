@@ -95,9 +95,31 @@ Codex / Claude Code 대화형 login 실행. `agent`는 `codex` | `claude` | `all
 ## 실행 & handoff
 
 ### `run <task>`
-Codex CLI를 먼저 실행하고, usage/rate/token/context/quota fallback 시 handoff를
-생성해 Claude Code를 실행. 옵션: `--diet`, `--force`, `--allow-api-key-env`,
-`--project`, `--path`.
+**relay chain**을 실행: 첫 agent가 작업을 수행하고, usage/rate/token/context/quota
+fallback 신호가 오면 handoff를 만들어 다음 agent로 넘긴다. 체인 결정(v2.3):
+`--chain a,b,c` > `--primary`/`--fallback` > 프로젝트 override > config. 역방향
+(claude→codex)과 N-way 체인 지원. 옵션: `--diet`, `--force`,
+`--allow-api-key-env`, `--project`, `--path`, `--until <n>`(+`--yes`, v2.5 bounded
+auto-orchestration — 확인 우선, guardrail로 게이트).
+
+**핸드오프 트리거 확장 (v2.8):** 깨끗이 끝난 뒤에도 바통 터치를 제안할 수 있다:
+- `--handoff-now` — 수동 트리거: fallback 신호를 기다리지 않고 각 hop 후 다음
+  agent로 relay (플래그 자체가 명시적 동의).
+- 선택 설정 `handoffTriggers` (`budgetRatio` 0..1 / `changedFiles` /
+  `usageTokensProxy`) — 임계치 도달 시 `hand off to <agent> now? [y/N]` 확인
+  (`--yes`로 사전 승인). 설정이 없으면 기존 에러패턴 감지만. stdin이 TTY가
+  아니면 프롬프트는 자동 거절된다(무한 대기 없음).
+
+**advisory 라우팅 힌트 (v2.8):** 작업 문자열이 다른 agent의 registry `strengths`
+태그와 더 잘 맞으면 `run`이 한 줄 제안을 출력한다. 표시 전용 — 실제 체인은 절대
+바꾸지 않으며 명시적 `--chain`/`--primary`가 있으면 힌트도 억제된다.
+
+### `route <task> [--json]`
+v2.8 **advisory 라우팅 힌트**의 읽기 전용 미리보기: `run`과 동일하게 체인을
+결정한 뒤(플래그 > work-item 할당 > 프로젝트 > config), registry `strengths`
+태그가 이 작업에 대해 순서를 어떻게 제안하는지 agent별 매칭 키워드와 함께
+보여준다. agent를 실행하지 않고 세션 상태도 쓰지 않는다. 옵션: `--primary`,
+`--fallback`, `--chain`, `--project`, `--path`.
 
 ### `handoff --to <agent>`
 handoff 문서를 생성하고 선택적으로 다음 agent 실행. 옵션: `--to <agent>`(필수,

@@ -51,7 +51,9 @@ agent. Inspect progress with `relay-baton status`, `budget`, and `replay`.
 Grouped; see [COMMANDS.md](./COMMANDS.md) for every flag.
 
 - **Session**: `init`, `status`, `doctor [--deep]`, `verify`, `migrate`.
-- **Run & handoff**: `run`, `handoff [--to] [--no-run]`, `handoff show`,
+- **Run & handoff**: `run` (incl. `--handoff-now` manual trigger + optional
+  `handoffTriggers` threshold suggestions + advisory routing hints, v1.2.0),
+  `route`, `handoff [--to] [--no-run]`, `handoff show`,
   `handoff history`, `handoff bundle`, `handoff inspect`, `report`.
 - **Plan / execute**: `plan`, `execute`, `receipt`, `checkpoint`, `guard`,
   `risk`.

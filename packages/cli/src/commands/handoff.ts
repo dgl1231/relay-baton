@@ -8,6 +8,7 @@ import {
 import type { DietProfileName } from "@relay-baton/shared";
 import { ProjectOpts, resolveProjectContext } from "./projectOptions";
 import { auditApiKeyEnv } from "./auditApiKeyEnv";
+import { ui, color } from "../ui";
 
 export interface HandoffOpts extends ProjectOpts {
   to: string;
@@ -27,13 +28,15 @@ export async function handoffCommand(opts: HandoffOpts) {
 
   const git = new GitService(repoRoot);
   if (!git.isGitRepo()) {
-    console.error("[relay-baton] not a git repository. aborting handoff.");
+    ui.fail("not a git repository — a handoff needs repo state.");
+    ui.hint("run `git init` first, or point at a repo with --path <repoPath>.");
     process.exit(2);
   }
 
   const profileName = (opts.diet ?? sm.getMeta()?.tokenDietProfile ?? projectContext.project?.defaultDiet ?? config.tokenDiet.profile) as DietProfileName;
   if (!config.tokenDiet.profiles[profileName]) {
-    console.error(`unknown diet profile: ${profileName}`);
+    ui.fail(`unknown diet profile: ${profileName}`);
+    ui.hint("valid profiles: off, lite, balanced, caveman, ultra");
     process.exit(2);
   }
 
@@ -51,7 +54,7 @@ export async function handoffCommand(opts: HandoffOpts) {
       onStdout: l => process.stdout.write(l + "\n"),
       onStderr: l => process.stderr.write(l + "\n"),
     })) {
-      if (!r.ok) console.error(`[relay-baton] hook failed (${phase}): ${r.command} → ${r.exitCode ?? r.error}`);
+      if (!r.ok) ui.warn(`hook failed (${phase}): ${r.command} → ${r.exitCode ?? r.error}`);
     }
   };
   runHooks("preHandoff");
@@ -70,7 +73,7 @@ export async function handoffCommand(opts: HandoffOpts) {
     tokenDietProfile: profileName,
     handoffCount: prevCount + 1,
   });
-  console.log(`[relay-baton] handoff written: ${result.handoffPath} (${result.usedChars} chars, truncated=${result.truncated})`);
+  ui.ok(`handoff written: ${color.dim(result.handoffPath)} ${color.dim(`(${result.usedChars} chars, truncated=${result.truncated})`)}`);
   // v2.4 local usage insight (token proxy; never transmitted).
   new UsageLedger(repoRoot).record("handoff", isAgentId(opts.to) ? opts.to : "none", result.usedChars, `${prevMeta.lastAgent}→${opts.to}`);
 
@@ -80,28 +83,28 @@ export async function handoffCommand(opts: HandoffOpts) {
 
   let blocked = false;
   if (!gate.ok) {
-    console.error("[relay-baton] Handoff Quality Gate failed:");
-    for (const f of gate.failures) console.error("  - " + f);
+    ui.fail("Handoff Quality Gate failed:");
+    for (const f of gate.failures) ui.detail(f);
     blocked = true;
   }
   if (!dietGate.ok) {
-    console.error("[relay-baton] Token Diet Quality Gate failed:");
-    for (const f of dietGate.failures) console.error("  - " + f);
+    ui.fail("Token Diet Quality Gate failed:");
+    for (const f of dietGate.failures) ui.detail(f);
     blocked = true;
   }
-  for (const w of dietGate.warnings) console.error("[relay-baton] warn: " + w);
+  for (const w of dietGate.warnings) ui.warn(w);
 
   // Redaction gate: never let high-severity secrets reach the next agent.
   // Medium findings (home paths, oversized) are warnings only.
   const redaction = result.redaction;
   const highFindings = redaction.findings.filter(f => f.severity === "high");
   if (highFindings.length > 0) {
-    console.error("[relay-baton] Redaction Gate failed (handoff would leak secrets to the next agent):");
-    for (const f of highFindings) console.error(`  - ${f.category}: ${f.file}${f.line ? ":" + f.line : ""} (${f.hint})`);
+    ui.fail("Redaction Gate failed — the handoff would leak secrets to the next agent:");
+    for (const f of highFindings) ui.detail(`${f.category}: ${f.file}${f.line ? ":" + f.line : ""} (${f.hint})`);
     blocked = true;
   }
   for (const f of redaction.findings.filter(f => f.severity !== "high")) {
-    console.error(`[relay-baton] warn: redaction ${f.category} in ${f.file}${f.line ? ":" + f.line : ""} (${f.hint})`);
+    ui.warn(`redaction ${f.category} in ${f.file}${f.line ? ":" + f.line : ""} (${f.hint})`);
   }
 
   if (blocked && !opts.force) {

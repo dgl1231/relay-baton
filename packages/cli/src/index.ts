@@ -13,6 +13,7 @@ import { workspaceCommand } from "./commands/workspace";
 import { profileCommand } from "./commands/profile";
 import { inventoryCommand } from "./commands/inventory";
 import { runCommand } from "./commands/run";
+import { routeCommand } from "./commands/route";
 import { handoffCommand } from "./commands/handoff";
 import { handoffHistoryCommand } from "./commands/handoffHistory";
 import { handoffShowCommand } from "./commands/handoffShow";
@@ -92,6 +93,18 @@ program
   .option("--project <name-or-id>", "registered project name or id")
   .option("--path <repoPath>", "repository path")
   .action((task, opts) => runCommand(task, opts));
+
+program
+  .command("route")
+  .description("Preview the advisory routing hint for a task (read-only, no agent launch)")
+  .argument("<task>", "task description")
+  .option("--json", "print machine-readable JSON")
+  .option("--primary <agent>", "first agent in the chain (as run would resolve it)")
+  .option("--fallback <agent>", "second agent in the chain")
+  .option("--chain <a,b,c>", "explicit N-way chain")
+  .option("--project <name-or-id>", "registered project name or id")
+  .option("--path <repoPath>", "repository path")
+  .action((task, opts) => routeCommand(task, opts));
 
 const handoff = program
   .command("handoff")

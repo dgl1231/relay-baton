@@ -9,6 +9,7 @@ import {
   isAgentId,
 } from "@relay-baton/core";
 import type { AgentId } from "@relay-baton/shared";
+import { ui, color } from "../ui";
 
 function bin(cmd: string): boolean {
   const r = safeSpawnSync(cmd, ["--version"], { encoding: "utf8" });
@@ -24,9 +25,9 @@ async function spawnInteractive(command: string, args: string[], env: NodeJS.Pro
   return new Promise((resolve) => {
     const child = safeSpawn(command, args, { stdio: "inherit", env, shell: false });
     child.on("error", (e: any) => {
-      console.error(`\x1b[31m[relay-baton] failed to spawn ${command}: ${e?.message ?? e}\x1b[0m`);
+      ui.fail(`failed to spawn ${command}: ${e?.message ?? e}`);
       if (e?.code === "ENOENT") {
-        console.error(`\x1b[33mInstall the ${command} CLI and ensure it is on PATH.\x1b[0m`);
+        ui.hint(`install the ${command} CLI and ensure it is on PATH.`);
       }
       resolve(127);
     });
@@ -40,16 +41,16 @@ async function loginAgent(id: AgentId, command: string, env: NodeJS.ProcessEnv):
   header(`${desc.displayName} login  [${desc.tier}]`);
 
   if (!bin(command)) {
-    console.error(`\x1b[31m✗ ${command} command not found on PATH.\x1b[0m`);
-    console.error(`  Install ${desc.displayName} first: ${desc.installUrl}`);
+    ui.fail(`${command} command not found on PATH.`);
+    ui.hint(`install ${desc.displayName} first: ${desc.installUrl}`);
     return 1;
   }
 
-  for (const line of desc.login.instructions) console.log(`\x1b[2m${line}\x1b[0m`);
+  for (const line of desc.login.instructions) console.log(color.dim(line));
 
   // No login subcommand (e.g. Aider uses provider API keys via env) — instructions only.
   if (desc.login.kind === "env") {
-    console.log(`\x1b[32m✓ ${desc.displayName}: nothing to run here (see above).\x1b[0m`);
+    ui.ok(`${desc.displayName}: nothing to run here (see above).`);
     return 0;
   }
 
@@ -57,10 +58,11 @@ async function loginAgent(id: AgentId, command: string, env: NodeJS.ProcessEnv):
   const code = await spawnInteractive(command, args, env);
   // Interactive sessions exit non-zero on Ctrl+C (130) — treat as benign.
   if (code !== 0 && !(desc.login.kind === "interactive" && code === 130)) {
-    console.error(`\x1b[31m✗ ${command} login exited with ${code}\x1b[0m`);
+    ui.fail(`${command} login exited with ${code}`);
     return 1;
   }
-  console.log(`\x1b[32m✓ ${desc.displayName} login finished. \`relay-baton doctor\`로 상태를 확인하세요.\x1b[0m`);
+  ui.ok(`${desc.displayName} login finished.`);
+  ui.hint("check the result with `relay-baton doctor`.");
   return 0;
 }
 
@@ -76,7 +78,7 @@ export async function loginCommand(agent: string | undefined, opts: { allowApiKe
   const { env, removed } = createAgentEnv(process.env, config.authPolicy, opts.allowApiKeyEnv);
 
   if (removed.length > 0) {
-    console.log(`\x1b[2m[relay-baton] blocked env from child: ${removed.join(", ")}\x1b[0m`);
+    console.log(color.dim(`blocked env from child: ${removed.join(", ")}`));
   }
 
   // Default `all` logs in just the first-class pair (codex + claude); explicit

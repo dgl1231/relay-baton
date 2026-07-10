@@ -165,6 +165,37 @@ continue-steps on the completing agent — strictly bounded and **confirmation-f
 steps/changed-files/budget) and stops on divergence or budget ceiling. Never an
 unattended daemon; each step records a checkpoint + usage event.
 
+**Broadened handoff triggers (v2.8):** even after a clean exit, relay-baton can
+suggest passing the baton:
+- `--handoff-now` — manual trigger: relay to the next agent after each hop
+  without waiting for a fallback signal (the flag itself is the explicit consent).
+- Optional `handoffTriggers` config block — when a threshold is reached after a
+  clean exit, `run` asks `hand off to <agent> now? [y/N]` (pre-approve with
+  `--yes`). Absent config = unchanged, error-pattern-only detection. When stdin
+  is not a TTY the prompt auto-declines instead of hanging.
+
+```jsonc
+{
+  "handoffTriggers": {
+    "budgetRatio": 0.8,        // handoff chars / maxHandoffChars (0..1)
+    "changedFiles": 30,        // working-tree changed files
+    "usageTokensProxy": 100000 // session UsageLedger token proxy total
+  }
+}
+```
+
+**Advisory routing hint (v2.8):** when the task's words match a different
+agent's registry `strengths` tags, `run` prints a one-line chain suggestion.
+Display only — it never changes the resolved chain, and explicit
+`--chain`/`--primary` suppress it.
+
+### `route <task> [--json]`
+Read-only preview of the v2.8 **advisory routing hint**: resolves the relay
+chain exactly like `run` (flags > work-item assignment > project > config), then
+shows how the registry `strengths` tags would reorder it for this task, with the
+matched keywords per agent. Never launches an agent, never writes session state.
+Options: `--primary`, `--fallback`, `--chain`, `--project`, `--path`.
+
 ### Project recipes / hooks (v2.5)
 Optional, opt-in, **local-only** command hooks declared in config — no daemon,
 no network, env sanitized like an agent's (provider keys stripped by default).

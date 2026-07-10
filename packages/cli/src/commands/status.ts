@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import { ConfigLoader, GitBaseline, GitService, SessionManager } from "@relay-baton/core";
+import { ui } from "../ui";
 import { ProjectOpts, resolveRepoRoot } from "./projectOptions";
 
 export interface StatusOpts extends ProjectOpts {
@@ -16,7 +17,8 @@ export async function statusCommand(opts: StatusOpts = {}) {
       console.log(JSON.stringify({ session: false }, null, 2));
       return;
     }
-    console.log("[relay-baton] no session. Run `relay-baton init`.");
+    ui.warn("no session yet in this repo.");
+    ui.hint("run `relay-baton init` to create .ai-session/.");
     return;
   }
   const handoff = sm.files.p("handoff");

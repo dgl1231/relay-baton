@@ -113,6 +113,18 @@ templates added; README npm quickstart (`npm i -g @relay-baton/cli`) + badge.
 **Remaining in Phase 0:** publish `@relay-baton/cli`, demo GIF (deferred). Then Phase 1 (signing, package managers) + Phase 2 (announce). No
 commit/push yet (awaiting user request).
 
+**2026-07-10 — post-v1.2.0 polish (local, not released).** (1) v2.8 features now
+documented in `docs/COMMANDS.md` + `COMMANDS.ko.md` + GUIDE EN/KO + README config
+section (`--handoff-now`, `handoffTriggers` block, routing hints). (2) Friendly
+`ui.ts` output extended beyond `run` to `doctor`/`init`/`status`/`login`/
+`handoff` (doctor/login now respect NO_COLOR/non-TTY). (3) New read-only
+**`relay-baton route "<task>" [--json]`** command exposing `suggestChain`
+(+`route.test.ts`, 3 tests → 92 cli). (4) `doctor` surfaces whether
+`handoffTriggers` is configured. (5) Record-ready demo:
+`scripts/demo/demo.sh` + `fake-agent.mjs` (deterministic fallback→handoff→resume,
+no quota; verified end-to-end on this machine — needs `cygpath -m` on Git Bash,
+already handled). Ship these as v1.2.1 or fold into the next minor.
+
 **Decisions (this session):**
 - Multi-session/multi-task is now its own **v2.6** line (pulled in before GA):
   unifies per-agent session assignment + multi-tasking as named "work items";

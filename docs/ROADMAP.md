@@ -521,8 +521,11 @@ friction; Phase 2 announces.
 - [~] **Onboarding polish** — README prerequisites (codex + claude CLIs) +
   Logging-in section already present; added an npm-based 30-second quickstart and
   bumped the release badge. Added [`CONTRIBUTING.md`](../CONTRIBUTING.md) +
-  GitHub issue templates (bug/feature + config with security link). **Remaining:**
-  demo (asciinema/GIF) — cannot be produced deterministically, deferred.
+  GitHub issue templates (bug/feature + config with security link). A
+  **record-ready demo scenario** now exists (`scripts/demo/demo.sh` + fake
+  agents — deterministic fallback→handoff→resume, no quota spent); run it under
+  `asciinema rec` to produce the GIF. **Remaining:** the actual recording (human
+  step).
 
 **Phase 1 — remove install friction (cost / accounts):**
 

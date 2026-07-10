@@ -492,11 +492,22 @@ Principles:
     "enabled": true,
     "profile": "balanced",
     "outputCompression": true
+  },
+  "handoffTriggers": {
+    "budgetRatio": 0.8,
+    "changedFiles": 30,
+    "usageTokensProxy": 100000
   }
 }
 ```
 
-If no config file exists, defaults are used.
+If no config file exists, defaults are used. `handoffTriggers` (v1.2.0) is
+optional — when any threshold is reached after a clean agent exit, `run`
+*suggests* handing off to the next agent (y/N confirm, or `--yes`); leave it out
+to keep detection error-pattern-only. Other optional blocks: `guardrails`
+(stop-condition caps for `guard`/`--until`) and `hooks`
+(`preHandoff`/`postExecute` local commands) — see
+[`docs/COMMANDS.md`](./docs/COMMANDS.md).
 
 ## TUI
 

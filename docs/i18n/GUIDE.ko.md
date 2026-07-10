@@ -47,7 +47,9 @@ primary agent가 quota/context 한도에 닿으면 relay-baton이 감지해 repo
 분류별 요약. 모든 옵션은 [COMMANDS.ko.md](./COMMANDS.ko.md) 참고.
 
 - **세션**: `init`, `status`, `doctor [--deep]`, `verify`, `migrate`.
-- **실행 & handoff**: `run`, `handoff [--to] [--no-run]`, `handoff show`,
+- **실행 & handoff**: `run` (v1.2.0: `--handoff-now` 수동 트리거 + 선택
+  `handoffTriggers` 임계치 제안 + advisory 라우팅 힌트 포함), `route`,
+  `handoff [--to] [--no-run]`, `handoff show`,
   `handoff history`, `handoff bundle`, `handoff inspect`, `report`.
 - **plan / execute**: `plan`, `execute`, `receipt`, `checkpoint`, `guard`,
   `risk`.
