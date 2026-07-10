@@ -7,6 +7,16 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Per-release detail (EN + KO) lives in [`release-notes/`](./release-notes/). This
 file is the condensed, user-facing history.
 
+## [1.3.1] — 2026-07-10
+
+### Fixed
+- **Desktop app failed to open at all on unsigned builds** (every MSI/DMG/
+  AppImage since the updater was introduced). The Rust shell registered the
+  Tauri updater plugin unconditionally while the release workflow only injects
+  `plugins.updater` config when signing secrets exist, so unsigned builds
+  panicked at startup (exit 101) before showing a window. The plugin is now
+  registered only when its config block is present. No CLI changes.
+
 ## [1.3.0] — 2026-07-10
 
 Post-GA polish release.
@@ -123,6 +133,7 @@ Condensed; see `release-notes/` for the full notes of each tag.
   diet, fallback detection, project registry, TUI, plan/execute, trust/verify,
   review/diagnose, adapter expansion + Agent Room.
 
+[1.3.1]: https://github.com/dgl1231/relay-baton/releases/tag/v1.3.1
 [1.3.0]: https://github.com/dgl1231/relay-baton/releases/tag/v1.3.0
 [1.2.0]: https://github.com/dgl1231/relay-baton/releases/tag/v1.2.0
 [1.0.0]: https://github.com/dgl1231/relay-baton/releases/tag/v1.0.0

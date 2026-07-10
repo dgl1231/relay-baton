@@ -19,6 +19,8 @@ into all ten README locales; older alpha notes are English + Korean only.
 
 ## Versions
 
+- [v1.3.1](./v1.3.1.md) — Desktop hotfix: unsigned desktop builds (MSI/DMG/AppImage) panicked at startup because the updater plugin was registered without its config; now registered only when configured. No CLI changes.
+  - [한국어](./ko/v1.3.1.md) · [日本語](./ja/v1.3.1.md) · [简体中文](./zh-CN/v1.3.1.md) · [繁體中文](./zh-TW/v1.3.1.md) · [Español](./es/v1.3.1.md) · [Français](./fr/v1.3.1.md) · [Deutsch](./de/v1.3.1.md) · [Português](./pt-BR/v1.3.1.md) · [Русский](./ru/v1.3.1.md)
 - [v1.3.0](./v1.3.0.md) — Route preview & polish: new read-only `route` command (advisory chain preview + matched strengths), friendly `ui` output extended to `doctor`/`init`/`status`/`login`/`handoff` (NO_COLOR/non-TTY respected), `doctor` surfaces `handoffTriggers` state, v1.2.0 features fully documented, record-ready demo scenario (`scripts/demo/`).
   - [한국어](./ko/v1.3.0.md) · [日本語](./ja/v1.3.0.md) · [简体中文](./zh-CN/v1.3.0.md) · [繁體中文](./zh-TW/v1.3.0.md) · [Español](./es/v1.3.0.md) · [Français](./fr/v1.3.0.md) · [Deutsch](./de/v1.3.0.md) · [Português](./pt-BR/v1.3.0.md) · [Русский](./ru/v1.3.0.md)
 - [v1.2.0](./v1.2.0.md) — Smarter relay & friendly UI (first post-GA feature release; v1.1.x tag names were used by the pre-GA line): opt-in `handoffTriggers` thresholds + `run --handoff-now` manual trigger (confirmation-first), advisory routing hints from registry `strengths` tags, friendly CLI output (✓/✗/hints, non-TTY confirm fix), warm desktop restyle.
