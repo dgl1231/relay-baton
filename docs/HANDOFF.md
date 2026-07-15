@@ -9,9 +9,9 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-07-15 — **RELEASED as v1.4.0** (friendly agent stream +
-desktop result cards; tag pushed, verify the release run + all four
-channels). `--pretty` extended to `plan`/`execute`/`handoff` via shared
+_Last updated: 2026-07-15 — **RELEASED as v1.4.0, VERIFIED** (friendly agent
+stream + desktop result cards; release run 29395001589 all-green — 9 assets
+published, npm shows 1.4.0, brew/scoop pushed, winget PR submitted). `--pretty` extended to `plan`/`execute`/`handoff` via shared
 `agentStreamIO` helper (cli/src/agentStream.ts); COMMANDS EN+KO document it;
 real-CLI schema verification done on this machine (codex-cli 0.134.0 `--json`
 + claude 2.1.152 stream-json captures replayed through parseEvent — 0 raw
