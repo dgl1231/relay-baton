@@ -9,6 +9,7 @@ import type { DietProfileName } from "@relay-baton/shared";
 import { ProjectOpts, resolveProjectContext } from "./projectOptions";
 import { auditApiKeyEnv } from "./auditApiKeyEnv";
 import { ui, color } from "../ui";
+import { agentStreamIO } from "../agentStream";
 
 export interface HandoffOpts extends ProjectOpts {
   to: string;
@@ -17,6 +18,8 @@ export interface HandoffOpts extends ProjectOpts {
   run?: boolean;
   noRun?: boolean;
   allowApiKeyEnv?: boolean;
+  /** Friendly rendering of the agent's structured output stream (codex/claude). */
+  pretty?: boolean;
 }
 
 export async function handoffCommand(opts: HandoffOpts) {
@@ -119,15 +122,15 @@ export async function handoffCommand(opts: HandoffOpts) {
 
   const adapter = new ClaudeCodeAdapter(config.agents.claude);
   const prompt = PromptBuilder.claudeContinuation();
-  const cmd = adapter.buildCommand({ task: prevMeta.task, repoRoot, sessionDir: sm.files.dir, prompt });
+  const { structured, io } = agentStreamIO(adapter, opts.pretty);
+  const cmd = adapter.buildCommand({ task: prevMeta.task, repoRoot, sessionDir: sm.files.dir, prompt, structuredStream: structured });
   sm.updateMeta({ activeAgent: "claude", status: "running_fallback" });
   const r = await runAgent({
     command: cmd,
     logFile: sm.files.p("commandsLog"),
     authPolicy: config.authPolicy,
     allowApiKeyEnv: opts.allowApiKeyEnv,
-    onStdout: l => process.stdout.write(l + "\n"),
-    onStderr: l => process.stderr.write(l + "\n"),
+    ...io,
   });
   auditApiKeyEnv(repoRoot, r.passedThroughEnvVars, sm.getMeta()?.id);
   if (r.error) {

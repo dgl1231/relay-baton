@@ -48,7 +48,7 @@ const program = new Command();
 program
   .name("relay-baton")
   .description("Token-aware handoff harness for Codex CLI and Claude Code")
-  .version("1.3.1");
+  .version("1.4.0");
 
 function addProjectOptions(cmd: Command): Command {
   return cmd
@@ -90,6 +90,7 @@ program
   .option("--until <n>", "bounded auto-orchestration: up to N extra continue-steps (guardrail-gated, confirm each)")
   .option("--yes", "pre-approve bounded --until steps and threshold handoffs (still capped + gated)")
   .option("--handoff-now", "relay to the next agent after each hop even without a fallback signal (manual trigger)")
+  .option("--pretty", "friendly rendering of the agent's structured output stream (codex/claude; others fall back to raw)")
   .option("--project <name-or-id>", "registered project name or id")
   .option("--path <repoPath>", "repository path")
   .action((task, opts) => runCommand(task, opts));
@@ -114,6 +115,7 @@ const handoff = program
   .option("--force", "ignore quality gate failures")
   .option("--no-run", "do not launch the next agent")
   .option("--allow-api-key-env", "allow passing API key env vars to child processes")
+  .option("--pretty", "friendly rendering of the agent's structured output stream (codex/claude; others fall back to raw)")
   .option("--project <name-or-id>", "registered project name or id")
   .option("--path <repoPath>", "repository path")
   .action((opts) => {
@@ -188,6 +190,7 @@ program
   .option("--then-execute", "run the execute phase immediately after a passing plan")
   .option("--force", "ignore plan quality gate failures")
   .option("--allow-api-key-env", "allow passing API key env vars to child processes")
+  .option("--pretty", "friendly rendering of the agent's structured output stream (codex/claude; others fall back to raw)")
   .option("--project <name-or-id>", "registered project name or id")
   .option("--path <repoPath>", "repository path")
   .action((task, opts) => planCommand(task, opts));
@@ -200,6 +203,7 @@ program
   .option("--from <path>", "read the plan from a custom path")
   .option("--force", "ignore quality gate failures")
   .option("--allow-api-key-env", "allow passing API key env vars to child processes")
+  .option("--pretty", "friendly rendering of the agent's structured output stream (codex/claude; others fall back to raw)")
   .option("--project <name-or-id>", "registered project name or id")
   .option("--path <repoPath>", "repository path")
   .action(executeCommand);

@@ -7,6 +7,7 @@ import {
 import type { AgentId, DietProfileName } from "@relay-baton/shared";
 import { ProjectOpts, resolveProjectContext } from "./projectOptions";
 import { adapterFor } from "./agentFor";
+import { agentStreamIO } from "../agentStream";
 
 export interface ExecuteOpts extends ProjectOpts {
   diet?: string;
@@ -14,6 +15,8 @@ export interface ExecuteOpts extends ProjectOpts {
   from?: string;
   force?: boolean;
   allowApiKeyEnv?: boolean;
+  /** Friendly rendering of the agent's structured output stream (codex/claude). */
+  pretty?: boolean;
 }
 
 export async function executeCommand(opts: ExecuteOpts) {
@@ -75,7 +78,8 @@ export async function executeCommand(opts: ExecuteOpts) {
 
   const adapter = adapterFor(executor, config);
   const prompt = PromptBuilder.executor();
-  const cmd = adapter.buildCommand({ task: prompt, prompt, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName });
+  const { structured, io } = agentStreamIO(adapter, opts.pretty);
+  const cmd = adapter.buildCommand({ task: prompt, prompt, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName, structuredStream: structured });
   const detector = new FallbackDetector(config.fallbackPatterns);
 
   console.log(`[relay-baton] executing plan with ${cmd.command} (${executor}) ...`);
@@ -85,8 +89,7 @@ export async function executeCommand(opts: ExecuteOpts) {
     authPolicy: config.authPolicy,
     allowApiKeyEnv: opts.allowApiKeyEnv,
     fallbackDetector: detector,
-    onStdout: l => process.stdout.write(l + "\n"),
-    onStderr: l => process.stderr.write(l + "\n"),
+    ...io,
     onFallback: hit => console.error(`[relay-baton] fallback pattern detected: ${hit.pattern}`),
   });
 
@@ -141,18 +144,19 @@ export async function executeCommand(opts: ExecuteOpts) {
   const fb = config.fallbackAgent;
   sm.updateMeta({ status: "running_fallback", activeAgent: fb });
   const fbAdapter = adapterFor(fb, config);
+  const fbStream = agentStreamIO(fbAdapter, opts.pretty);
   const fbCmd = fbAdapter.buildCommand({
     task: PromptBuilder.claudeContinuation(),
     prompt: PromptBuilder.claudeContinuation(),
     repoRoot, sessionDir: sm.files.dir,
+    structuredStream: fbStream.structured,
   });
   const r2 = await runAgent({
     command: fbCmd,
     logFile: sm.files.p("commandsLog"),
     authPolicy: config.authPolicy,
     allowApiKeyEnv: opts.allowApiKeyEnv,
-    onStdout: l => process.stdout.write(l + "\n"),
-    onStderr: l => process.stderr.write(l + "\n"),
+    ...fbStream.io,
   });
   if (r2.error) {
     console.error(r2.error);

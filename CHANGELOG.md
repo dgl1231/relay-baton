@@ -7,6 +7,29 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Per-release detail (EN + KO) lives in [`release-notes/`](./release-notes/). This
 file is the condensed, user-facing history.
 
+## [1.4.0] — 2026-07-15
+
+### Added
+- **`--pretty` on `run`/`plan`/`execute`/`handoff`** — friendly rendering of
+  the agent CLI's structured output stream. Requests JSONL events
+  (`claude -p --output-format stream-json --verbose`, `codex exec --json`)
+  and renders assistant text, dim `· thinking:` / `→ tool` lines, and a
+  closing `✓ agent turn done — in/out tok · $ · s` receipt. Deterministic
+  line-by-line parsing only (adapter `parseEvent`); unparsed lines and
+  unsupported agents fall back to raw; the raw stream still lands in
+  `.ai-session/commands.log`; fallback detection keeps matching raw lines.
+- **Desktop: structured result cards in the Agent Room** — `/status`,
+  `/budget`, `/git`, `/review`, `/guard`, `/risk`, `/checkpoints`,
+  `/sessions`, `/resume` and the generic commands render as cards (status
+  chips, budget gauge, per-file git rows, plan-step checklists) instead of
+  raw `JSON.stringify` dumps, each with a collapsed **raw json** section.
+- `AgentEvent` gains additive event types (`system`, `assistant_text`,
+  `reasoning`, `tool_use`, `usage`) and `AgentUsage`.
+
+### Fixed
+- Desktop: `/review` results were wiped from the timeline immediately after
+  rendering (timeline reload raced the card append).
+
 ## [1.3.1] — 2026-07-10
 
 ### Fixed

@@ -251,9 +251,9 @@ pnpm relay-baton login claude
 
 ## 發布說明
 
-**最新: v1.3.1** — [English](../../release-notes/v1.3.1.md) · [한국어](../../release-notes/ko/v1.3.1.md) · [繁體中文](../../release-notes/zh-TW/v1.3.1.md)
+**最新: v1.4.0** — [English](../../release-notes/v1.4.0.md) · [한국어](../../release-notes/ko/v1.4.0.md) · [繁體中文](../../release-notes/zh-TW/v1.4.0.md)
 
-relay-baton 已 **正式發佈(GA)v1.0.0**,目前最新為 **v1.3.1**。
+relay-baton 已 **正式發佈(GA)v1.0.0**,目前最新為 **v1.4.0**。
 
 - 完整版本歷史: [`CHANGELOG.md`](../../CHANGELOG.md)
 - 各版本詳細修補說明: [release-notes index](../../release-notes/README.md)

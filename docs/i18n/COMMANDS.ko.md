@@ -99,8 +99,26 @@ Codex / Claude Code 대화형 login 실행. `agent`는 `codex` | `claude` | `all
 fallback 신호가 오면 handoff를 만들어 다음 agent로 넘긴다. 체인 결정(v2.3):
 `--chain a,b,c` > `--primary`/`--fallback` > 프로젝트 override > config. 역방향
 (claude→codex)과 N-way 체인 지원. 옵션: `--diet`, `--force`,
-`--allow-api-key-env`, `--project`, `--path`, `--until <n>`(+`--yes`, v2.5 bounded
-auto-orchestration — 확인 우선, guardrail로 게이트).
+`--allow-api-key-env`, `--pretty`, `--project`, `--path`, `--until <n>`(+`--yes`,
+v2.5 bounded auto-orchestration — 확인 우선, guardrail로 게이트).
+
+**친화적 agent 스트림 (`--pretty`):** agent CLI의 기계용 이벤트 스트림
+(`claude -p --output-format stream-json --verbose`, `codex exec --json`)을
+요청해서 raw 출력 대신 읽기 좋은 줄로 렌더링한다:
+
+```
+● model claude-sonnet-5 · session abc123
+  · thinking: need to look at the failing test first
+→ Bash: pnpm test --filter core
+Fixed the flaky test — two files changed.
+✓ agent turn done — in 10,231 tok · out 1,892 tok · $0.0231 · 48.2s
+```
+
+결정적 JSONL 줄 단위 파싱만 사용한다 — 모델 호출/요약 없음. 파싱 안 되는 줄과
+구조화 모드가 없는 agent는 raw 그대로 통과하고, 전체 raw 스트림은 여전히
+`.ai-session/commands.log`에 남으며, fallback 감지도 raw 줄 기준으로 계속
+동작한다. 구버전 agent CLI가 플래그를 지원하지 않을 수 있어 옵트인이다.
+`plan` / `execute` / `handoff`에서도 사용 가능.
 
 **핸드오프 트리거 확장 (v2.8):** 깨끗이 끝난 뒤에도 바통 터치를 제안할 수 있다:
 - `--handoff-now` — 수동 트리거: fallback 신호를 기다리지 않고 각 hop 후 다음
@@ -123,7 +141,8 @@ v2.8 **advisory 라우팅 힌트**의 읽기 전용 미리보기: `run`과 동�
 
 ### `handoff --to <agent>`
 handoff 문서를 생성하고 선택적으로 다음 agent 실행. 옵션: `--to <agent>`(필수,
-예: `claude`), `--diet`, `--force`, `--no-run`(실행 안 함), `--allow-api-key-env`.
+예: `claude`), `--diet`, `--force`, `--no-run`(실행 안 함), `--allow-api-key-env`,
+`--pretty`.
 
 `run`과 `handoff`는 **Redaction Gate**를 적용한다: 생성된 handoff(다음 agent가 읽는
 내용)를 secret/API key/private key에 대해 스캔하고, high-severity finding이 있으면
@@ -165,11 +184,13 @@ findings. 아무것도 적용하지 않는다.
 ### `plan <task>`
 plan-execute 모드: planner agent가 `.ai-session/plan.md`를 작성. 옵션:
 `--with`/`--planner <agent>`, `--executor <agent>`, `--no-run`(빈 템플릿 생성),
-`--then-execute`(통과 시 execute 실행), `--diet`, `--force`, `--allow-api-key-env`.
+`--then-execute`(통과 시 execute 실행), `--diet`, `--force`, `--allow-api-key-env`,
+`--pretty`.
 
 ### `execute`
 plan-execute 모드: executor agent가 `.ai-session/plan.md`를 구현. 옵션:
-`--with <agent>`, `--from <path>`, `--diet`, `--force`, `--allow-api-key-env`.
+`--with <agent>`, `--from <path>`, `--diet`, `--force`, `--allow-api-key-env`,
+`--pretty`.
 
 ### `receipt done <step> [--note]` / `receipt skip <step> [--note]` / `receipt list [--json]`
 plan step에 대한 append-only 실행 receipt(`<step>`는 1-based 인덱스).

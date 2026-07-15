@@ -13,6 +13,7 @@ import { ProjectOpts, resolveProjectContext } from "./projectOptions";
 import { adapterFor } from "./agentFor";
 import { auditApiKeyEnv } from "./auditApiKeyEnv";
 import { ui, color } from "../ui";
+import { agentStreamIO } from "../agentStream";
 
 export interface RunOpts extends ProjectOpts {
   diet?: string;
@@ -30,6 +31,13 @@ export interface RunOpts extends ProjectOpts {
   yes?: boolean;
   /** v2.8 manual trigger: relay to the next agent after this hop even without a fallback signal. */
   handoffNow?: boolean;
+  /**
+   * Friendly rendering of the agent's structured output stream. Opt-in: asks
+   * the agent CLI for JSONL events (claude stream-json / codex exec --json)
+   * and renders them via the adapter's parseEvent; adapters without one, and
+   * lines that don't parse, fall back to raw pass-through.
+   */
+  pretty?: boolean;
 }
 
 /**
@@ -176,9 +184,10 @@ export async function runCommand(task: string, opts: RunOpts) {
     // the continuation in both task+prompt so task- and prompt-oriented adapters
     // alike launch with the handoff framing.
     const continuation = PromptBuilder.continuation();
+    const { structured, io } = agentStreamIO(adapter, opts.pretty);
     const cmd = isFirst
-      ? adapter.buildCommand({ task, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName })
-      : adapter.buildCommand({ task: continuation, prompt: continuation, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName });
+      ? adapter.buildCommand({ task, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName, structuredStream: structured })
+      : adapter.buildCommand({ task: continuation, prompt: continuation, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName, structuredStream: structured });
 
     // Only watch for fallback signals when there is a next agent to relay to.
     const detector = nextAgent
@@ -197,8 +206,7 @@ export async function runCommand(task: string, opts: RunOpts) {
       authPolicy: config.authPolicy,
       allowApiKeyEnv: opts.allowApiKeyEnv,
       fallbackDetector: detector,
-      onStdout: l => process.stdout.write(l + "\n"),
-      onStderr: l => process.stderr.write(l + "\n"),
+      ...io,
       onFallback: hit => ui.warn(`${agent} hit a limit — fallback pattern detected: "${hit.pattern}"`),
     });
     auditApiKeyEnv(repoRoot, r.passedThroughEnvVars, sm.getMeta()?.id);
@@ -350,15 +358,15 @@ async function runUntilLoop(agent: AgentId, ctx: UntilCtx) {
 
     sm.updateMeta({ status: "running", activeAgent: agent });
     const continuation = PromptBuilder.continuation();
-    const cmd = adapter.buildCommand({ task: continuation, prompt: continuation, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName });
+    const { structured, io } = agentStreamIO(adapter, opts.pretty);
+    const cmd = adapter.buildCommand({ task: continuation, prompt: continuation, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName, structuredStream: structured });
     ui.step(`[until ${d.step}/${maxSteps}] ${cmd.command} ${cmd.args.join(" ")}`);
     const r = await runAgent({
       command: cmd,
       logFile: sm.files.p("commandsLog"),
       authPolicy: config.authPolicy,
       allowApiKeyEnv: opts.allowApiKeyEnv,
-      onStdout: (l: string) => process.stdout.write(l + "\n"),
-      onStderr: (l: string) => process.stderr.write(l + "\n"),
+      ...io,
     });
     auditApiKeyEnv(repoRoot, r.passedThroughEnvVars, sm.getMeta()?.id);
     if (r.error || r.exitCode !== 0) {

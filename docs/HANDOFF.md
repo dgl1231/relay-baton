@@ -9,7 +9,48 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-06-23 — **v1.0.0 GA SHIPPED.** Public release done: npm
+_Last updated: 2026-07-15 — **RELEASED as v1.4.0** (friendly agent stream +
+desktop result cards; tag pushed, verify the release run + all four
+channels). `--pretty` extended to `plan`/`execute`/`handoff` via shared
+`agentStreamIO` helper (cli/src/agentStream.ts); COMMANDS EN+KO document it;
+real-CLI schema verification done on this machine (codex-cli 0.134.0 `--json`
++ claude 2.1.152 stream-json captures replayed through parseEvent — 0 raw
+pass-through; codex nests upstream API errors as a JSON string in `message`,
+now unwrapped by `unwrapCodexError`). Notes in all 10 locales; CHANGELOG,
+release-notes index, README badge/Latest/table + 9 i18n Latest lines synced.
+Detail of what shipped below._
+
+_2026-07-14 — **Desktop timeline result cards.** Agent Room slash-command results (`/status` `/budget` `/git`
+`/review` `/guard` `/risk` `/checkpoints` `/sessions` `/resume` `/inspect`
+`/workspace` `/profile` `/inventory` `/bundle`) now render as structured cards
+— chips, gauge bar, marked row lists, plus a collapsed "raw json" `<details>`
+so nothing is lost — instead of `JSON.stringify` dumps. All display-only DOM
+builders in `desktop/ui/index.html` (`statusCard`/`budgetCard`/`gitCard`/
+`reviewCard`/`guardCard`/`riskCard`/`checkpointsCard`/`sessionsCard`/
+`resumeCard`/generic `dataCard`); `appendLocalEvent` now accepts a Node.
+`/review` reloads the timeline BEFORE appending its card (the reload used to
+wipe it). `window.__rbCards` preview hook lets a plain browser (no Tauri)
+render sample cards — verified via `.claude/launch.json` `desktop-ui` static
+server with mock payloads (light/dark both OK; new `--ok` CSS var in both
+themes). **Also same day: structured agent stream shipped (local).**
+`AgentEvent` extended (`system`/`assistant_text`/`reasoning`/`tool_use`/
+`usage` + `AgentUsage`); `AgentRunInput.structuredStream` opt-in makes
+`ClaudeCodeAdapter` append `--output-format stream-json --verbose` and
+`CodexAdapter` append `--json`; both implement `parseEvent(line):
+AgentEvent[] | null` (null = raw pass-through, `[]` = suppressed dedup/noise
+— deterministic JSONL parsing only, no summarization). `runAgent` gains
+`parseEvent`/`onEvent`: parsed stdout lines go to onEvent instead of
+onStdout; raw log + FallbackDetector unchanged (patterns still match inside
+JSON text). CLI: new display-only `packages/cli/src/agentStream.ts`
+`renderAgentEvent` (ui.ts style: dim `· thinking:` first line, `→ tool:
+detail`, `✓ agent turn done — in/out tok · $ · s`) wired via **`run
+--pretty`** (both hop loop + --until loop; unsupported adapters warn + stay
+raw). Tests: `AgentStreamParsing.test.ts` (14) — build green, 327 core + 92
+cli pass; visual smoke via scratchpad demo. Next: eyeball desktop cards in a
+real Tauri build; consider `--pretty` for plan/execute/handoff + docs
+(COMMANDS.md) before releasing. Prior history below._
+
+_2026-06-23 — **v1.0.0 GA SHIPPED.** Public release done: npm
 `@relay-baton/cli` + `core`/`shared`/`tui` all live @ 1.0.0 (under the
 `@relay-baton` npm org; CLI is scoped because unscoped `relay-baton` is taken and
 `relaybaton` was rejected as too-similar — bin stays `relay-baton`). GitHub

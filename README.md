@@ -10,7 +10,7 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 [![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-[![Latest](https://img.shields.io/badge/release-v1.3.1-blue.svg)](./CHANGELOG.md)
+[![Latest](https://img.shields.io/badge/release-v1.4.0-blue.svg)](./CHANGELOG.md)
 [![Download](https://img.shields.io/badge/download-binaries-238636.svg)](https://github.com/dgl1231/relay-baton/releases/latest)
 
 **English**
@@ -680,7 +680,7 @@ any real run). Design only for now — **not implemented yet**. Full design:
 
 Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-notes/README.md)). They are user-facing changelogs, not agent handoff material — that role belongs to `.ai-session/handoff.md`.
 
-**Latest:** v1.3.1 — [English](./release-notes/v1.3.1.md) · [한국어](./release-notes/ko/v1.3.1.md) · full history in [`CHANGELOG.md`](./CHANGELOG.md)
+**Latest:** v1.4.0 — [English](./release-notes/v1.4.0.md) · [한국어](./release-notes/ko/v1.4.0.md) · full history in [`CHANGELOG.md`](./CHANGELOG.md)
 
 > relay-baton reached **general availability at v1.0.0** (MIT, published to npm /
 > Homebrew / Scoop / Winget). Pre-1.0 tags below used a perpetual `-alpha.N`
@@ -688,6 +688,7 @@ Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-n
 
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
+| v1.4.0 | [Read →](./release-notes/v1.4.0.md) | [읽기 →](./release-notes/ko/v1.4.0.md) | Friendly agent stream (`--pretty` on run/plan/execute/handoff: structured JSONL → readable lines + token/cost receipt) & desktop Agent Room result cards. |
 | v1.3.1 | [Read →](./release-notes/v1.3.1.md) | [읽기 →](./release-notes/ko/v1.3.1.md) | Desktop hotfix: unsigned installers panicked at startup (updater plugin without config); windows now open. |
 | v1.3.0 | [Read →](./release-notes/v1.3.0.md) | [읽기 →](./release-notes/ko/v1.3.0.md) | Route preview & polish: read-only `route` command, friendly output across doctor/init/status/login/handoff, trigger visibility in doctor, record-ready demo. |
 | v1.2.0 | [Read →](./release-notes/v1.2.0.md) | [읽기 →](./release-notes/ko/v1.2.0.md) | Smarter relay (opt-in `handoffTriggers` + `run --handoff-now`, advisory routing hints) & friendly CLI/desktop UI. |

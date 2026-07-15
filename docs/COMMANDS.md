@@ -157,7 +157,27 @@ The chain (deterministic "who's next" policy, v2.3):
 
 Supports reverse relay (e.g. `--primary claude --fallback codex`) and longer
 chains, not just codex→claude. Other options: `--diet`, `--force`,
-`--allow-api-key-env`, `--project`, `--path`.
+`--allow-api-key-env`, `--pretty`, `--project`, `--path`.
+
+**Friendly agent stream (`--pretty`):** asks the agent CLI for its
+machine-readable event stream (`claude -p --output-format stream-json
+--verbose`, `codex exec --json`) and renders it as readable lines instead of
+raw output:
+
+```
+● model claude-sonnet-5 · session abc123
+  · thinking: need to look at the failing test first
+→ Bash: pnpm test --filter core
+Fixed the flaky test — two files changed.
+✓ agent turn done — in 10,231 tok · out 1,892 tok · $0.0231 · 48.2s
+```
+
+Deterministic line-by-line JSONL parsing only — no model calls, no
+summarization. Lines that don't parse (and agents without a structured mode)
+fall back to raw pass-through, the full raw stream still lands in
+`.ai-session/commands.log`, and fallback detection keeps matching on the raw
+lines. Opt-in because older agent CLI versions may not support the flags.
+Also available on `plan`, `execute`, and `handoff`.
 
 **Bounded auto-orchestration (v2.5):** `--until <n>` runs up to N extra
 continue-steps on the completing agent — strictly bounded and **confirmation-first**
@@ -213,7 +233,7 @@ Absent config = nothing runs; the chain stops on the first failing command.
 ### `handoff --to <agent>`
 Generate a handoff document and optionally launch the next agent. Options:
 `--to <agent>` (required, e.g. `claude`), `--diet`, `--force`, `--no-run` (do not
-launch), `--allow-api-key-env`.
+launch), `--allow-api-key-env`, `--pretty`.
 
 Both `run` and `handoff` apply a **Redaction Gate**: the generated handoff (what
 the next agent reads) is scanned for secrets/API keys/private keys; high-severity
@@ -259,11 +279,12 @@ no model calls.
 Plan-execute mode: a planner agent writes `.ai-session/plan.md`. Options:
 `--with`/`--planner <agent>`, `--executor <agent>`, `--no-run` (scaffold an empty
 template), `--then-execute` (run execute after a passing plan), `--diet`,
-`--force`, `--allow-api-key-env`.
+`--force`, `--allow-api-key-env`, `--pretty`.
 
 ### `execute`
 Plan-execute mode: an executor agent implements `.ai-session/plan.md`. Options:
-`--with <agent>`, `--from <path>`, `--diet`, `--force`, `--allow-api-key-env`.
+`--with <agent>`, `--from <path>`, `--diet`, `--force`, `--allow-api-key-env`,
+`--pretty`.
 
 ### `receipt done <step> [--note]` / `receipt skip <step> [--note]` / `receipt list [--json]`
 Append-only execution receipts for plan steps (`<step>` is the 1-based index).

@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import type { AuthPolicy, AgentCommand } from "@relay-baton/shared";
+import type { AuthPolicy, AgentCommand, AgentEvent } from "@relay-baton/shared";
 import { FallbackDetector, FallbackHit } from "./FallbackDetector";
 import { safeSpawn } from "./safeSpawn";
 
@@ -12,6 +12,15 @@ export interface AgentRunOptions {
   onStdout?: (line: string) => void;
   onStderr?: (line: string) => void;
   onFallback?: (hit: FallbackHit) => void;
+  /**
+   * Adapter's structured-line parser (AgentAdapter.parseEvent). When a stdout
+   * line parses (non-null), the resulting events go to onEvent and the raw
+   * line is NOT passed to onStdout (it is still written to the log file and
+   * still fed to the fallback detector). Lines that return null fall back to
+   * onStdout unchanged.
+   */
+  parseEvent?: (line: string) => AgentEvent[] | null;
+  onEvent?: (event: AgentEvent) => void;
 }
 
 export interface AgentRunResult {
@@ -46,7 +55,7 @@ export function createAgentEnv(
 }
 
 export async function runAgent(opts: AgentRunOptions): Promise<AgentRunResult> {
-  const { command, logFile, authPolicy, allowApiKeyEnv, fallbackDetector, onStdout, onStderr, onFallback } = opts;
+  const { command, logFile, authPolicy, allowApiKeyEnv, fallbackDetector, onStdout, onStderr, onFallback, parseEvent, onEvent } = opts;
   const { env, removed, passedThrough } = createAgentEnv(process.env, authPolicy, allowApiKeyEnv);
 
   fs.appendFileSync(logFile,
@@ -84,8 +93,13 @@ export async function runAgent(opts: AgentRunOptions): Promise<AgentRunResult> {
     };
     const emitLine = (which: "stdout" | "stderr", line: string) => {
       fs.appendFileSync(logFile, `[${which}] ${line}\n`, "utf8");
-      if (which === "stdout") onStdout?.(line);
-      else onStderr?.(line);
+      if (which === "stdout") {
+        const events = parseEvent && onEvent ? parseEvent(line) : null;
+        if (events) for (const ev of events) onEvent!(ev);
+        else onStdout?.(line);
+      } else {
+        onStderr?.(line);
+      }
       const hit = fallbackDetector?.feed(line);
       if (hit && !fallbackReason) {
         fallbackReason = `Detected pattern "${hit.pattern}" in ${which}: ${line.slice(0, 200)}`;

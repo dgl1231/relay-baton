@@ -166,6 +166,13 @@ export interface AgentRunInput {
   prompt?: string;
   dietProfile?: DietProfileName;
   allowApiKeyEnv?: boolean;
+  /**
+   * Ask the agent CLI for its machine-readable event stream (e.g.
+   * `claude --output-format stream-json`, `codex exec --json`) so the
+   * adapter's parseEvent can turn stdout lines into AgentEvents. Opt-in:
+   * older CLI versions may not support the flags.
+   */
+  structuredStream?: boolean;
 }
 
 export interface AgentCommand {
@@ -174,11 +181,29 @@ export interface AgentCommand {
   cwd: string;
 }
 
+/** Local token/cost figures reported by the agent CLI at the end of a turn. */
+export interface AgentUsage {
+  inputTokens?: number;
+  outputTokens?: number;
+  costUsd?: number;
+  durationMs?: number;
+}
+
 export interface AgentEvent {
-  type: "stdout" | "stderr" | "exit" | "error" | "fallback";
+  type:
+    | "stdout" | "stderr" | "exit" | "error" | "fallback"
+    // Structured agent stream (deterministically parsed from the agent CLI's
+    // own JSONL output — no model calls, no summarization).
+    | "system" | "assistant_text" | "reasoning" | "tool_use" | "usage";
   text?: string;
   code?: number;
   reason?: string;
+  /** tool_use: tool or command name. */
+  tool?: string;
+  /** tool_use: short deterministic detail (command line, path, query). */
+  detail?: string;
+  /** usage: figures reported by the agent CLI. */
+  usage?: AgentUsage;
 }
 
 export interface BudgetSnapshot {

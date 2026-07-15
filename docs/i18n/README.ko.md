@@ -251,9 +251,9 @@ pnpm relay-baton login claude
 
 ## 릴리즈 노트
 
-**최신: v1.3.1** — [English](../../release-notes/v1.3.1.md) · [한국어](../../release-notes/ko/v1.3.1.md)
+**최신: v1.4.0** — [English](../../release-notes/v1.4.0.md) · [한국어](../../release-notes/ko/v1.4.0.md)
 
-relay-baton은 **v1.0.0으로 정식 출시(GA)**되었고, 현재 최신은 **v1.3.1**이다.
+relay-baton은 **v1.0.0으로 정식 출시(GA)**되었고, 현재 최신은 **v1.4.0**이다.
 
 - 전체 버전 기록: [`CHANGELOG.md`](../../CHANGELOG.md)
 - 버전별 상세 패치노트: [release-notes index](../../release-notes/README.md)

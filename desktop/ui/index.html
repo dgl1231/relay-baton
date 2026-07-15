@@ -12,7 +12,7 @@
         --border: #35322a; --border2: #45413a;
         --fg: #ece9e2; --muted: #a8a292; --faint: #7d786b;
         --accent: #d97757; --accent-hover: #e88b6b;
-        --hot: #c4442f; --err: #ef6a52; --amber: #d9a13f;
+        --hot: #c4442f; --err: #ef6a52; --amber: #d9a13f; --ok: #7ec293;
         --user: #6fa8dc; --claude: #d97757; --codex: #7ec293;
         --radius: 12px; --radius-sm: 8px;
         --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
@@ -25,7 +25,7 @@
         --border: #e3e0d5; --border2: #d2cec2;
         --fg: #3d3929; --muted: #73705f; --faint: #9c988a;
         --accent: #c15f3c; --accent-hover: #d97757;
-        --hot: #b3402d; --err: #c4442f; --amber: #9a6700;
+        --hot: #b3402d; --err: #c4442f; --amber: #9a6700; --ok: #2f7d4f;
         --user: #2e6fa8; --claude: #c15f3c; --codex: #2f7d4f;
         --shadow: 0 1px 3px rgba(61,57,41,.08);
       }
@@ -160,6 +160,37 @@
       .ev .kind { color: var(--muted); font-size: 11px; }
       .ev .text { white-space: pre-wrap; word-break: break-word; }
       .ev .ts { color: var(--faint); font-size: 11px; }
+
+      /* structured result cards in the timeline (display only) */
+      .rc { display: flex; flex-direction: column; gap: 6px; min-width: 0; white-space: normal; }
+      .chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+      .chip {
+        border: 1px solid var(--border2); border-radius: 999px; padding: 2px 9px;
+        background: var(--panel); color: var(--muted); font-size: 11px; white-space: nowrap;
+      }
+      .chip.ok { color: var(--ok); border-color: var(--ok); }
+      .chip.bad { color: var(--err); border-color: var(--err); }
+      .chip.warn { color: var(--amber); border-color: var(--amber); }
+      .chip.accent { color: var(--accent); border-color: var(--accent); }
+      .rc .kv { font-size: 12.5px; }
+      .rc .bar { margin: 2px 0; }
+      .rlist { display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; }
+      .rrow { display: flex; gap: 8px; align-items: baseline; min-width: 0; flex-wrap: wrap; }
+      .rrow .mark { font-family: var(--font-mono); font-size: 11px; white-space: nowrap; }
+      .rrow .mark.ok { color: var(--ok); }
+      .rrow .mark.bad { color: var(--err); }
+      .rrow .mark.warn { color: var(--amber); }
+      .rrow .mark.mut { color: var(--faint); }
+      .rrow .path { font-family: var(--font-mono); word-break: break-all; }
+      .rrow .note { color: var(--muted); font-size: 12px; }
+      details.raw summary {
+        cursor: pointer; color: var(--faint); font-size: 11px; user-select: none;
+      }
+      details.raw pre {
+        font-size: 12px; max-height: 240px; overflow: auto; margin-top: 4px;
+        background: var(--panel); border: 1px solid var(--border);
+        border-radius: var(--radius-sm); padding: 8px 10px;
+      }
 
       /* actions toolbar + confirm modal */
       .actions { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -1083,6 +1114,253 @@
         }
       }
 
+      // ---- timeline result cards ------------------------------------------
+      // Display-only DOM builders that turn CLI --json payloads into readable
+      // cards for the Agent Room timeline. Unknown shapes fall back to
+      // dataCard; every card keeps the full payload behind a collapsed "raw"
+      // section so no information is lost.
+      function h(tag, cls, text) {
+        const n = document.createElement(tag);
+        if (cls) n.className = cls;
+        if (text != null) n.textContent = String(text);
+        return n;
+      }
+      function chip(text, tone) { return h("span", "chip" + (tone ? " " + tone : ""), text); }
+      function chipRow(items) {
+        const list = items.filter(Boolean);
+        if (list.length === 0) return null;
+        const w = h("div", "chips");
+        for (const c of list) w.appendChild(c);
+        return w;
+      }
+      function kvMini(pairs) {
+        const rows = pairs.filter(([, v]) => v != null && v !== "");
+        if (rows.length === 0) return null;
+        const kv = h("div", "kv");
+        for (const [k, v] of rows) {
+          kv.append(h("span", "k", k), v instanceof Node ? v : h("span", null, String(v)));
+        }
+        return kv;
+      }
+      function rowList(rows) {
+        if (!rows || rows.length === 0) return null;
+        const list = h("div", "rlist");
+        for (const r of rows) {
+          const row = h("div", "rrow");
+          if (r.mark != null) row.appendChild(h("span", "mark " + (r.tone || "mut"), r.mark));
+          row.appendChild(h("span", r.mono ? "path" : null, r.text));
+          if (r.note) row.appendChild(h("span", "note", r.note));
+          list.appendChild(row);
+        }
+        return list;
+      }
+      function gaugeBar(used, max) {
+        const pct = Math.min(100, Math.round((used / (max || 1)) * 100));
+        const bar = h("div", "bar");
+        const fill = h("div", pct >= 90 ? "hot" : null);
+        fill.style.width = pct + "%";
+        bar.appendChild(fill);
+        return { bar, pct };
+      }
+      function rawDetails(data) {
+        const d = h("details", "raw");
+        d.appendChild(h("summary", null, "raw json"));
+        d.appendChild(h("pre", null, JSON.stringify(data, null, 2)));
+        return d;
+      }
+      function resultCard(children, data) {
+        const box = h("div", "rc");
+        for (const c of [].concat(children)) if (c) box.appendChild(c);
+        if (data !== undefined) box.appendChild(rawDetails(data));
+        return box;
+      }
+
+      function agentChain(s) {
+        const wrap = h("span");
+        const ids = [s.primaryAgent, s.fallbackAgent].filter(Boolean);
+        ids.forEach((id, i) => {
+          if (i) wrap.append(h("span", "muted", " → "));
+          const a = h("span", "role role-" + String(id).replace(/[^a-z-]/gi, "").toLowerCase(), id);
+          if (id === s.activeAgent) a.style.fontWeight = "700";
+          wrap.append(a);
+        });
+        return ids.length ? wrap : null;
+      }
+
+      function statusCard(s) {
+        if (!s.session) return resultCard([h("div", "muted", t("noSessionState"))], s);
+        const head = chipRow([
+          chip(s.status, s.lastError ? "warn" : "ok"),
+          chip("diet " + s.tokenDietProfile),
+          s.handoffExists ? chip("handoff ✓", "ok") : chip("handoff —"),
+          s.fallbackReason ? chip("fallback", "warn") : null,
+        ]);
+        const kv = kvMini([
+          ["task", s.task || "(none)"],
+          ["agents", agentChain(s)],
+          ["last agent", s.lastAgent],
+          ["changed files", s.changedFiles],
+          ["git", s.git?.available ? `${s.git.branch ?? "(detached)"} · ${s.git.changed} changed` : "unavailable"],
+          ["fallback reason", s.fallbackReason],
+          ["last error", s.lastError],
+        ]);
+        return resultCard([head, kv], s);
+      }
+
+      function budgetCard(b) {
+        const used = b.used?.handoff ?? 0;
+        const max = b.maxHandoffChars || 1;
+        const { bar, pct } = gaugeBar(used, max);
+        const head = chipRow([
+          chip("profile " + b.activeProfile, "accent"),
+          chip(pct + "%", pct >= 90 ? "bad" : pct >= 70 ? "warn" : "ok"),
+          b.truncated ? chip("truncated", "warn") : null,
+        ]);
+        const label = h("div", "muted", `handoff ${used.toLocaleString()} / ${max.toLocaleString()} chars`);
+        const kv = kvMini(Object.entries(b.used ?? {}).map(([k, v]) => [k, Number(v).toLocaleString()]));
+        return resultCard([head, label, bar, kv], b);
+      }
+
+      function gitFileTone(code) {
+        const c = String(code || "").trim()[0];
+        return c === "D" ? "bad" : c === "A" || c === "?" ? "ok" : "warn";
+      }
+      function gitCard(g) {
+        if (!g.available) return resultCard([h("div", "muted", "not a git repository")], g);
+        const head = chipRow([
+          chip(g.branch || "(detached)", "accent"),
+          g.head ? chip(g.head.slice(0, 8)) : null,
+          g.clean ? chip("clean", "ok") : chip(g.changed + " changed", "warn"),
+          g.ahead || g.behind ? chip(`↑${g.ahead} ↓${g.behind}`) : null,
+        ]);
+        const kv = kvMini([
+          ["staged / unstaged / untracked", `${g.staged} / ${g.unstaged} / ${g.untracked}`],
+          ["upstream", g.upstream],
+          ["since session", g.tracking?.baseline
+            ? (g.tracking.changedSinceBaseline ? `changed (+${g.tracking.changedDelta ?? 0})` : "unchanged")
+            : null],
+        ]);
+        const files = rowList((g.files || []).map(f => ({
+          mark: f.code, tone: gitFileTone(f.code), text: f.path, note: f.label, mono: true,
+        })));
+        return resultCard([head, kv, files], g);
+      }
+
+      function reviewCard(r) {
+        const head = chipRow([
+          r.planPresent ? chip("plan ✓", "ok") : chip("plan missing", "bad"),
+          chip((r.steps || []).length + " steps"),
+          chip(r.touchedSteps + " touched", "ok"),
+          r.untouchedSteps ? chip(r.untouchedSteps + " untouched", "warn") : null,
+          r.unplannedFiles?.length ? chip(r.unplannedFiles.length + " unplanned", "warn") : null,
+        ]);
+        const steps = rowList((r.steps || []).map(s => ({
+          mark: s.touched ? "done?" : s.referencedPaths?.length === 0 ? "----" : "todo?",
+          tone: s.touched ? "ok" : s.referencedPaths?.length === 0 ? "mut" : "warn",
+          text: `${s.index}. ${s.text}`,
+          note: s.matchedFiles?.length ? s.matchedFiles.join(", ") : null,
+        })));
+        const extra = kvMini([
+          ["changed files", (r.changedFiles || []).length],
+          ["unplanned", r.unplannedFiles?.length ? r.unplannedFiles.join(", ") : null],
+          ["tests", r.testResultsSummary],
+        ]);
+        return resultCard([head, steps, extra], r);
+      }
+
+      function guardCard(g) {
+        const head = chipRow([
+          g.blocked ? chip(t("execBlocked"), "bad") : chip(t("execOk"), "ok"),
+          g.requireConfirmation ? chip("confirm required", "warn") : null,
+        ]);
+        const kv = kvMini([
+          ["steps", `${g.actual?.steps ?? "-"} / ${g.limits?.maxSteps ?? "∞"}`],
+          ["changed files", `${g.actual?.changedFiles ?? "-"} / ${g.limits?.maxChangedFiles ?? "∞"}`],
+          ["budget ratio", g.actual?.budgetRatio == null
+            ? null
+            : `${g.actual.budgetRatio.toFixed(2)} / ${g.limits?.maxBudgetRatio ?? "∞"}`],
+        ]);
+        const violations = rowList((g.violations || []).map(v => ({
+          mark: "!", tone: "bad", text: v.condition, note: v.message,
+        })));
+        return resultCard([head, kv, violations], g);
+      }
+
+      function riskCard(r) {
+        if (!r.available) return resultCard([h("div", "muted", "(risk scan unavailable)")], r);
+        const head = chipRow([
+          r.risky ? chip("risky", "warn") : chip("clean", "ok"),
+          ...Object.entries(r.bySeverity || {})
+            .filter(([, n]) => n > 0)
+            .map(([k, n]) => chip(`${k} ${n}`, k === "high" ? "bad" : "warn")),
+        ]);
+        const rows = rowList((r.findings || []).map(f => ({
+          mark: f.severity, tone: f.severity === "high" ? "bad" : "warn",
+          text: f.path, note: `${f.category} — ${f.reason}`, mono: true,
+        })));
+        return resultCard([head, rows], r);
+      }
+
+      function checkpointsCard(list) {
+        if (!Array.isArray(list) || list.length === 0) {
+          return resultCard([h("div", "muted", t("execNoData"))], list);
+        }
+        const rows = rowList(list.map(c => ({
+          mark: c.result, tone: c.result === "ok" ? "ok" : c.result === "fail" ? "bad" : "warn",
+          text: `step ${c.step}${c.command ? " — " + c.command : ""}`,
+          note: `${(c.changedFiles || []).length} files · ${c.ts ?? ""}`,
+        })));
+        return resultCard([rows], list);
+      }
+
+      function sessionsCard(r) {
+        if (!r.available) return resultCard([h("div", "muted", t("archivesUnavailable"))], r);
+        if (!r.archives?.length) return resultCard([h("div", "muted", t("noArchives"))], r);
+        const rows = rowList(r.archives.map(a => ({
+          mark: a.valid ? "✓" : "✗", tone: a.valid ? "ok" : "bad",
+          text: a.id,
+          note: a.valid
+            ? `${a.fileCount} file(s) · ${Number(a.totalBytes).toLocaleString()} bytes · ${a.createdAt ?? "?"}`
+            : (a.reason || t("archiveDamaged")),
+          mono: true,
+        })));
+        return resultCard([rows], r);
+      }
+
+      function resumeCard(r) {
+        const head = chipRow([chip(r.status, /ok|healthy|ready/i.test(String(r.status)) ? "ok" : "warn")]);
+        const rows = rowList((r.findings || []).map(f => ({ mark: "·", tone: "mut", text: f })));
+        const sugg = (r.suggestions || []).length
+          ? h("div", "muted", r.suggestions.map(s => `relay-baton ${s.command}`).join("  ·  "))
+          : null;
+        return resultCard([head, rows, sugg], r);
+      }
+
+      // Generic fallback: flat kv over the payload, one level deep.
+      function dataCard(data) {
+        if (data == null || typeof data !== "object") return resultCard([h("div", null, String(data))], data);
+        if (Array.isArray(data)) {
+          return resultCard([rowList(data.map(x => ({
+            mark: "·", tone: "mut",
+            text: typeof x === "object" ? JSON.stringify(x) : String(x),
+          })))], data);
+        }
+        const pairs = [];
+        for (const [k, v] of Object.entries(data)) {
+          if (v == null) continue;
+          if (Array.isArray(v)) {
+            pairs.push([k, v.length === 0 ? "(empty)" : v.map(x => (typeof x === "object" ? JSON.stringify(x) : String(x))).join(", ")]);
+          } else if (typeof v === "object") {
+            pairs.push([k, Object.entries(v).map(([kk, vv]) => `${kk}: ${typeof vv === "object" ? JSON.stringify(vv) : vv}`).join(" · ")]);
+          } else if (typeof v === "boolean") {
+            pairs.push([k, v ? "yes" : "no"]);
+          } else {
+            pairs.push([k, String(v)]);
+          }
+        }
+        return resultCard([kvMini(pairs)], data);
+      }
+
       function activeProject() {
         return currentProjects.find((p) => p.id === activeProjectId) ?? null;
       }
@@ -1134,7 +1412,8 @@
         applyAgent();
       }
 
-      function appendLocalEvent(role, kind, text) {
+      // `content` is either plain text or a prebuilt result-card Node.
+      function appendLocalEvent(role, kind, content) {
         const el = $("timeline");
         if (el.children.length === 1 && el.firstElementChild?.classList.contains("muted")) el.innerHTML = "";
         const row = document.createElement("div"); row.className = "ev";
@@ -1145,7 +1424,9 @@
         const kindEl = document.createElement("div"); kindEl.className = "kind"; kindEl.textContent = kind;
         const ts = document.createElement("div"); ts.className = "ts"; ts.textContent = new Date().toISOString();
         who.append(roleEl, kindEl, ts);
-        const body = document.createElement("div"); body.className = "text"; body.textContent = text;
+        const body = document.createElement("div"); body.className = "text";
+        if (content instanceof Node) body.appendChild(content);
+        else body.textContent = content;
         row.append(who, body);
         el.appendChild(row);
         el.scrollTop = el.scrollHeight;
@@ -1366,7 +1647,7 @@
           if (!r.available) { meta.textContent = r.reason || ""; return; }
           const redaction = r.redaction && !r.redaction.clean ? ` · ⚠ ${r.redaction.findings.length} redaction finding(s)` : "";
           meta.textContent = `${t("bundleBuilt")}: ${r.bundleDir}${redaction}`;
-          appendLocalEvent("relay-baton", "handoff", JSON.stringify(r, null, 2));
+          appendLocalEvent("relay-baton", "handoff", dataCard(r));
         } catch (err) {
           meta.classList.add("err");
           meta.textContent = String(err?.message ?? err);
@@ -1680,29 +1961,31 @@
             case "status": {
               const s = await cliJson(["status", "--json"]);
               currentStatus = s;
-              appendLocalEvent("relay-baton", "status", JSON.stringify(s, null, 2));
+              appendLocalEvent("relay-baton", "status", statusCard(s));
               updateRoomContext();
               renderHints();
               break;
             }
             case "budget": {
               const b = await cliJson(["budget", "--json"]);
-              appendLocalEvent("relay-baton", "budget", JSON.stringify(b, null, 2));
+              appendLocalEvent("relay-baton", "budget", budgetCard(b));
               await loadBudget();
               break;
             }
             case "git": {
               const g = await cliJson(["git", "status", "--json"]);
               currentGit = g;
-              appendLocalEvent("relay-baton", "status", JSON.stringify(g, null, 2));
+              appendLocalEvent("relay-baton", "status", gitCard(g));
               await loadGit();
               updateRoomContext();
               break;
             }
             case "review": {
               const r = await cliJson(["review", "--json"]);
-              appendLocalEvent("relay-baton", "review", JSON.stringify(r, null, 2));
+              // reload first — review persists a summary event; the card
+              // stays on top instead of being wiped by the reload.
               await loadTimeline();
+              appendLocalEvent("relay-baton", "review", reviewCard(r));
               break;
             }
             case "diagnose":
@@ -1718,54 +2001,54 @@
             }
             case "sessions": {
               const r = await cliJson(["session", "list", "--json"]);
-              appendLocalEvent("relay-baton", "status", JSON.stringify(r, null, 2));
+              appendLocalEvent("relay-baton", "status", sessionsCard(r));
               await loadSessions();
               break;
             }
             case "inspect": {
               if (!argText) { appendLocalEvent("relay-baton", "status", t("unsupportedCommand")); break; }
               const r = await cliJson(["session", "inspect", argText, "--json"]);
-              appendLocalEvent("relay-baton", "status", JSON.stringify(r, null, 2));
+              appendLocalEvent("relay-baton", "status", dataCard(r));
               break;
             }
             case "resume": {
               const r = await cliJson(["session", "resume", "--json"]);
-              appendLocalEvent("relay-baton", "diagnose", JSON.stringify(r, null, 2));
+              appendLocalEvent("relay-baton", "diagnose", resumeCard(r));
               await runResumeDiagnosis();
               break;
             }
             case "checkpoints": {
               const r = await cliJson(["checkpoint", "list", "--json"]);
-              appendLocalEvent("relay-baton", "execute", JSON.stringify(r, null, 2));
+              appendLocalEvent("relay-baton", "execute", checkpointsCard(r));
               await loadExecution();
               break;
             }
             case "guard": {
               const r = await cliJson(["guard", "--json"]);
-              appendLocalEvent("relay-baton", "status", JSON.stringify(r, null, 2));
+              appendLocalEvent("relay-baton", "status", guardCard(r));
               await loadExecution();
               break;
             }
             case "risk": {
               const r = await cliJson(["risk", "--json"]);
-              appendLocalEvent("relay-baton", "review", JSON.stringify(r, null, 2));
+              appendLocalEvent("relay-baton", "review", riskCard(r));
               break;
             }
             case "workspace": {
               const r = await cliJson(["workspace", "--json"]);
-              appendLocalEvent("relay-baton", "status", JSON.stringify(r, null, 2));
+              appendLocalEvent("relay-baton", "status", dataCard(r));
               await loadInspector();
               break;
             }
             case "profile": {
               const r = await cliJson(["profile", "--json"]);
-              appendLocalEvent("relay-baton", "status", JSON.stringify(r, null, 2));
+              appendLocalEvent("relay-baton", "status", dataCard(r));
               await loadInspector();
               break;
             }
             case "inventory": {
               const r = await cliJson(["inventory", "--json"]);
-              appendLocalEvent("relay-baton", "status", JSON.stringify(r, null, 2));
+              appendLocalEvent("relay-baton", "status", dataCard(r));
               break;
             }
             case "bundle": {
@@ -2026,6 +2309,14 @@
         close.addEventListener("click", () => box.classList.remove("show"));
         box.append(pre, close);
       }
+
+      // Preview hook for developing the card renderers in a plain browser
+      // (no Tauri sidecar): window.__rbCards.appendLocalEvent(...) etc.
+      // Display-only — it has no path to the CLI.
+      window.__rbCards = {
+        appendLocalEvent, statusCard, budgetCard, gitCard, reviewCard,
+        guardCard, riskCard, checkpointsCard, sessionsCard, resumeCard, dataCard,
+      };
 
       applyLang();
       refresh();

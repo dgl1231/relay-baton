@@ -8,6 +8,7 @@ import type { AgentId, DietProfileName } from "@relay-baton/shared";
 import { ProjectOpts, resolveProjectContext } from "./projectOptions";
 import { adapterFor } from "./agentFor";
 import { executeCommand } from "./execute";
+import { agentStreamIO } from "../agentStream";
 
 export interface PlanOpts extends ProjectOpts {
   diet?: string;
@@ -19,6 +20,8 @@ export interface PlanOpts extends ProjectOpts {
   noRun?: boolean;
   thenExecute?: boolean;
   allowApiKeyEnv?: boolean;
+  /** Friendly rendering of the agent's structured output stream (codex/claude). */
+  pretty?: boolean;
 }
 
 export async function planCommand(task: string, opts: PlanOpts) {
@@ -77,15 +80,15 @@ export async function planCommand(task: string, opts: PlanOpts) {
   // Launch the planner agent with the planner prompt.
   const adapter = adapterFor(planner, config);
   const prompt = PromptBuilder.planner(task);
-  const cmd = adapter.buildCommand({ task: prompt, prompt, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName });
+  const { structured, io } = agentStreamIO(adapter, opts.pretty);
+  const cmd = adapter.buildCommand({ task: prompt, prompt, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName, structuredStream: structured });
   console.log(`[relay-baton] planning with ${cmd.command} (${planner}) ...`);
   const r = await runAgent({
     command: cmd,
     logFile: sm.files.p("commandsLog"),
     authPolicy: config.authPolicy,
     allowApiKeyEnv: opts.allowApiKeyEnv,
-    onStdout: l => process.stdout.write(l + "\n"),
-    onStderr: l => process.stderr.write(l + "\n"),
+    ...io,
   });
   if (r.error) {
     console.error(r.error);
@@ -136,6 +139,7 @@ export async function planCommand(task: string, opts: PlanOpts) {
       with: opts.executor,
       force: opts.force,
       allowApiKeyEnv: opts.allowApiKeyEnv,
+      pretty: opts.pretty,
       project: opts.project,
       path: opts.path,
     });
