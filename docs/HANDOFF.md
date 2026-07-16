@@ -10,11 +10,24 @@
 > "세션 핸드오프 규칙".
 
 _Last updated: 2026-07-16 (later) — **RELEASED as v1.5.0: GUI agent
-execution** (tag pushed — verify the release run, install the MSI, and
-verify a real /run on-device; browser-side verification passed, real Tauri
-spawn NOT yet exercised). Pre-release catch: capabilities only allowed
-`shell:allow-execute` — added scoped `shell:allow-spawn` + `shell:allow-kill`
-or Run-here would have been permission-denied on device. Detail below._
+execution — VERIFIED on-device (mechanics).** Release run 29477520649
+all-green (9 assets, npm 1.5.0, brew/scoop, winget PR); MSI installed on
+this machine. Real-device /run verified end-to-end mechanically in a scratch
+repo: confirm modal with the exact command → 여기서 실행 → real sidecar
+spawn streamed into the live card (including a parseEvent-rendered `● model
+claude-sonnet-4-6 · session …` line — the --pretty pipeline works through
+the GUI), completion chip appeared and the panels auto-refreshed. Two
+findings: (1) **this machine's `claude -p` subprocess auth is broken** — the
+agent turn itself failed `API Error: 401 Invalid authentication credentials`
+(same 401 as a direct terminal test earlier that day; needs `claude` →
+`/login` re-auth; NOT a v1.5.0 bug — codex is also unusable here, too old
+for its default model). (2) UX nit: when the chain's last agent fails,
+`relay-baton run` exits 0, so the GUI chip shows green `완료` while the card
+text shows `✗ claude exited with code 1` — consider a non-zero exit (or
+distinct chip) for agent-failure endings in a future release. Pre-release
+catch worth remembering: capabilities only allowed `shell:allow-execute` —
+scoped `shell:allow-spawn` + `shell:allow-kill` had to be added or Run-here
+would have been permission-denied on device. Detail below._
 
 _Same day, earlier — **GUI agent execution implementation.** The desktop Agent Room can now actually launch
 agents, confirmation-first (fits the standing "read-only or
