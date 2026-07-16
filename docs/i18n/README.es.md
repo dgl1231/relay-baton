@@ -252,9 +252,9 @@ Que `claude --version` funcione **no** significa estar logueado. Si ves "Not log
 
 ## Notas de versión
 
-**Última: v1.4.0** — [English](../../release-notes/v1.4.0.md) · [한국어](../../release-notes/ko/v1.4.0.md) · [Español](../../release-notes/es/v1.4.0.md)
+**Última: v1.4.1** — [English](../../release-notes/v1.4.1.md) · [한국어](../../release-notes/ko/v1.4.1.md) · [Español](../../release-notes/es/v1.4.1.md)
 
-relay-baton llegó a **disponibilidad general (GA) en v1.0.0**; la más reciente es **v1.4.0**.
+relay-baton llegó a **disponibilidad general (GA) en v1.0.0**; la más reciente es **v1.4.1**.
 
 - Historial completo de versiones: [`CHANGELOG.md`](../../CHANGELOG.md)
 - Notas de parche detalladas por versión: [release-notes index](../../release-notes/README.md)

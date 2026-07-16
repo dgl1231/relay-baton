@@ -149,8 +149,15 @@
       .ev {
         display: grid; grid-template-columns: max-content 1fr; gap: 10px; font-size: 13px;
         background: var(--inset); border: 1px solid var(--border);
+        border-left: 3px solid var(--border2);
         border-radius: var(--radius-sm); padding: 8px 12px;
       }
+      /* role-coded rows so user vs relay-baton vs agents read apart at a glance */
+      .ev.by-user { background: var(--panel); border-left-color: var(--user); }
+      .ev.by-relay-baton, .ev.by-relay { border-left-color: var(--amber); }
+      .ev.by-claude { border-left-color: var(--claude); }
+      .ev.by-codex { border-left-color: var(--codex); }
+      .ev.kind-command .text, .ev.kind-prompt-preview .text { font-family: var(--font-mono); font-size: 12.5px; }
       .ev .who { white-space: nowrap; }
       .ev .role { font-weight: 600; }
       .role-user { color: var(--user); }
@@ -457,6 +464,11 @@
       let currentStatus = null;
       let currentBudget = null;
       let currentGit = null;
+      // Local (non-persisted) timeline events — command result cards. Kept in
+      // memory so loadTimeline() can re-merge them instead of wiping them on
+      // every reload. Cleared on project switch (cards describe the old one).
+      let localEvents = [];
+      const LOCAL_EVENTS_MAX = 50;
 
       const STRINGS = {
         en: {
@@ -1412,23 +1424,35 @@
         applyAgent();
       }
 
-      // `content` is either plain text or a prebuilt result-card Node.
-      function appendLocalEvent(role, kind, content) {
-        const el = $("timeline");
-        if (el.children.length === 1 && el.firstElementChild?.classList.contains("muted")) el.innerHTML = "";
-        const row = document.createElement("div"); row.className = "ev";
+      // One timeline row. `content` is plain text or a prebuilt result-card
+      // Node; `roleClassSource` keeps the color class on the bare role when
+      // the label is a "role/agent" pair.
+      function eventRow(role, kind, content, ts, roleClassSource) {
+        const roleSlug = String(roleClassSource ?? role).replace(/[^a-z-]/gi, "").toLowerCase();
+        const kindSlug = String(kind ?? "").replace(/[^a-z0-9-]/gi, "-").toLowerCase();
+        const row = document.createElement("div");
+        row.className = `ev by-${roleSlug} kind-${kindSlug}`;
         const who = document.createElement("div"); who.className = "who";
         const roleEl = document.createElement("span");
-        roleEl.className = "role role-" + String(role).replace(/[^a-z-]/gi, "").toLowerCase();
+        roleEl.className = "role role-" + roleSlug;
         roleEl.textContent = role;
         const kindEl = document.createElement("div"); kindEl.className = "kind"; kindEl.textContent = kind;
-        const ts = document.createElement("div"); ts.className = "ts"; ts.textContent = new Date().toISOString();
-        who.append(roleEl, kindEl, ts);
+        const tsEl = document.createElement("div"); tsEl.className = "ts"; tsEl.textContent = ts;
+        who.append(roleEl, kindEl, tsEl);
         const body = document.createElement("div"); body.className = "text";
         if (content instanceof Node) body.appendChild(content);
         else body.textContent = content;
         row.append(who, body);
-        el.appendChild(row);
+        return row;
+      }
+
+      function appendLocalEvent(role, kind, content) {
+        const ts = new Date().toISOString();
+        localEvents.push({ role, kind, content, ts });
+        if (localEvents.length > LOCAL_EVENTS_MAX) localEvents = localEvents.slice(-LOCAL_EVENTS_MAX);
+        const el = $("timeline");
+        if (el.children.length === 1 && el.firstElementChild?.classList.contains("muted")) el.innerHTML = "";
+        el.appendChild(eventRow(role, kind, content, ts));
         el.scrollTop = el.scrollHeight;
       }
 
@@ -1798,33 +1822,35 @@
         }
       }
 
+      // Rebuild the timeline: persisted conversation entries merged with the
+      // in-memory local result cards, ordered by ISO timestamp. This is what
+      // keeps a command's result card visible after the next command reloads
+      // the timeline.
+      function renderTimeline(entries) {
+        const el = $("timeline");
+        el.innerHTML = "";
+        const rows = [];
+        for (const e of entries || []) {
+          const label = e.agent && e.agent !== e.role ? `${e.role}/${e.agent}` : e.role;
+          rows.push({ ts: e.ts ?? "", node: eventRow(label, e.kind, e.text, e.ts, e.role) });
+        }
+        for (const ev of localEvents) {
+          rows.push({ ts: ev.ts, node: eventRow(ev.role, ev.kind, ev.content, ev.ts) });
+        }
+        if (rows.length === 0) {
+          el.appendChild(h("div", "muted", t("noEvents")));
+          return;
+        }
+        rows.sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
+        for (const r of rows) el.appendChild(r.node);
+        el.scrollTop = el.scrollHeight;
+      }
+
       async function loadTimeline() {
         const el = $("timeline");
         try {
           const r = await cliJson(["replay", "--json", "--limit", "100"]);
-          el.innerHTML = "";
-          if (!r.entries || r.entries.length === 0) {
-            const d = document.createElement("div");
-            d.className = "muted";
-            d.textContent = t("noEvents");
-            el.appendChild(d);
-            return;
-          }
-          for (const e of r.entries) {
-            const row = document.createElement("div"); row.className = "ev";
-            const who = document.createElement("div"); who.className = "who";
-            const role = document.createElement("span");
-            const roleClass = "role-" + String(e.role).replace(/[^a-z-]/gi, "").toLowerCase();
-            role.className = "role " + roleClass;
-            role.textContent = e.agent && e.agent !== e.role ? `${e.role}/${e.agent}` : e.role;
-            const kind = document.createElement("div"); kind.className = "kind"; kind.textContent = e.kind;
-            const ts = document.createElement("div"); ts.className = "ts"; ts.textContent = e.ts;
-            who.append(role, kind, ts);
-            const text = document.createElement("div"); text.className = "text"; text.textContent = e.text;
-            row.append(who, text);
-            el.appendChild(row);
-          }
-          el.scrollTop = el.scrollHeight;
+          renderTimeline(r.entries);
         } catch (err) { showError(el, err); }
       }
 
@@ -2140,6 +2166,8 @@
       $("project").addEventListener("change", async (e) => {
         const id = e.target.value;
         if (!id) return;
+        // local result cards describe the previous project — drop them
+        localEvents = [];
         try {
           await cli(["project", "switch", id]);
         } catch (err) {
@@ -2314,7 +2342,7 @@
       // (no Tauri sidecar): window.__rbCards.appendLocalEvent(...) etc.
       // Display-only — it has no path to the CLI.
       window.__rbCards = {
-        appendLocalEvent, statusCard, budgetCard, gitCard, reviewCard,
+        appendLocalEvent, renderTimeline, statusCard, budgetCard, gitCard, reviewCard,
         guardCard, riskCard, checkpointsCard, sessionsCard, resumeCard, dataCard,
       };
 

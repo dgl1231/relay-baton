@@ -7,6 +7,22 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Per-release detail (EN + KO) lives in [`release-notes/`](./release-notes/). This
 file is the condensed, user-facing history.
 
+## [1.4.1] — 2026-07-16
+
+Desktop-only patch; no CLI changes.
+
+### Fixed
+- **Result cards no longer vanish from the Agent Room timeline.** Local
+  cards are kept in memory and merged back by timestamp on every timeline
+  reload (cleared on project switch, capped at 50) — previously only the
+  most recent command's card was ever visible.
+
+### Improved
+- **Role-coded timeline rows** — user rows get a blue left border, a lighter
+  background, and monospace command text; relay-baton rows an amber border;
+  claude/codex rows their agent colors. User vs relay-baton conversation now
+  reads apart at a glance, in both themes.
+
 ## [1.4.0] — 2026-07-15
 
 ### Added

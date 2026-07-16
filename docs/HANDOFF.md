@@ -9,7 +9,31 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-07-15 — **RELEASED as v1.4.0, VERIFIED** (friendly agent
+_Last updated: 2026-07-16 — **RELEASED as v1.4.1** (desktop timeline polish:
+cards survive reloads + role-coded rows; tag pushed — verify the release
+run). Detail below._
+
+_2026-07-16 — **Agent Room result cards now survive timeline reloads.** Local card events are kept
+in memory (`localEvents`, cap 50) and `renderTimeline()` merges them with
+persisted entries by ISO timestamp instead of wiping them on every
+`loadTimeline()`; cleared on project switch. Shared `eventRow()` builder;
+`window.__rbCards.renderTimeline` exposed for plain-browser testing (verified
+via the `desktop-ui` static server). Found by real usage on the installed
+v1.4.0 MSI (only the last command's card ever stayed visible). **Same batch:
+role-coded timeline rows** — user feedback "user와 relay-baton 대화 구분이 잘
+안 간다": rows get `by-<role>` / `kind-<kind>` classes; 3px left border
+color-codes the speaker (user=--user blue, relay-baton=--amber,
+claude/codex=their vars), user rows use the lighter --panel background, and
+command/prompt_preview text renders mono. Verified in both themes via
+browser screenshots. Desktop-only HTML changes — ship as v1.4.1 when the
+user asks. Also: v1.4.0 MSI installed
+and visually verified on this machine (status/budget/review cards OK);
+installed CLI via `npm i -g @relay-baton/cli` (MSI does not add the sidecar
+to PATH); NOTE this machine's codex-cli 0.134.0 is too old for its default
+model ("requires a newer version of Codex") — codex-first runs fail at hop 1
+until upgraded._
+
+_2026-07-15 — **RELEASED as v1.4.0, VERIFIED** (friendly agent
 stream + desktop result cards; release run 29395001589 all-green — 9 assets
 published, npm shows 1.4.0, brew/scoop pushed, winget PR submitted). `--pretty` extended to `plan`/`execute`/`handoff` via shared
 `agentStreamIO` helper (cli/src/agentStream.ts); COMMANDS EN+KO document it;

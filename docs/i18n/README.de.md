@@ -252,9 +252,9 @@ Dass `claude --version` durchläuft, heißt **nicht**, dass du eingeloggt bist. 
 
 ## Release-Notes
 
-**Aktuell: v1.4.0** — [English](../../release-notes/v1.4.0.md) · [한국어](../../release-notes/ko/v1.4.0.md) · [Deutsch](../../release-notes/de/v1.4.0.md)
+**Aktuell: v1.4.1** — [English](../../release-notes/v1.4.1.md) · [한국어](../../release-notes/ko/v1.4.1.md) · [Deutsch](../../release-notes/de/v1.4.1.md)
 
-relay-baton ist **seit v1.0.0 allgemein verfügbar (GA)**; aktuell ist **v1.4.0**.
+relay-baton ist **seit v1.0.0 allgemein verfügbar (GA)**; aktuell ist **v1.4.1**.
 
 - Vollständige Versionshistorie: [`CHANGELOG.md`](../../CHANGELOG.md)
 - Detaillierte Patch-Notes je Version: [release-notes index](../../release-notes/README.md)
