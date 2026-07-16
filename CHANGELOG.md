@@ -7,6 +7,29 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Per-release detail (EN + KO) lives in [`release-notes/`](./release-notes/). This
 file is the condensed, user-facing history.
 
+## [1.5.0] — 2026-07-16
+
+Desktop feature release; CLI behavior unchanged (versions in lockstep).
+
+### Added
+- **Run agents from the desktop app (confirmation-first).** New `/run
+  <task>` Agent Room command and a **Run here** button on the `/plan`,
+  `/execute`, and `/handoff` confirm modals — the exact command is shown
+  and nothing runs without the click, matching the AGENT_ROOM design
+  (preview → confirm → run). Output streams into a live timeline card
+  (`--pretty` formatting) with a Cancel button; on exit the card gets a
+  green `done` / red `exit N` chip and panels refresh. One run at a time,
+  output capped at 400 lines, card survives timeline reloads.
+- Tauri capabilities: scoped `shell:allow-spawn` for the sidecar and
+  `shell:allow-kill` for cancel.
+
+### Changed
+- The header Codex/Claude toggle now selects the agent that actually runs
+  (`--primary` / `--with`); `handoff` from the GUI launches the target
+  agent (dropped `--no-run`).
+- Guide/tooltip strings in all 4 GUI locales updated from "read-only" to
+  confirmation-first.
+
 ## [1.4.1] — 2026-07-16
 
 Desktop-only patch; no CLI changes.

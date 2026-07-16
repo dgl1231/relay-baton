@@ -19,6 +19,8 @@ into all ten README locales; older alpha notes are English + Korean only.
 
 ## Versions
 
+- [v1.5.0](./v1.5.0.md) — Run agents from the desktop app, confirmation-first: `/run <task>` + a "Run here" button on the /plan /execute /handoff confirm modals; output streams into a live timeline card (--pretty) with cancel and a done/exit chip; scoped shell spawn/kill capabilities. The GUI stays business-logic-free.
+  - [한국어](./ko/v1.5.0.md) · [日本語](./ja/v1.5.0.md) · [简体中文](./zh-CN/v1.5.0.md) · [繁體中文](./zh-TW/v1.5.0.md) · [Español](./es/v1.5.0.md) · [Français](./fr/v1.5.0.md) · [Deutsch](./de/v1.5.0.md) · [Português](./pt-BR/v1.5.0.md) · [Русский](./ru/v1.5.0.md)
 - [v1.4.1](./v1.4.1.md) — Desktop timeline polish: result cards survive timeline reloads (kept in memory, merged back by timestamp, cleared on project switch) and rows are role-coded (blue user border + lighter background, amber relay-baton, agent colors for claude/codex, mono commands). No CLI changes.
   - [한국어](./ko/v1.4.1.md) · [日本語](./ja/v1.4.1.md) · [简体中文](./zh-CN/v1.4.1.md) · [繁體中文](./zh-TW/v1.4.1.md) · [Español](./es/v1.4.1.md) · [Français](./fr/v1.4.1.md) · [Deutsch](./de/v1.4.1.md) · [Português](./pt-BR/v1.4.1.md) · [Русский](./ru/v1.4.1.md)
 - [v1.4.0](./v1.4.0.md) — Friendly agent stream & desktop result cards: opt-in `--pretty` on `run`/`plan`/`execute`/`handoff` renders the agent CLI's structured JSONL stream (claude stream-json / codex `--json`) as readable lines with a token/cost receipt; Agent Room slash-command results become structured cards (chips, budget gauge, git file rows, plan checklists) with a collapsed raw-json fallback.

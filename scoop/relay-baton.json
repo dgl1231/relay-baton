@@ -1,11 +1,11 @@
 {
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Token-aware handoff harness for Codex CLI and Claude Code.",
   "homepage": "https://github.com/dgl1231/relay-baton",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/dgl1231/relay-baton/releases/download/v1.4.1/relay-baton-windows-x64.exe#/relay-baton.exe",
+      "url": "https://github.com/dgl1231/relay-baton/releases/download/v1.5.0/relay-baton-windows-x64.exe#/relay-baton.exe",
       "hash": "c2ad5f6e70b963befc5cec19b3ddfbd30d712be3f83d44b7864a3574249d291b"
     }
   },

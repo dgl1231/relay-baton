@@ -9,7 +9,34 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-07-16 — **RELEASED as v1.4.1, VERIFIED end-to-end**
+_Last updated: 2026-07-16 (later) — **RELEASED as v1.5.0: GUI agent
+execution** (tag pushed — verify the release run, install the MSI, and
+verify a real /run on-device; browser-side verification passed, real Tauri
+spawn NOT yet exercised). Pre-release catch: capabilities only allowed
+`shell:allow-execute` — added scoped `shell:allow-spawn` + `shell:allow-kill`
+or Run-here would have been permission-denied on device. Detail below._
+
+_Same day, earlier — **GUI agent execution implementation.** The desktop Agent Room can now actually launch
+agents, confirmation-first (fits the standing "read-only or
+confirmation-first" hard rule; AGENT_ROOM.md always specified preview →
+confirm → run — the GUI just caught up). New in desktop/ui/index.html:
+`spawnSidecar()` (Tauri shell `Command.sidecar(...).spawn()` with line
+streaming; `window.__rbFakeStream` test seam for plain-browser dev),
+`runAgentStreaming()` (one run at a time, live output card in the timeline
+with a Cancel/kill button and running→done/exit-N chips, panels refresh on
+exit, output capped at 400 lines), a **Run here** button on the non-readonly
+confirm modal (records the command to the conversation log on click), new
+**`/run <task>`** composer command (`run <task> --primary <selected agent>
+--pretty`), and /plan /execute /handoff args now build real launching
+commands with `--pretty` (handoff dropped `--no-run`). Strings updated in
+all 4 GUI locales (tagline no longer says read-only; guide says
+confirmation-first). Verified in plain browser via the fake stream: confirm
+modal (Copy/Run here/Close), mid-run streaming + Cancel, clean exit → green
+"done" chip, kill → red "exit 137" chip; live card survives timeline
+re-merges via localEvents. NOT yet verified in a real Tauri build — needs
+the v1.5.0 MSI (or a local desktop build) to test actual sidecar spawn._
+
+_2026-07-16 — **RELEASED as v1.4.1, VERIFIED end-to-end**
 (desktop timeline polish: cards survive reloads + role-coded rows). Release
 run 29474372381 all-green (9 assets, npm 1.4.1, brew/scoop pushed, winget PR
 submitted). The v1.4.1 MSI was then installed on this machine and both fixes

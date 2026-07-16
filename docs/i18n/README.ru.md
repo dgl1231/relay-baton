@@ -252,9 +252,9 @@ pnpm relay-baton login claude
 
 ## Заметки о релизах
 
-**Последняя: v1.4.1** — [English](../../release-notes/v1.4.1.md) · [한국어](../../release-notes/ko/v1.4.1.md) · [Русский](../../release-notes/ru/v1.4.1.md)
+**Последняя: v1.5.0** — [English](../../release-notes/v1.5.0.md) · [한국어](../../release-notes/ko/v1.5.0.md) · [Русский](../../release-notes/ru/v1.5.0.md)
 
-relay-baton **вышел в стабильную версию (GA) v1.0.0**; последняя — **v1.4.1**.
+relay-baton **вышел в стабильную версию (GA) v1.0.0**; последняя — **v1.5.0**.
 
 - Полная история версий: [`CHANGELOG.md`](../../CHANGELOG.md)
 - Подробные заметки по версиям: [release-notes index](../../release-notes/README.md)
