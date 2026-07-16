@@ -9,9 +9,13 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-07-16 — **RELEASED as v1.4.1** (desktop timeline polish:
-cards survive reloads + role-coded rows; tag pushed — verify the release
-run). Detail below._
+_Last updated: 2026-07-16 — **RELEASED as v1.4.1, VERIFIED end-to-end**
+(desktop timeline polish: cards survive reloads + role-coded rows). Release
+run 29474372381 all-green (9 assets, npm 1.4.1, brew/scoop pushed, winget PR
+submitted). The v1.4.1 MSI was then installed on this machine and both fixes
+confirmed on-device: the /status card stayed visible after /budget reloaded
+the timeline, and user (blue border, lighter bg, mono commands) vs
+relay-baton (amber border) rows read apart. Detail below._
 
 _2026-07-16 — **Agent Room result cards now survive timeline reloads.** Local card events are kept
 in memory (`localEvents`, cap 50) and `renderTimeline()` merges them with
