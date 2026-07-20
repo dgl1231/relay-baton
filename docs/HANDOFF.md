@@ -9,7 +9,21 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-07-16 (later) — **RELEASED as v1.5.0: GUI agent
+_Last updated: 2026-07-20 — **v1.5.0 GUI agent execution VERIFIED
+end-to-end with a REAL agent run.** After the user re-authenticated the
+claude CLI (`/login` — the earlier 401 was a stale credential on this
+machine, not a v1.5.0 bug), the full loop completed on the installed MSI:
+`/run` in the Agent Room → confirm modal → 여기서 실행 → sidecar spawn →
+claude (sonnet-5) streamed `--pretty` output into the live card (`● model
+… · session …`, `→ Bash: ls README.md`) → **README.md in the scratch repo
+was actually modified in ~20s** → green `완료` chip + session badges
+flipped to completed and panels refreshed. Minor polish spotted: claude's
+`rate_limit_event` JSONL line is unknown to parseEvent and passes through
+raw into the card (by design, nothing lost) — suppressing it in
+ClaudeCodeAdapter.parseEvent is a one-line cleanup for the next release.
+The run-exit-code UX nit from 07-16 still stands. Prior entry below._
+
+_2026-07-16 (later) — **RELEASED as v1.5.0: GUI agent
 execution — VERIFIED on-device (mechanics).** Release run 29477520649
 all-green (9 assets, npm 1.5.0, brew/scoop, winget PR); MSI installed on
 this machine. Real-device /run verified end-to-end mechanically in a scratch
