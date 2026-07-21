@@ -7,6 +7,19 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Per-release detail (EN + KO) lives in [`release-notes/`](./release-notes/). This
 file is the condensed, user-facing history.
 
+## [1.6.1] — 2026-07-21
+
+Desktop-only release; CLI behavior unchanged (versions in lockstep).
+
+### Changed
+- **One-click Windows install.** The NSIS installer now skips the Welcome and
+  "Choose Install Location" pages — double-clicking `…-setup.exe` installs
+  straight to the default per-user location and shows the brand finish screen
+  (modern, wizard-less flow). Done via a version-matched custom NSIS template
+  (`desktop/src-tauri/installer/installer.nsi`) using the template's existing
+  `Skip` hook; upgrades still show the reinstall prompt. Brand artwork and
+  per-user/no-UAC install from v1.6.0 are unchanged.
+
 ## [1.6.0] — 2026-07-21
 
 Desktop-only release; CLI behavior unchanged (versions in lockstep).

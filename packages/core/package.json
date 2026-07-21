@@ -1,6 +1,6 @@
 {
   "name": "@relay-baton/core",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Core engine for relay-baton (UI-independent handoff, compaction, and orchestration logic)",
   "license": "MIT",
   "author": "DongGeon Lee",

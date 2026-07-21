@@ -10,7 +10,7 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 [![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-[![Latest](https://img.shields.io/badge/release-v1.6.0-blue.svg)](./CHANGELOG.md)
+[![Latest](https://img.shields.io/badge/release-v1.6.1-blue.svg)](./CHANGELOG.md)
 [![Download](https://img.shields.io/badge/download-binaries-238636.svg)](https://github.com/dgl1231/relay-baton/releases/latest)
 
 **English**
@@ -680,7 +680,7 @@ any real run). Design only for now — **not implemented yet**. Full design:
 
 Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-notes/README.md)). They are user-facing changelogs, not agent handoff material — that role belongs to `.ai-session/handoff.md`.
 
-**Latest:** v1.6.0 — [English](./release-notes/v1.6.0.md) · [한국어](./release-notes/ko/v1.6.0.md) · full history in [`CHANGELOG.md`](./CHANGELOG.md)
+**Latest:** v1.6.1 — [English](./release-notes/v1.6.1.md) · [한국어](./release-notes/ko/v1.6.1.md) · full history in [`CHANGELOG.md`](./CHANGELOG.md)
 
 > relay-baton reached **general availability at v1.0.0** (MIT, published to npm /
 > Homebrew / Scoop / Winget). Pre-1.0 tags below used a perpetual `-alpha.N`
@@ -688,6 +688,7 @@ Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-n
 
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
+| v1.6.1 | [Read →](./release-notes/v1.6.1.md) | [읽기 →](./release-notes/ko/v1.6.1.md) | One-click Windows install: NSIS setup skips the wizard pages (Welcome/Choose-Location) — double-click installs straight to a branded finish screen. |
 | v1.6.0 | [Read →](./release-notes/v1.6.0.md) | [읽기 →](./release-notes/ko/v1.6.0.md) | Modern Windows installer: brand-styled NSIS `…-setup.exe`, per-user install, no UAC (replaces the MSI wizard). |
 | v1.5.1 | [Read →](./release-notes/v1.5.1.md) | [읽기 →](./release-notes/ko/v1.5.1.md) | Honest run endings (failed chain exits `4` → red desktop chip) & quieter live card (claude `rate_limit_event` suppressed). |
 | v1.5.0 | [Read →](./release-notes/v1.5.0.md) | [읽기 →](./release-notes/ko/v1.5.0.md) | Run agents from the desktop app, confirmation-first: `/run <task>` + Run-here on plan/execute/handoff, live streaming card with cancel. |

@@ -9,7 +9,30 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-07-21 (later) — **RELEASED as v1.6.0: brand NSIS Windows
+_Last updated: 2026-07-21 (latest) — **RELEASED as v1.6.1: one-click Windows
+install** (tag pushed — verify the release run + install setup.exe on-device;
+build is CI-only, no local Rust). User feedback after v1.6.0: the branded
+NSIS wizard "still looks old" — the frame, not the images. Explained the hard
+limit (NSIS/WiX render classic Win32 chrome; a truly modern full-window frame
+needs a custom WiX Burn bootstrapper = separate pipeline + worse SmartScreen
+unsigned). User chose the pragmatic path: **make it one-click** (Discord/VS
+Code style, frame gets out of the way). Implemented via a custom NSIS
+template: fetched Tauri's exact v-matched `installer.nsi`
+(`@tauri-apps/cli-v2.11.2` tag → cli is 2.11.2, and CI uses `npm ci` against
+the committed lockfile which pins 2.11.2, so template matches), changed the
+Welcome (line ~163) and Directory (~384) pages' `MUI_PAGE_CUSTOMFUNCTION_PRE`
+from `SkipIfPassive` to the template's existing `Skip` (always-abort) fn;
+wired `bundle.windows.nsis.template: installer/installer.nsi`. PageReinstall
+self-aborts on a fresh install (line ~216) so upgrades still prompt. Net
+fresh-install flow: double-click → install progress (header brand) → Finish
+(sidebar brand + run app). Could NOT preview locally (no cargo) — verify by
+installing the v1.6.1 setup.exe on-device. If the custom template breaks the
+CI NSIS build, rollback = drop the `template` line from tauri.conf.json (falls
+back to Tauri's default 4-page wizard from v1.6.0). Notes in all 10 locales;
+CHANGELOG + index + README badge/Latest/table + 9 i18n lines synced. Prior
+entry below._
+
+_2026-07-21 (later) — **RELEASED as v1.6.0: brand NSIS Windows
 installer — VERIFIED on-device.** Release run 29794512856 all-green; asset is
 `relay-baton_1.6.0_x64-setup.exe` (MSI gone). Uninstalled the old MSI, ran
 the new setup.exe: welcome page shows the warm-dark brand sidebar (orange
