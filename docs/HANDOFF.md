@@ -9,8 +9,19 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-07-20 (later) — **RELEASED as v1.5.1** (tag pushed —
-verify the release run). Two follow-ups to v1.5.0, both from the on-device
+_Last updated: 2026-07-21 — **RELEASED as v1.5.1, VERIFIED on-device.**
+Release run 29792912305 all-green (9 assets, npm 1.5.1, brew/scoop, winget
+PR); MSI installed. Failed-ending red chip confirmed on the installed app: a
+scratch repo configured codex as `node -e "…process.exit(3)"` (spawns fine,
+exits non-zero), Codex selected in the header → `/run` → 여기서 실행 →
+streamed output ended `X codex exited with code 9` and the run card chip
+showed red **`exit 4`** (v1.5.0 would have shown green 완료). CLI sanity
+first: `relay-baton run … --primary codex` returned exit 4.
+NOTE for a future ask: the **MSI installer wizard is the stock Tauri/WiX
+template** — no custom WiX config, banner/dialog images, or license RTF in
+desktop/src-tauri (checked). Customizable via `bundle.windows.wix`
+(bannerPath 493×58, dialogImagePath 493×312, license .rtf, custom
+template.wxs) if the user wants branded installer chrome; not done yet. Two follow-ups to v1.5.0, both from the on-device
 `/run` verification: (1) `run`/`execute` now set `process.exitCode = 4` when
 the chain ends on an agent that ran but exited non-zero (was exit 0 → the
 desktop run card's chip showed green `done` next to `✗ … exited with code
