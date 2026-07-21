@@ -10,9 +10,16 @@
 > "세션 핸드오프 규칙".
 
 _Last updated: 2026-07-21 (later) — **RELEASED as v1.6.0: brand NSIS Windows
-installer** (tag pushed — verify the release run, then install the setup.exe
-on-device to eyeball the wizard chrome; NOT locally buildable — no Rust
-toolchain on this machine, so the installer only builds in CI). Switched the
+installer — VERIFIED on-device.** Release run 29794512856 all-green; asset is
+`relay-baton_1.6.0_x64-setup.exe` (MSI gone). Uninstalled the old MSI, ran
+the new setup.exe: welcome page shows the warm-dark brand sidebar (orange
+diamond + relay-baton wordmark + tagline + accent rule) with standard white
+text on the right — clean and modern; inner-page header shows the dark brand
+strip (diamond + wordmark) and reads cohesively; **install path
+`%LocalAppData%\relay-baton`, no UAC prompt** (per-user confirmed); app
+launches at 1.6.0, sidecar 1.6.0, nothing left in Program Files. The
+header-image-on-light-bg concern was unfounded — it looks intentional. (Build
+still CI-only; no Rust toolchain locally.) Switched the
 Windows desktop bundle from MSI to a brand-styled NSIS `…-setup.exe`:
 `bundle.windows.nsis` in tauri.conf.json = `installMode: currentUser` (no
 UAC), `installerIcon`, `headerImage`/`sidebarImage` (warm-dark BMPs with the
