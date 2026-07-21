@@ -10,8 +10,16 @@
 > "세션 핸드오프 규칙".
 
 _Last updated: 2026-07-21 (latest) — **RELEASED as v1.6.1: one-click Windows
-install** (tag pushed — verify the release run + install setup.exe on-device;
-build is CI-only, no local Rust). User feedback after v1.6.0: the branded
+install — VERIFIED on-device.** Release run 29796800853 all-green (the custom
+NSIS template compiled fine in CI — `desktop windows-x64: success`).
+On-device: uninstalled the prior NSIS build, double-clicked
+`relay-baton_1.6.1_x64-setup.exe`, **touched nothing** → the app installed
+straight to `%LocalAppData%\relay-baton` (no Welcome/Directory pages, no UAC),
+sidecar + app both report 1.6.1, nothing in Program Files. The one-click flow
+works. (Couldn't screenshot the Finish page — Windows foreground-lock kept
+capturing the wallpaper — but it reuses the v1.6.0 brand sidebar already
+verified.) Rollback path if ever needed stays: drop `bundle.windows.nsis.
+template` to revert to the default wizard. User feedback after v1.6.0: the branded
 NSIS wizard "still looks old" — the frame, not the images. Explained the hard
 limit (NSIS/WiX render classic Win32 chrome; a truly modern full-window frame
 needs a custom WiX Burn bootstrapper = separate pipeline + worse SmartScreen
