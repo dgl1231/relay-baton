@@ -195,8 +195,8 @@ jobs:
           - os: windows-latest
             label: windows-x64
             asset: relay-baton-windows-x64.exe
-            bundle-glob: desktop/src-tauri/target/release/bundle/msi/*.msi
-            updater-glob: desktop/src-tauri/target/release/bundle/msi/*.msi.sig
+            bundle-glob: desktop/src-tauri/target/release/bundle/nsis/*-setup.exe
+            updater-glob: desktop/src-tauri/target/release/bundle/nsis/*-setup.exe.sig
 
     steps:
       - name: Checkout
@@ -317,7 +317,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: npm run build
 
-      - name: Sign Windows MSI with Azure Artifact Signing
+      - name: Sign Windows installer with Azure Artifact Signing
         if: runner.os == 'Windows' && env.HAS_AZURE_SIGNING == 'true'
         uses: azure/artifact-signing-action@c7ab2a863ab5f9a846ddb8265964877ef296ee82 # v2
         with:
@@ -327,8 +327,8 @@ jobs:
           endpoint: ${{ secrets.AZURE_SIGNING_ENDPOINT }}
           signing-account-name: ${{ secrets.AZURE_SIGNING_ACCOUNT }}
           certificate-profile-name: ${{ secrets.AZURE_SIGNING_CERTIFICATE_PROFILE }}
-          files-folder: ${{ github.workspace }}\desktop\src-tauri\target\release\bundle\msi
-          files-folder-filter: "*.msi"
+          files-folder: ${{ github.workspace }}\desktop\src-tauri\target\release\bundle\nsis
+          files-folder-filter: "*-setup.exe"
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256

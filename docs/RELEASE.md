@@ -12,7 +12,8 @@ The distribution story is considered **finalized** for the v2.0 line. What every
   - 3 CLI single-file binaries (`relay-baton-linux-x64`,
     `relay-baton-macos-arm64`, `relay-baton-windows-x64.exe`); macOS is ad-hoc
     codesigned in CI.
-  - 3 desktop installers (`.dmg`, `.AppImage`, `.msi`) — unsigned fallback when
+  - 3 desktop installers (`.dmg`, `.AppImage`, and a Windows NSIS
+    `…-setup.exe` — per-user install, no UAC) — unsigned fallback when
     signing secrets are absent.
   - `SHA256SUMS` and a CycloneDX SBOM (`relay-baton.cdx.json`).
   - One-line installers (`install/install.sh`, `install/install.ps1`) download
@@ -193,7 +194,8 @@ downloads the SEA binary, stages it as a Tauri **sidecar**
 and attaches the per-OS installer to the same Release:
 
 - macOS → `.dmg`
-- Windows → `.msi`
+- Windows → NSIS `…-setup.exe` (per-user, no UAC; brand-styled wizard —
+  header/sidebar images in `desktop/src-tauri/installer/`)
 - Linux → `.AppImage`
 
 See [`../desktop/README.md`](../desktop/README.md) for the local build path.
@@ -208,8 +210,8 @@ absent; trusted signing requires paid provider accounts/certificates.
   `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_SIGNING_IDENTITY`,
   `APPLE_ID`, `APPLE_PASSWORD`, `APPLE_TEAM_ID`. Tauri handles signing and
   notarization when the required values are present.
-- **Windows** — after `tauri build`, the Windows desktop job signs `.msi` files
-  with `azure/artifact-signing-action@v2` when Azure signing secrets are present:
+- **Windows** — after `tauri build`, the Windows desktop job signs the NSIS
+  `…-setup.exe` with `azure/artifact-signing-action@v2` when Azure signing secrets are present:
   `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`,
   `AZURE_SIGNING_ENDPOINT`, `AZURE_SIGNING_ACCOUNT`,
   `AZURE_SIGNING_CERTIFICATE_PROFILE`.

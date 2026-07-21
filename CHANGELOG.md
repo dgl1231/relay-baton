@@ -7,6 +7,24 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Per-release detail (EN + KO) lives in [`release-notes/`](./release-notes/). This
 file is the condensed, user-facing history.
 
+## [1.6.0] — 2026-07-21
+
+Desktop-only release; CLI behavior unchanged (versions in lockstep).
+
+### Changed
+- **Windows desktop installer switched from MSI to a brand-styled NSIS
+  `…-setup.exe`.** Warm-dark welcome/finish panel matching the app (orange
+  diamond mark + `relay-baton` wordmark + `codex → claude handoff` tagline),
+  and **per-user install with no UAC prompt** (installs to the user profile
+  like VS Code/Discord). Brand images live in
+  `desktop/src-tauri/installer/`; configured via `bundle.windows.nsis`.
+- Release workflow now uploads `bundle/nsis/*-setup.exe` for Windows; docs
+  updated. CLI package channels (npm/Homebrew/Scoop/Winget), macOS `.dmg`,
+  and Linux `.AppImage` are unaffected.
+
+> Upgrading from a prior MSI install: uninstall the old entry once
+> (Settings → Apps), then run the new `…-setup.exe`.
+
 ## [1.5.1] — 2026-07-20
 
 Follow-ups to v1.5.0's desktop agent execution.

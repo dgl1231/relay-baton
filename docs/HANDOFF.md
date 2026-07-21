@@ -9,7 +9,27 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-07-21 — **RELEASED as v1.5.1, VERIFIED on-device.**
+_Last updated: 2026-07-21 (later) — **RELEASED as v1.6.0: brand NSIS Windows
+installer** (tag pushed — verify the release run, then install the setup.exe
+on-device to eyeball the wizard chrome; NOT locally buildable — no Rust
+toolchain on this machine, so the installer only builds in CI). Switched the
+Windows desktop bundle from MSI to a brand-styled NSIS `…-setup.exe`:
+`bundle.windows.nsis` in tauri.conf.json = `installMode: currentUser` (no
+UAC), `installerIcon`, `headerImage`/`sidebarImage` (warm-dark BMPs with the
+orange diamond + relay-baton wordmark, generated into
+`desktop/src-tauri/installer/`; `targets` stayed "all" — "all" already builds
+nsis, so only the release workflow's upload glob changed). release.yml
+windows matrix bundle-glob msi → `bundle/nsis/*-setup.exe` (+ updater-glob +
+the Azure signing step's files-folder). winget/scoop were NOT touched — they
+ship the standalone CLI exe, independent of the desktop installer. Docs
+(README download row, RELEASE.md) updated. Notes in all 10 locales; CHANGELOG
++ index + README badge/Latest/table + 9 i18n Latest lines synced. Caveat for
+verification: could not preview the wizard locally (no cargo); the BMPs were
+eyeballed as 2x PNGs and look on-brand, but the actual NSIS header/welcome
+layout needs an on-device install of the v1.6.0 setup.exe to confirm (and to
+check the header-image-on-light-bg cohesion). Prior entry below._
+
+_2026-07-21 — **RELEASED as v1.5.1, VERIFIED on-device.**
 Release run 29792912305 all-green (9 assets, npm 1.5.1, brew/scoop, winget
 PR); MSI installed. Failed-ending red chip confirmed on the installed app: a
 scratch repo configured codex as `node -e "…process.exit(3)"` (spawns fine,
