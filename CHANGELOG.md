@@ -7,6 +7,20 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Per-release detail (EN + KO) lives in [`release-notes/`](./release-notes/). This
 file is the condensed, user-facing history.
 
+## [1.5.1] — 2026-07-20
+
+Follow-ups to v1.5.0's desktop agent execution.
+
+### Fixed
+- **`run` and `execute` now exit `4` when the chain ends on an agent that
+  ran but exited non-zero** (previously exit `0`). The desktop run card keys
+  its chip off the exit code, so a failed ending now shows red instead of a
+  green `done`. Exit codes: `0` success · `1` spawn failure · `2` usage ·
+  `3` gate block · `4` failed agent ending.
+- Desktop live run card no longer shows claude's routine `rate_limit_event`
+  telemetry lines (suppressed in `ClaudeCodeAdapter.parseEvent`; the raw line
+  still reaches fallback detection and the on-disk log).
+
 ## [1.5.0] — 2026-07-16
 
 Desktop feature release; CLI behavior unchanged (versions in lockstep).

@@ -19,6 +19,8 @@ into all ten README locales; older alpha notes are English + Korean only.
 
 ## Versions
 
+- [v1.5.1](./v1.5.1.md) — Honest run endings & quieter live output: a relay chain that ends on a failed agent now exits `4` (the desktop run card colors its chip red instead of green), and claude's routine `rate_limit_event` telemetry is suppressed from the live card. No new commands.
+  - [한국어](./ko/v1.5.1.md) · [日本語](./ja/v1.5.1.md) · [简体中文](./zh-CN/v1.5.1.md) · [繁體中文](./zh-TW/v1.5.1.md) · [Español](./es/v1.5.1.md) · [Français](./fr/v1.5.1.md) · [Deutsch](./de/v1.5.1.md) · [Português](./pt-BR/v1.5.1.md) · [Русский](./ru/v1.5.1.md)
 - [v1.5.0](./v1.5.0.md) — Run agents from the desktop app, confirmation-first: `/run <task>` + a "Run here" button on the /plan /execute /handoff confirm modals; output streams into a live timeline card (--pretty) with cancel and a done/exit chip; scoped shell spawn/kill capabilities. The GUI stays business-logic-free.
   - [한국어](./ko/v1.5.0.md) · [日本語](./ja/v1.5.0.md) · [简体中文](./zh-CN/v1.5.0.md) · [繁體中文](./zh-TW/v1.5.0.md) · [Español](./es/v1.5.0.md) · [Français](./fr/v1.5.0.md) · [Deutsch](./de/v1.5.0.md) · [Português](./pt-BR/v1.5.0.md) · [Русский](./ru/v1.5.0.md)
 - [v1.4.1](./v1.4.1.md) — Desktop timeline polish: result cards survive timeline reloads (kept in memory, merged back by timestamp, cleared on project switch) and rows are role-coded (blue user border + lighter background, amber relay-baton, agent colors for claude/codex, mono commands). No CLI changes.

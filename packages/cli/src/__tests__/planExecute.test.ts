@@ -111,4 +111,39 @@ describe("plan/execute commands", () => {
     expect(typeof meta.executeStartedAt).toBe("string");
     expect(logs.join("\n")).not.toMatch(/Plan Quality Gate failed/);
   });
+
+  it("sets exit code 4 when the executor runs but exits non-zero (failed ending)", async () => {
+    // A real, spawnable executor that exits 3 with no output — distinct from a
+    // spawn error (exit 1). Verifies the failed ending surfaces as exit 4.
+    fs.writeFileSync(
+      path.join(repo, "relay-baton.config.json"),
+      JSON.stringify({
+        agents: { codex: { command: process.execPath, args: ["-e", "process.exit(3)"] } },
+      }),
+    );
+    await planCommand("Add a /health endpoint", { noRun: true, path: repo });
+    fs.writeFileSync(path.join(repo, ".ai-session", "plan.md"), [
+      "# relay-baton plan",
+      "## Goal", "Add a /health endpoint.",
+      "## Scope (in)", "- server route",
+      "## Out of scope", "- auth",
+      "## Approach", "Add GET /health.",
+      "## Steps", "1. add route", "2. add test",
+      "## Risks", "- none",
+      "## Verification", "pnpm test",
+      "## Next step", "- open server file",
+      "",
+    ].join("\n"));
+
+    const saved = process.exitCode;
+    process.exitCode = undefined;
+    try {
+      await executeCommand({ path: repo, with: "codex" });
+      expect(process.exitCode).toBe(4);
+      expect(readMeta(repo).status).toBe("failed");
+      expect(logs.join("\n")).toMatch(/execute finished without fallback/);
+    } finally {
+      process.exitCode = saved;
+    }
+  });
 });

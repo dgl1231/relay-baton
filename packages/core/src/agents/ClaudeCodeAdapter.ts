@@ -56,6 +56,11 @@ export class ClaudeCodeAdapter implements AgentAdapter {
         // tool results and partial deltas: suppressed (assistant/tool_use
         // events already carry the displayable signal).
         return [];
+      case "rate_limit_event":
+        // Routine quota telemetry claude emits mid-turn; noise in the card.
+        // Suppressed here, but the raw line still reaches the FallbackDetector
+        // (AgentRunner feeds it the raw stdout regardless of parseEvent).
+        return [];
       case "result": {
         if (j.is_error) {
           return [{ type: "error", text: typeof j.result === "string" ? j.result : (j.subtype ?? "agent error") }];

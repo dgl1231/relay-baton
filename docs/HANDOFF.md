@@ -9,7 +9,20 @@
 > "Next up", and record any new machine-specific gotchas. See `CLAUDE.md` →
 > "세션 핸드오프 규칙".
 
-_Last updated: 2026-07-20 — **v1.5.0 GUI agent execution VERIFIED
+_Last updated: 2026-07-20 (later) — **RELEASED as v1.5.1** (tag pushed —
+verify the release run). Two follow-ups to v1.5.0, both from the on-device
+`/run` verification: (1) `run`/`execute` now set `process.exitCode = 4` when
+the chain ends on an agent that ran but exited non-zero (was exit 0 → the
+desktop run card's chip showed green `done` next to `✗ … exited with code
+N`; exit 4 makes the chip red). Codes: 1 spawn / 2 usage / 3 gate / 4 failed
+agent; documented in COMMANDS EN+KO. (2) `ClaudeCodeAdapter.parseEvent` now
+suppresses `rate_limit_event` telemetry (returns `[]` not raw pass-through;
+raw still reaches the FallbackDetector). Tests: +1 cli (exit-4 via a
+node-exit-3 fake executor in planExecute.test.ts) +1 core (rate_limit_event
+suppressed) → 330 core + 94 cli. Notes in all 10 locales; CHANGELOG, index,
+README badge/Latest/table + 9 i18n Latest lines synced. Prior entry below._
+
+_2026-07-20 — **v1.5.0 GUI agent execution VERIFIED
 end-to-end with a REAL agent run.** After the user re-authenticated the
 claude CLI (`/login` — the earlier 401 was a stale credential on this
 machine, not a v1.5.0 bug), the full loop completed on the installed MSI:

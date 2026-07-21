@@ -1,7 +1,7 @@
 # Version manifest — submit under manifests/d/dgl1231/relay-baton/<version>/ in
 # microsoft/winget-pkgs (see winget/README.md).
 PackageIdentifier: dgl1231.relay-baton
-PackageVersion: 1.5.0
+PackageVersion: 1.5.1
 DefaultLocale: en-US
 ManifestType: version
 ManifestVersion: 1.6.0

@@ -112,6 +112,9 @@ export async function executeCommand(opts: ExecuteOpts) {
     finish(r.exitCode === 0 ? "completed" : "failed",
       r.exitCode === 0 ? null : `${executor} exited with ${r.exitCode}`, executor);
     console.log("[relay-baton] execute finished without fallback.");
+    // Exit 4 when the executor itself failed (matches `run`), so a failed
+    // ending is distinguishable from a clean one by exit code.
+    if (r.exitCode !== 0) process.exitCode = 4;
     return;
   }
 
@@ -165,4 +168,5 @@ export async function executeCommand(opts: ExecuteOpts) {
   }
   finish(r2.exitCode === 0 ? "completed" : "failed",
     r2.exitCode === 0 ? null : `${fb} exited with ${r2.exitCode}`, fb);
+  if (r2.exitCode !== 0) process.exitCode = 4;
 }

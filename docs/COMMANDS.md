@@ -209,6 +209,12 @@ agent's registry `strengths` tags, `run` prints a one-line chain suggestion.
 Display only — it never changes the resolved chain, and explicit
 `--chain`/`--primary` suppress it.
 
+**Exit codes (`run` / `execute`):** `0` success · `1` the agent could not be
+spawned (not installed / not on PATH) · `2` bad usage (not a git repo, unknown
+agent or diet) · `3` a quality gate blocked the handoff · **`4` the chain
+ended on an agent that ran but exited non-zero** (a failed ending, distinct
+from a clean one — the desktop run card colors its chip red on this).
+
 ### `route <task> [--json]`
 Read-only preview of the v2.8 **advisory routing hint**: resolves the relay
 chain exactly like `run` (flags > work-item assignment > project > config), then

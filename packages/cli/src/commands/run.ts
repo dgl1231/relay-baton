@@ -260,6 +260,10 @@ export async function runCommand(task: string, opts: RunOpts) {
       } else {
         ui.fail(`${agent} exited with code ${r.exitCode}.`);
         ui.hint(`the full log is in .ai-session/commands.log — ${color.bold("relay-baton status")} shows the session state.`);
+        // The chain ended on a failed agent with no successful relay. Surface
+        // it as exit 4 so callers (scripts, the desktop app's run card) can
+        // tell a failed ending from a clean one instead of seeing exit 0.
+        process.exitCode = 4;
       }
       return;
     }

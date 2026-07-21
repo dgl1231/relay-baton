@@ -67,6 +67,14 @@ describe("ClaudeCodeAdapter structured stream", () => {
     expect(a.parseEvent(JSON.stringify({ type: "future_thing" }))).toBeNull();
   });
 
+  it("suppresses rate_limit_event telemetry (not raw pass-through)", () => {
+    const evs = a.parseEvent(JSON.stringify({
+      type: "rate_limit_event",
+      rate_limit_info: { status: "allowed", resetsAt: 1784523600, rateLimitType: "five_hour" },
+    }));
+    expect(evs).toEqual([]);
+  });
+
   it("summarizeToolInput picks a stable field and truncates", () => {
     expect(summarizeToolInput({ command: "ls -la" })).toBe("ls -la");
     expect(summarizeToolInput({ file_path: "/a/b.ts" })).toBe("/a/b.ts");

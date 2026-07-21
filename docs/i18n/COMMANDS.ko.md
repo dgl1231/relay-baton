@@ -132,6 +132,12 @@ Fixed the flaky test — two files changed.
 태그와 더 잘 맞으면 `run`이 한 줄 제안을 출력한다. 표시 전용 — 실제 체인은 절대
 바꾸지 않으며 명시적 `--chain`/`--primary`가 있으면 힌트도 억제된다.
 
+**종료 코드 (`run` / `execute`):** `0` 성공 · `1` agent를 spawn하지 못함
+(미설치 / PATH에 없음) · `2` 사용 오류(git 저장소 아님, 알 수 없는 agent/diet)
+· `3` quality gate가 handoff를 차단 · **`4` 체인이 non-zero로 종료한 agent에서
+끝남**(정상 종료와 구분되는 실패 종료 — 데스크톱 실행 카드는 이때 chip을 빨간색
+으로 표시한다).
+
 ### `route <task> [--json]`
 v2.8 **advisory 라우팅 힌트**의 읽기 전용 미리보기: `run`과 동일하게 체인을
 결정한 뒤(플래그 > work-item 할당 > 프로젝트 > config), registry `strengths`
