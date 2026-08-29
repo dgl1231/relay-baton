@@ -77,17 +77,17 @@ importers:
         version: link:../shared
       ink:
         specifier: ^3.2.0
-        version: 3.2.0(@types/react@17.0.92)(react@17.0.2)
+        version: 3.2.0(@types/react@19.2.17)(react@19.2.7)
       react:
-        specifier: ^17.0.2
-        version: 17.0.2
+        specifier: ^19.2.7
+        version: 19.2.7
     devDependencies:
       '@types/node':
         specifier: ^20.14.10
         version: 20.19.41
       '@types/react':
-        specifier: ^17.0.83
-        version: 17.0.92
+        specifier: ^19.2.17
+        version: 19.2.17
       typescript:
         specifier: ^5.5.4
         version: 5.9.3
@@ -372,14 +372,8 @@ packages:
   '@types/node@20.19.41':
     resolution: {integrity: sha512-ECymXOukMnOoVkC2bb1Vc/w/836DXncOg5m8Xj1RH7xSHZJWNYY6Zh7EH477vcnD5egKNNfy2RpNOmuChhFPgQ==}
 
-  '@types/prop-types@15.7.15':
-    resolution: {integrity: sha512-F6bEyamV9jKGAFBEmlQnesRPGOQqS2+Uwi0Em15xenOxHaf2hv6L8YCVn3rPdPJOiJfPiCnLIRyvwVaqMY3MIw==}
-
-  '@types/react@17.0.92':
-    resolution: {integrity: sha512-TqKlM6WfeXFUV0rKnRhe7yYctmCNfLHhJGyN3FRr70nwQmCM4pYRO1l0W8979K0Va72KGF1d8MPtT1kt0pw0ng==}
-
-  '@types/scheduler@0.16.8':
-    resolution: {integrity: sha512-WZLiwShhwLRmeV6zH+GkbOFT6Z6VklCItrDioxUnv+u4Ll+8vKeFySoFyK/0ctcRpOmwAicELfmys1sDc/Rw+A==}
+  '@types/react@19.2.17':
+    resolution: {integrity: sha512-MXfmqaVPEVgkBT/aY0aGCkRWWtByiYQXo3xdQ8r5RzuFrPiRn8Gar2tQdXSUQ2GKV3bkXckek89V8wQBY2Q/Aw==}
 
   '@types/yoga-layout@1.9.2':
     resolution: {integrity: sha512-S9q47ByT2pPvD65IvrWp7qppVMpk9WGMbVq9wbWZOHg6tnXSD4vyhao6nOSBwwfDdV2p3Kx9evA9vI+XWTfDvw==}
@@ -630,8 +624,8 @@ packages:
     peerDependencies:
       react: ^17.0.2
 
-  react@17.0.2:
-    resolution: {integrity: sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA==}
+  react@19.2.7:
+    resolution: {integrity: sha512-HNe9WslTbXmFK8o8cmwgAeJFSBvt1bPdHCVKtaaV+WlAN36mpT4hcRpwbf3fY56ar2oIXzsBpOAiIRHAdY0OlQ==}
     engines: {node: '>=0.10.0'}
 
   restore-cursor@3.1.0:
@@ -983,15 +977,9 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
-  '@types/prop-types@15.7.15': {}
-
-  '@types/react@17.0.92':
+  '@types/react@19.2.17':
     dependencies:
-      '@types/prop-types': 15.7.15
-      '@types/scheduler': 0.16.8
       csstype: 3.2.3
-
-  '@types/scheduler@0.16.8': {}
 
   '@types/yoga-layout@1.9.2': {}
 
@@ -1154,7 +1142,7 @@ snapshots:
 
   indent-string@4.0.0: {}
 
-  ink@3.2.0(@types/react@17.0.92)(react@17.0.2):
+  ink@3.2.0(@types/react@19.2.17)(react@19.2.7):
     dependencies:
       ansi-escapes: 4.3.2
       auto-bind: 4.0.0
@@ -1167,9 +1155,9 @@ snapshots:
       is-ci: 2.0.0
       lodash: 4.18.1
       patch-console: 1.0.0
-      react: 17.0.2
+      react: 19.2.7
       react-devtools-core: 4.28.5
-      react-reconciler: 0.26.2(react@17.0.2)
+      react-reconciler: 0.26.2(react@19.2.7)
       scheduler: 0.20.2
       signal-exit: 3.0.7
       slice-ansi: 3.0.0
@@ -1181,7 +1169,7 @@ snapshots:
       ws: 7.5.11
       yoga-layout-prebuilt: 1.10.0
     optionalDependencies:
-      '@types/react': 17.0.92
+      '@types/react': 19.2.17
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -1244,17 +1232,14 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  react-reconciler@0.26.2(react@17.0.2):
+  react-reconciler@0.26.2(react@19.2.7):
     dependencies:
       loose-envify: 1.4.0
       object-assign: 4.1.1
-      react: 17.0.2
+      react: 19.2.7
       scheduler: 0.20.2
 
-  react@17.0.2:
-    dependencies:
-      loose-envify: 1.4.0
-      object-assign: 4.1.1
+  react@19.2.7: {}
 
   restore-cursor@3.1.0:
     dependencies:
