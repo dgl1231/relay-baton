@@ -48,7 +48,7 @@ const program = new Command();
 program
   .name("relay-baton")
   .description("Token-aware handoff harness for Codex CLI and Claude Code")
-  .version("1.6.1");
+  .version("1.7.0");
 
 function addProjectOptions(cmd: Command): Command {
   return cmd
@@ -86,7 +86,8 @@ program
   .option("--allow-api-key-env", "allow passing API key env vars to child processes")
   .option("--primary <agent>", "first agent in the relay chain (default: config primaryAgent)")
   .option("--fallback <agent>", "second agent in the relay chain (default: config fallbackAgent)")
-  .option("--chain <a,b,c>", "explicit N-way relay chain (overrides --primary/--fallback)")
+  .option("--chain <a,b,c>", "explicit N-way relay chain (overrides --primary/--fallback); entries may be agent:model, e.g. claude:claude-opus-5-5,claude:claude-sonnet-5")
+  .option("--model <id>", "model for the first hop (passed to the agent CLI's model flag; default: config agents.<id>.model or the CLI's own default)")
   .option("--until <n>", "bounded auto-orchestration: up to N extra continue-steps (guardrail-gated, confirm each)")
   .option("--yes", "pre-approve bounded --until steps and threshold handoffs (still capped + gated)")
   .option("--handoff-now", "relay to the next agent after each hop even without a fallback signal (manual trigger)")
@@ -114,6 +115,7 @@ const handoff = program
   .option("--diet <profile>", "diet profile: off|lite|balanced|caveman|ultra")
   .option("--force", "ignore quality gate failures")
   .option("--no-run", "do not launch the next agent")
+  .option("--model <id>", "model for the launched agent (default: config agents.<id>.model or the CLI's own default)")
   .option("--allow-api-key-env", "allow passing API key env vars to child processes")
   .option("--pretty", "friendly rendering of the agent's structured output stream (codex/claude; others fall back to raw)")
   .option("--project <name-or-id>", "registered project name or id")
@@ -185,6 +187,7 @@ program
   .option("--diet <profile>", "diet profile: off|lite|balanced|caveman|ultra")
   .option("--with <agent>", "planner agent (default: config planExecute.defaultPlanner)")
   .option("--planner <agent>", "planner agent (alias of --with)")
+  .option("--model <id>", "model for the planner agent")
   .option("--executor <agent>", "executor agent for --then-execute")
   .option("--no-run", "scaffold an empty plan template instead of launching the planner")
   .option("--then-execute", "run the execute phase immediately after a passing plan")
@@ -200,6 +203,7 @@ program
   .description("Plan-execute mode: an executor agent implements .ai-session/plan.md")
   .option("--diet <profile>", "diet profile: off|lite|balanced|caveman|ultra")
   .option("--with <agent>", "executor agent (default: config planExecute.defaultExecutor)")
+  .option("--model <id>", "model for the executor agent")
   .option("--from <path>", "read the plan from a custom path")
   .option("--force", "ignore quality gate failures")
   .option("--allow-api-key-env", "allow passing API key env vars to child processes")

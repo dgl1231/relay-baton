@@ -1,6 +1,7 @@
 import { safeSpawnSync } from "./safeSpawn";
 import type { AgentCommand, AgentRunInput, AgentConfig, AgentEvent } from "@relay-baton/shared";
 import type { AgentAdapter } from "./AgentAdapter";
+import { withModelArgs } from "./AgentRegistry";
 
 /**
  * stream-json print mode: `-p --output-format stream-json --verbose` emits one
@@ -22,8 +23,8 @@ export class ClaudeCodeAdapter implements AgentAdapter {
   buildCommand(input: AgentRunInput): AgentCommand {
     const prompt = input.prompt ?? input.task;
     const args = input.structuredStream
-      ? [...this.cfg.args, ...STREAM_ARGS, prompt]
-      : [...this.cfg.args, prompt];
+      ? [...withModelArgs(this.id, this.cfg.args, input.model ?? this.cfg.model), ...STREAM_ARGS, prompt]
+      : [...withModelArgs(this.id, this.cfg.args, input.model ?? this.cfg.model), prompt];
     return { command: this.cfg.command, args, cwd: input.repoRoot };
   }
 
@@ -34,7 +35,7 @@ export class ClaudeCodeAdapter implements AgentAdapter {
       case "system":
         if (j.subtype === "init") {
           const bits = [j.model && `model ${j.model}`, j.session_id && `session ${j.session_id}`].filter(Boolean);
-          return [{ type: "system", text: bits.join(" · ") || "session started" }];
+          return [{ type: "system", text: bits.join(" · ") || "session started", model: typeof j.model === "string" ? j.model : undefined }];
         }
         return [];
       case "assistant": {

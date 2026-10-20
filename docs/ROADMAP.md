@@ -41,6 +41,11 @@ commit/push/PR, deterministic compaction only.**
 - **v1.5** — Git tracking & session insight: read-only git status snapshots,
   session baselines, review/status/handoff git context.
 
+> The headings below use the pre-GA alpha numbering. Post-GA releases
+> (v1.0.0 GA → v1.6.1 desktop installers → **v1.7.0 model selection**: `--model`,
+> `agents.<id>.model`, same-agent `agent:model` chain fallback, desktop model
+> picker) are tracked in [`CHANGELOG.md`](../CHANGELOG.md).
+
 ## v1.1 — Distributable (shipped, v1.1.3)
 
 Make relay-baton something you **download and run**, not only something you

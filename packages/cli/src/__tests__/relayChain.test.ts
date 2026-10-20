@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { resolveChain } from "../commands/run";
+import { resolveChain, resolveHops } from "../commands/run";
 
 const config = { primaryAgent: "codex" as const, fallbackAgent: "claude" as const };
 
@@ -34,5 +34,23 @@ describe("resolveChain — deterministic who's-next policy (v2.3)", () => {
   it("collapses immediate duplicates and a single-agent chain", () => {
     expect(resolveChain({ chain: "codex,codex,claude" }, undefined, config)).toEqual(["codex", "claude"]);
     expect(resolveChain({ primary: "codex", fallback: "codex" }, undefined, config)).toEqual(["codex"]);
+  });
+});
+
+describe("resolveHops — model-aware relay hops (v1.7)", () => {
+  it("parses agent:model entries and keeps same-agent model fallback as two hops", () => {
+    expect(resolveHops({ chain: "claude:claude-opus-5-5,claude:claude-sonnet-5,codex" }, undefined, config)).toEqual([
+      { agent: "claude", model: "claude-opus-5-5" },
+      { agent: "claude", model: "claude-sonnet-5" },
+      { agent: "codex", model: undefined },
+    ]);
+  });
+
+  it("--model fills the first hop only when its entry names no model", () => {
+    expect(resolveHops({ model: "gpt-6.1-sol" }, undefined, config)).toEqual([
+      { agent: "codex", model: "gpt-6.1-sol" },
+      { agent: "claude", model: undefined },
+    ]);
+    expect(resolveHops({ chain: "codex:gpt-6-luna", model: "gpt-6.1-sol" }, undefined, config)[0].model).toBe("gpt-6-luna");
   });
 });

@@ -15,7 +15,16 @@ import type { AgentId, RelayBatonConfig } from "@relay-baton/shared";
  * codex / claude are first-class; opencode / gemini / aider / cursor are v2.3
  * supported adapters (see AgentRegistry for tiers).
  */
-export function adapterFor(id: AgentId, config: RelayBatonConfig): AgentAdapter {
+export function adapterFor(id: AgentId, config: RelayBatonConfig, model?: string): AgentAdapter {
+  const adapter = baseAdapterFor(id, config);
+  if (!model) return adapter;
+  // --model / chain `agent:model` beats config.agents.<id>.model for this run.
+  const build = adapter.buildCommand.bind(adapter);
+  adapter.buildCommand = input => build({ ...input, model: input.model ?? model });
+  return adapter;
+}
+
+function baseAdapterFor(id: AgentId, config: RelayBatonConfig): AgentAdapter {
   switch (id) {
     case "codex":
       return new CodexAdapter(config.agents.codex);

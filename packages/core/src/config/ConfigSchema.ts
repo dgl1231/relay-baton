@@ -43,6 +43,7 @@ export function validateConfig(config: RelayBatonConfig): ValidationResult {
     for (const [id, a] of Object.entries(config.agents)) {
       if (!a || typeof a.command !== "string" || !a.command) errors.push(`agents.${id}.command must be a non-empty string`);
       if (!Array.isArray(a?.args)) errors.push(`agents.${id}.args must be an array`);
+      if (a?.model !== undefined && (typeof a.model !== "string" || !a.model.trim())) errors.push(`agents.${id}.model must be a non-empty string when set`);
     }
   }
 

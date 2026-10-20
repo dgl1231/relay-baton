@@ -109,6 +109,12 @@
         background: var(--inset); color: var(--fg); border: 1px solid var(--border2);
         border-radius: var(--radius-sm); padding: 6px 10px; font: inherit; font-size: 13px;
       }
+      .agent-group { display: inline-flex; align-items: center; gap: 8px; }
+      input.model-pick {
+        background: var(--inset); color: var(--fg); border: 1px solid var(--border2);
+        border-radius: var(--radius-sm); padding: 6px 8px; font-size: 12px; width: 150px;
+      }
+      input.model-pick::placeholder { color: var(--muted); }
       .seg {
         display: inline-flex; border: 1px solid var(--border2); border-radius: var(--radius-sm);
         overflow: hidden; background: var(--border);
@@ -320,10 +326,14 @@
         <option>off</option><option>lite</option><option>balanced</option>
         <option selected>caveman</option><option>ultra</option>
       </select>
+      <span class="agent-group">
       <span class="muted" data-i18n="targetAgent">agent</span>
       <span class="seg" data-i18n-title="agentTitle">
         <button id="agent-codex" type="button" data-agent="codex">Codex</button>
         <button id="agent-claude" type="button" data-agent="claude">Claude</button>
+      </span>
+      <input id="model" class="model-pick" list="model-options" autocomplete="off" spellcheck="false" data-i18n-title="modelTitle" data-i18n-placeholder="modelDefault" />
+      <datalist id="model-options"></datalist>
       </span>
       <button id="open-handoff" class="ghost" data-i18n="handoff" data-i18n-title="handoffTitle">handoff</button>
       <button id="theme" class="ghost" data-i18n-title="themeTitle">◐</button>
@@ -492,6 +502,8 @@
           dietTitle: "diet profile passed to the next agent action (display only here)",
           targetAgent: "agent",
           agentTitle: "target agent for previewed plan/execute/handoff commands",
+          modelTitle: "model for the selected agent — pick a suggestion or type any id; empty = the CLI default",
+          modelDefault: "model: CLI default",
           themeTitle: "toggle light / dark (t)",
           helpTitle: "keyboard shortcuts (?)",
           refresh: "Refresh",
@@ -640,6 +652,8 @@
           dietTitle: "다음 agent 작업에 전달될 diet profile (여기서는 표시용)",
           targetAgent: "agent",
           agentTitle: "미리보기되는 plan/execute/handoff 명령의 대상 agent",
+          modelTitle: "선택한 agent의 모델 — 추천 목록에서 고르거나 아무 id나 입력; 비우면 CLI 기본값",
+          modelDefault: "모델: CLI 기본값",
           themeTitle: "라이트/다크 전환 (t)",
           helpTitle: "키보드 단축키 (?)",
           refresh: "새로고침",
@@ -788,6 +802,8 @@
           dietTitle: "次のagent操作に渡すdiet profile (ここでは表示のみ)",
           targetAgent: "agent",
           agentTitle: "プレビューされるplan/execute/handoffコマンドの対象agent",
+          modelTitle: "選択したagentのモデル — 候補から選ぶか任意のidを入力。空欄 = CLIのデフォルト",
+          modelDefault: "モデル: CLIデフォルト",
           themeTitle: "ライト/ダーク切替 (t)",
           helpTitle: "キーボードショートカット (?)",
           refresh: "更新",
@@ -936,6 +952,8 @@
           dietTitle: "传给下一次agent操作的diet profile (这里只显示)",
           targetAgent: "agent",
           agentTitle: "预览的 plan/execute/handoff 命令目标 agent",
+          modelTitle: "所选 agent 的模型 — 选择建议项或输入任意 id；留空 = CLI 默认",
+          modelDefault: "模型：CLI 默认",
           themeTitle: "切换明暗模式 (t)",
           helpTitle: "键盘快捷键 (?)",
           refresh: "刷新",
@@ -1479,14 +1497,34 @@
         return primary === "codex" || primary === "claude" ? primary : "claude";
       }
 
+      // Suggestions only (mirrors AgentRegistry model.suggested); any id typed
+      // in the box is passed through, so new models need no app update.
+      const MODEL_SUGGESTIONS = {
+        codex: ["gpt-6.1-sol", "gpt-6-astra", "gpt-6-luna"],
+        claude: ["claude-opus-5-5", "claude-sonnet-5", "claude-fable-5-1", "claude-haiku-4-5"],
+      };
+
+      function selectedModel(agent = selectedAgent()) {
+        return (localStorage.getItem(`rb-model-${agent}`) || "").trim();
+      }
+
       function applyAgent(agent = selectedAgent()) {
         const value = agent === "codex" ? "codex" : "claude";
         localStorage.setItem("rb-agent", value);
         $("agent-codex").classList.toggle("active", value === "codex");
         $("agent-claude").classList.toggle("active", value === "claude");
+        const list = $("model-options");
+        list.replaceChildren(...MODEL_SUGGESTIONS[value].map((m) => Object.assign(document.createElement("option"), { value: m })));
+        $("model").value = selectedModel(value);
       }
 
       function agentArgs(command, task = "") {
+        const base = agentBaseArgs(command, task);
+        const model = selectedModel();
+        return model && base.length > 1 ? [...base, "--model", model] : base;
+      }
+
+      function agentBaseArgs(command, task = "") {
         const agent = selectedAgent();
         // These commands may actually launch an agent now (confirmation-first),
         // so build the real launching command; --pretty gives readable output
@@ -2344,6 +2382,13 @@
 
       $("agent-codex").addEventListener("click", () => applyAgent("codex"));
       $("agent-claude").addEventListener("click", () => applyAgent("claude"));
+      $("model").addEventListener("change", () => {
+        const agent = selectedAgent();
+        const value = $("model").value.trim();
+        if (value) localStorage.setItem(`rb-model-${agent}`, value);
+        else localStorage.removeItem(`rb-model-${agent}`);
+        $("model").value = value;
+      });
       applyAgent();
 
       $("updates-opt-in").addEventListener("change", (e) => {

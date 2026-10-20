@@ -1,6 +1,7 @@
 import { safeSpawnSync } from "./safeSpawn";
 import type { AgentCommand, AgentRunInput, AgentConfig } from "@relay-baton/shared";
 import type { AgentAdapter } from "./AgentAdapter";
+import { withModelArgs } from "./AgentRegistry";
 
 /**
  * Adapter for the Cursor CLI agent (https://cursor.com/cli).
@@ -20,7 +21,7 @@ export class CursorAdapter implements AgentAdapter {
 
   buildCommand(input: AgentRunInput): AgentCommand {
     const prompt = input.prompt ?? input.task;
-    const args = [...this.cfg.args, prompt];
+    const args = [...withModelArgs(this.id, this.cfg.args, input.model ?? this.cfg.model), prompt];
     return { command: this.cfg.command, args, cwd: input.repoRoot };
   }
 }

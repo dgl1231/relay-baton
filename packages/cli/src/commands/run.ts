@@ -2,13 +2,13 @@ import {
   ConfigLoader, SessionManager, GitService, BatonWorkflow,
   FallbackDetector, resolveFallbackPatterns, runAgent,
   HandoffQualityGate, TokenDietQualityGate, PromptBuilder, ContextCompressor,
-  agentFallbackPatterns, isAgentId, UsageLedger,
+  agentFallbackPatterns, parseChainEntry, UsageLedger,
   BoundedOrchestrator, GuardrailPolicy, ExecutionCheckpoints, HookRunner,
   WorkspaceManager, HandoffTriggerPolicy, suggestChain,
 } from "@relay-baton/core";
 import * as readline from "readline";
 import * as fs from "fs";
-import type { AgentId, DietProfileName } from "@relay-baton/shared";
+import type { AgentId, DietProfileName, RelayBatonConfig } from "@relay-baton/shared";
 import { ProjectOpts, resolveProjectContext } from "./projectOptions";
 import { adapterFor } from "./agentFor";
 import { auditApiKeyEnv } from "./auditApiKeyEnv";
@@ -23,8 +23,10 @@ export interface RunOpts extends ProjectOpts {
   primary?: string;
   /** Override the second agent (single-fallback shorthand). */
   fallback?: string;
-  /** Explicit N-way chain, comma-separated (e.g. "claude,codex,gemini"). */
+  /** Explicit N-way chain, comma-separated (e.g. "claude,codex,gemini"); entries may be `agent:model`. */
   chain?: string;
+  /** Model for the first hop (unless its chain entry names one). */
+  model?: string;
   /** v2.5: bounded auto-orchestration — max extra continue-steps after the first pass. */
   until?: string;
   /** Pre-approve bounded continue steps (still capped + guardrail-gated). */
@@ -59,18 +61,28 @@ function confirm(question: string): Promise<boolean> {
   });
 }
 
+/** One relay hop: an agent plus an optional model override. */
+export interface RelayHop {
+  agent: AgentId;
+  model?: string;
+}
+
 /**
  * Deterministic "who's next" policy (v2.3): the relay chain is an ordered list
  * of agents. `--chain` wins; otherwise it is [primary, fallback] resolved from
  * flags > project overrides > config. Supports reverse (claude->codex) and
  * longer chains, not just codex->claude.
+ *
+ * v1.7: entries may carry a model (`claude:claude-opus-5-5`), so a chain can
+ * fall back between models of the same agent. `--model` sets the first hop's
+ * model when its entry doesn't name one.
  */
-export function resolveChain(
+export function resolveHops(
   opts: RunOpts,
   project: { primaryAgent?: AgentId; fallbackAgent?: AgentId } | undefined,
   config: { primaryAgent: AgentId; fallbackAgent: AgentId },
   assignedAgent?: AgentId,
-): AgentId[] {
+): RelayHop[] {
   let ids: string[];
   if (opts.chain) {
     ids = opts.chain.split(",").map(s => s.trim()).filter(Boolean);
@@ -81,18 +93,41 @@ export function resolveChain(
     const fallback = opts.fallback ?? project?.fallbackAgent ?? config.fallbackAgent;
     ids = fallback && fallback !== primary ? [primary, fallback] : [primary];
   }
+  const parsed: RelayHop[] = [];
   for (const id of ids) {
-    if (!isAgentId(id)) {
+    const hop = parseChainEntry(id);
+    if (!hop) {
       ui.fail(`unknown agent in relay chain: ${id}`);
-      ui.hint(`known agents: codex, claude, opencode, gemini, aider, cursor`);
+      ui.hint(`known agents: codex, claude, opencode, gemini, aider, cursor (optionally agent:model)`);
       process.exit(2);
     }
+    parsed.push(hop);
   }
+  if (opts.model && parsed.length > 0 && !parsed[0].model) parsed[0] = { ...parsed[0], model: opts.model };
   // Collapse immediate duplicates (a,a -> a); keep distinct relay hops.
-  const chain: AgentId[] = [];
-  for (const id of ids as AgentId[]) if (chain[chain.length - 1] !== id) chain.push(id);
-  return chain;
+  const hops: RelayHop[] = [];
+  for (const h of parsed) {
+    const prev = hops[hops.length - 1];
+    if (!prev || prev.agent !== h.agent || prev.model !== h.model) hops.push(h);
+  }
+  return hops;
 }
+
+/** Agent-only view of resolveHops (kept for callers that only need ids). */
+export function resolveChain(
+  opts: RunOpts,
+  project: { primaryAgent?: AgentId; fallbackAgent?: AgentId } | undefined,
+  config: { primaryAgent: AgentId; fallbackAgent: AgentId },
+  assignedAgent?: AgentId,
+): AgentId[] {
+  return resolveHops(opts, project, config, assignedAgent).map(h => h.agent);
+}
+
+/** `agent` or `agent:model`, using the config default model when the hop names none. */
+const hopLabel = (h: RelayHop, config: RelayBatonConfig) => {
+  const model = h.model ?? config.agents[h.agent]?.model;
+  return model ? `${h.agent}:${model}` : h.agent;
+};
 
 export async function runCommand(task: string, opts: RunOpts) {
   const projectContext = resolveProjectContext(opts, true);
@@ -125,8 +160,10 @@ export async function runCommand(task: string, opts: RunOpts) {
 
   // v2.6: honor the active work item's assigned agent as the default primary.
   const assignedAgent = activeItem?.assignedAgent;
-  const chain = resolveChain(opts, projectContext.project, config, assignedAgent);
-  ui.info(`relay chain: ${ui.chain(chain)}${assignedAgent && !opts.primary && !opts.chain ? color.dim(` (session "${activeItem!.name}" → ${assignedAgent})`) : ""}`);
+  const hops = resolveHops(opts, projectContext.project, config, assignedAgent);
+  const chain = hops.map(h => h.agent);
+  const labels = hops.map(h => hopLabel(h, config));
+  ui.info(`relay chain: ${ui.chain(labels)}${assignedAgent && !opts.primary && !opts.chain ? color.dim(` (session "${activeItem!.name}" → ${assignedAgent})`) : ""}`);
 
   // v2.8 advisory routing hint — deterministic keyword match against registry
   // strength tags. Display only: never changes the resolved chain, and explicit
@@ -149,6 +186,8 @@ export async function runCommand(task: string, opts: RunOpts) {
     activeAgent: chain[0],
     tokenDietProfile: profileName,
     fallbackReason: null,
+    activeModel: null,
+    reportedModel: null,
     startedAt,
     endedAt: undefined,
     durationMs: undefined,
@@ -176,15 +215,21 @@ export async function runCommand(task: string, opts: RunOpts) {
 
   for (let hop = 0; hop < chain.length; hop++) {
     const agent = chain[hop];
+    const model = hops[hop].model;
     const isFirst = hop === 0;
     const nextAgent: AgentId | null = hop + 1 < chain.length ? chain[hop + 1] : null;
-    const adapter = adapterFor(agent, config);
+    const adapter = adapterFor(agent, config, model);
 
     // First hop runs the task fresh; later hops continue from the handoff. Pass
     // the continuation in both task+prompt so task- and prompt-oriented adapters
     // alike launch with the handoff framing.
     const continuation = PromptBuilder.continuation();
     const { structured, io } = agentStreamIO(adapter, opts.pretty);
+    const render = io.onEvent;
+    if (render) io.onEvent = ev => {
+      if (ev.type === "system" && ev.model) sm.updateMeta({ reportedModel: ev.model });
+      render(ev);
+    };
     const cmd = isFirst
       ? adapter.buildCommand({ task, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName, structuredStream: structured })
       : adapter.buildCommand({ task: continuation, prompt: continuation, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName, structuredStream: structured });
@@ -197,8 +242,8 @@ export async function runCommand(task: string, opts: RunOpts) {
         ))
       : undefined;
 
-    sm.updateMeta({ status: isFirst ? "running" : "running_fallback", activeAgent: agent });
-    ui.heading(`${isFirst ? "Starting" : "Continuing"} with ${color.bold(agent)}  ${color.dim(`(hop ${hop + 1}/${chain.length})`)}`);
+    sm.updateMeta({ status: isFirst ? "running" : "running_fallback", activeAgent: agent, activeModel: model ?? config.agents[agent]?.model ?? null });
+    ui.heading(`${isFirst ? "Starting" : "Continuing"} with ${color.bold(labels[hop])}  ${color.dim(`(hop ${hop + 1}/${chain.length})`)}`);
     ui.step(`${cmd.command} ${cmd.args.join(" ")}`);
     const r = await runAgent({
       command: cmd,
@@ -249,7 +294,7 @@ export async function runCommand(task: string, opts: RunOpts) {
       // v2.5: bounded auto-orchestration. Only when the agent finished cleanly
       // and --until is set. Strictly capped, guardrail-gated, confirmation-first.
       if (r.exitCode === 0 && r.fallbackReason === null && opts.until) {
-        await runUntilLoop(agent, { repoRoot, sm, config, profileName, opts, startedAt, finalize, runHooks });
+        await runUntilLoop(agent, model, { repoRoot, sm, config, profileName, opts, startedAt, finalize, runHooks });
         return;
       }
       if (r.exitCode === 0) runHooks("postExecute");
@@ -284,7 +329,7 @@ export async function runCommand(task: string, opts: RunOpts) {
     runHooks("preHandoff");
     ui.step(`building a compact handoff for ${color.bold(nextAgent!)}…`);
     const wf = new BatonWorkflow(sm, config);
-    const h = wf.buildHandoff({ profileName, fallbackReason: relayReason!, previousAgent: agent, nextAgent: nextAgent! });
+    const h = wf.buildHandoff({ profileName, fallbackReason: relayReason!, previousAgent: labels[hop], nextAgent: labels[hop + 1] });
     sm.updateMeta({ handoffCount: (sm.getMeta()?.handoffCount ?? 0) + 1 });
     // v2.4 local usage insight (token proxy; never transmitted).
     new UsageLedger(repoRoot).record("handoff", nextAgent!, h.usedChars, `${agent}→${nextAgent}`);
@@ -309,7 +354,7 @@ export async function runCommand(task: string, opts: RunOpts) {
       ui.hint(`fix the findings (safest), or re-run with --force if you're sure.`);
       process.exit(3);
     }
-    if (!blocked) ui.ok(`handoff ready — passing the baton: ${ui.chain(chain, hop + 1)}`);
+    if (!blocked) ui.ok(`handoff ready — passing the baton: ${ui.chain(labels, hop + 1)}`);
     // loop continues to nextAgent
   }
 }
@@ -330,7 +375,7 @@ interface UntilCtx {
  * guardrail step cap), gated by GuardrailPolicy each step, and confirmation-first
  * unless --yes. Never a daemon, never unattended without explicit pre-approval.
  */
-async function runUntilLoop(agent: AgentId, ctx: UntilCtx) {
+async function runUntilLoop(agent: AgentId, model: string | undefined, ctx: UntilCtx) {
   const { repoRoot, sm, config, profileName, opts, startedAt, finalize, runHooks } = ctx;
   const maxSteps = Math.max(1, Math.floor(Number(opts.until)) || 0);
   if (maxSteps < 1) { finalize("completed", agent, null); return; }
@@ -343,7 +388,7 @@ async function runUntilLoop(agent: AgentId, ctx: UntilCtx) {
   });
   const checkpoints = new ExecutionCheckpoints(repoRoot, config);
   const ledger = new UsageLedger(repoRoot);
-  const adapter = adapterFor(agent, config);
+  const adapter = adapterFor(agent, config, model);
 
   ui.info(`bounded auto-orchestration: up to ${maxSteps} extra step(s) on ${color.bold(agent)} ${color.dim(`(guardrail-gated${opts.yes ? "" : ", confirm each"})`)}`);
 

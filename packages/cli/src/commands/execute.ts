@@ -12,6 +12,7 @@ import { agentStreamIO } from "../agentStream";
 export interface ExecuteOpts extends ProjectOpts {
   diet?: string;
   with?: string;
+  model?: string;
   from?: string;
   force?: boolean;
   allowApiKeyEnv?: boolean;
@@ -76,7 +77,7 @@ export async function executeCommand(opts: ExecuteOpts) {
     fallbackReason: null,
   });
 
-  const adapter = adapterFor(executor, config);
+  const adapter = adapterFor(executor, config, opts.model);
   const prompt = PromptBuilder.executor();
   const { structured, io } = agentStreamIO(adapter, opts.pretty);
   const cmd = adapter.buildCommand({ task: prompt, prompt, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName, structuredStream: structured });

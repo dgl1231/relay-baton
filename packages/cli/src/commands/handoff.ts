@@ -14,6 +14,7 @@ import { agentStreamIO } from "../agentStream";
 export interface HandoffOpts extends ProjectOpts {
   to: string;
   diet?: string;
+  model?: string;
   force?: boolean;
   run?: boolean;
   noRun?: boolean;
@@ -123,7 +124,7 @@ export async function handoffCommand(opts: HandoffOpts) {
   const adapter = new ClaudeCodeAdapter(config.agents.claude);
   const prompt = PromptBuilder.claudeContinuation();
   const { structured, io } = agentStreamIO(adapter, opts.pretty);
-  const cmd = adapter.buildCommand({ task: prevMeta.task, repoRoot, sessionDir: sm.files.dir, prompt, structuredStream: structured });
+  const cmd = adapter.buildCommand({ task: prevMeta.task, repoRoot, sessionDir: sm.files.dir, prompt, structuredStream: structured, model: opts.model });
   sm.updateMeta({ activeAgent: "claude", status: "running_fallback" });
   const r = await runAgent({
     command: cmd,

@@ -10,7 +10,7 @@ Pass compressed coding state between Codex CLI, Claude Code, and whatever ships 
 [![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
-[![Latest](https://img.shields.io/badge/release-v1.6.1-blue.svg)](./CHANGELOG.md)
+[![Latest](https://img.shields.io/badge/release-v1.7.0-blue.svg)](./CHANGELOG.md)
 [![Download](https://img.shields.io/badge/download-binaries-238636.svg)](https://github.com/dgl1231/relay-baton/releases/latest)
 
 **English**
@@ -469,7 +469,7 @@ Principles:
   "fallbackAgent": "claude",
   "agents": {
     "codex":  { "command": "codex",  "args": ["exec", "--sandbox", "workspace-write"] },
-    "claude": { "command": "claude", "args": ["--permission-mode", "acceptEdits", "-p"] }
+    "claude": { "command": "claude", "args": ["--permission-mode", "acceptEdits", "-p"], "model": "claude-opus-5-5" }
   },
   "fallbackPatterns": [
     "usage limit reached",
@@ -501,6 +501,10 @@ Principles:
   }
 }
 ```
+
+`agents.<id>.model` is optional (absent = the CLI's own default); override it per
+run with `--model <id>`, or relay between models of one agent with
+`--chain claude:claude-opus-5-5,claude:claude-sonnet-5,codex`.
 
 If no config file exists, defaults are used. `handoffTriggers` (v1.2.0) is
 optional — when any threshold is reached after a clean agent exit, `run`
@@ -680,7 +684,7 @@ any real run). Design only for now — **not implemented yet**. Full design:
 
 Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-notes/README.md)). They are user-facing changelogs, not agent handoff material — that role belongs to `.ai-session/handoff.md`.
 
-**Latest:** v1.6.1 — [English](./release-notes/v1.6.1.md) · [한국어](./release-notes/ko/v1.6.1.md) · full history in [`CHANGELOG.md`](./CHANGELOG.md)
+**Latest:** v1.7.0 — [English](./release-notes/v1.7.0.md) · [한국어](./release-notes/ko/v1.7.0.md) · full history in [`CHANGELOG.md`](./CHANGELOG.md)
 
 > relay-baton reached **general availability at v1.0.0** (MIT, published to npm /
 > Homebrew / Scoop / Winget). Pre-1.0 tags below used a perpetual `-alpha.N`
@@ -688,6 +692,7 @@ Detailed notes live in [`release-notes/`](./release-notes/) ([index](./release-n
 
 | Version | English | 한국어 | One-line summary |
 |---|---|---|---|
+| v1.7.0 | [Read →](./release-notes/v1.7.0.md) | [읽기 →](./release-notes/ko/v1.7.0.md) | Model selection: `--model`, per-agent `agents.<id>.model`, same-agent model fallback (`--chain claude:claude-opus-5-5,claude:claude-sonnet-5`), desktop model picker, broader fallback detection. |
 | v1.6.1 | [Read →](./release-notes/v1.6.1.md) | [읽기 →](./release-notes/ko/v1.6.1.md) | One-click Windows install: NSIS setup skips the wizard pages (Welcome/Choose-Location) — double-click installs straight to a branded finish screen. |
 | v1.6.0 | [Read →](./release-notes/v1.6.0.md) | [읽기 →](./release-notes/ko/v1.6.0.md) | Modern Windows installer: brand-styled NSIS `…-setup.exe`, per-user install, no UAC (replaces the MSI wizard). |
 | v1.5.1 | [Read →](./release-notes/v1.5.1.md) | [읽기 →](./release-notes/ko/v1.5.1.md) | Honest run endings (failed chain exits `4` → red desktop chip) & quieter live card (claude `rate_limit_event` suppressed). |

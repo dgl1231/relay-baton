@@ -1,6 +1,7 @@
 import { safeSpawnSync } from "./safeSpawn";
 import type { AgentCommand, AgentRunInput, AgentConfig, AgentEvent } from "@relay-baton/shared";
 import type { AgentAdapter } from "./AgentAdapter";
+import { withModelArgs } from "./AgentRegistry";
 
 export class CodexAdapter implements AgentAdapter {
   id = "codex" as const;
@@ -15,8 +16,8 @@ export class CodexAdapter implements AgentAdapter {
   buildCommand(input: AgentRunInput): AgentCommand {
     // `codex exec --json` emits one JSON event per line (thread/turn/item).
     const args = input.structuredStream
-      ? [...this.cfg.args, "--json", input.task]
-      : [...this.cfg.args, input.task];
+      ? [...withModelArgs(this.id, this.cfg.args, input.model ?? this.cfg.model), "--json", input.task]
+      : [...withModelArgs(this.id, this.cfg.args, input.model ?? this.cfg.model), input.task];
     return { command: this.cfg.command, args, cwd: input.repoRoot };
   }
 

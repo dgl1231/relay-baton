@@ -7,6 +7,25 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Per-release detail (EN + KO) lives in [`release-notes/`](./release-notes/). This
 file is the condensed, user-facing history.
 
+## [1.7.0] — 2026-10-20
+
+### Added
+- **Model selection.** `--model <id>` on `run`/`plan`/`execute`/`handoff`, and
+  a per-agent default `agents.<id>.model` in config. Forwarded to each CLI's
+  own model flag (`codex exec -m`, `claude --model`, `gemini -m`, …); any id is
+  accepted, so new models need no relay-baton release.
+- **Same-agent model fallback.** Chain entries accept `agent:model`, e.g.
+  `--chain claude:claude-opus-5-5,claude:claude-sonnet-5,codex`.
+- **Desktop model picker** beside the Codex/Claude switch (suggestions for
+  current models or free text; empty = CLI default; remembered per agent).
+- `session.json` records `activeModel` and `reportedModel` (claude stream-json
+  init); handoffs label hops as `agent:model`.
+
+### Changed
+- Broader fallback detection: `overloaded_error`, `resource_exhausted`,
+  `credit balance is too low`, `context window exceeded`, and codex's
+  "You've hit your usage limit" wording.
+
 ## [1.6.1] — 2026-07-21
 
 Desktop-only release; CLI behavior unchanged (versions in lockstep).

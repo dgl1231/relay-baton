@@ -13,6 +13,7 @@ import { agentStreamIO } from "../agentStream";
 export interface PlanOpts extends ProjectOpts {
   diet?: string;
   with?: string;
+  model?: string;
   planner?: string;
   executor?: string;
   force?: boolean;
@@ -78,7 +79,7 @@ export async function planCommand(task: string, opts: PlanOpts) {
   if (backupPath) console.log(`[relay-baton] backed up previous plan: ${backupPath}`);
 
   // Launch the planner agent with the planner prompt.
-  const adapter = adapterFor(planner, config);
+  const adapter = adapterFor(planner, config, opts.model);
   const prompt = PromptBuilder.planner(task);
   const { structured, io } = agentStreamIO(adapter, opts.pretty);
   const cmd = adapter.buildCommand({ task: prompt, prompt, repoRoot, sessionDir: sm.files.dir, dietProfile: profileName, structuredStream: structured });

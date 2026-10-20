@@ -19,6 +19,8 @@ into all ten README locales; older alpha notes are English + Korean only.
 
 ## Versions
 
+- [v1.7.0](./v1.7.0.md) — Model selection: `--model` on run/plan/execute/handoff, per-agent `agents.<id>.model`, same-agent model fallback via `--chain agent:model,…`, a desktop model picker, and broader fallback detection.
+  - [한국어](./ko/v1.7.0.md) · [日本語](./ja/v1.7.0.md) · [简体中文](./zh-CN/v1.7.0.md) · [繁體中文](./zh-TW/v1.7.0.md) · [Español](./es/v1.7.0.md) · [Français](./fr/v1.7.0.md) · [Deutsch](./de/v1.7.0.md) · [Português](./pt-BR/v1.7.0.md) · [Русский](./ru/v1.7.0.md)
 - [v1.6.1](./v1.6.1.md) — One-click Windows install: the NSIS setup skips the Welcome and Choose-Location pages (custom template) so double-clicking installs straight to the per-user location and shows a brand finish screen. Brand artwork and no-UAC install unchanged.
   - [한국어](./ko/v1.6.1.md) · [日本語](./ja/v1.6.1.md) · [简体中文](./zh-CN/v1.6.1.md) · [繁體中文](./zh-TW/v1.6.1.md) · [Español](./es/v1.6.1.md) · [Français](./fr/v1.6.1.md) · [Deutsch](./de/v1.6.1.md) · [Português](./pt-BR/v1.6.1.md) · [Русский](./ru/v1.6.1.md)
 - [v1.6.0](./v1.6.0.md) — Modern Windows installer: the desktop app ships as a brand-styled NSIS `…-setup.exe` (warm-dark welcome panel, per-user install, no UAC) instead of the classic MSI wizard. CLI channels (npm/brew/scoop/winget), macOS, and Linux unchanged.

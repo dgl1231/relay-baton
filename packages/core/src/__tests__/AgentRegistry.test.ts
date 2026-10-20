@@ -5,7 +5,12 @@ import {
   getAgentDescriptor,
   isAgentId,
   agentFallbackPatterns,
+  withModelArgs,
+  parseChainEntry,
 } from "../agents/AgentRegistry";
+import { CodexAdapter } from "../agents/CodexAdapter";
+import { ClaudeCodeAdapter } from "../agents/ClaudeCodeAdapter";
+import { GeminiAdapter } from "../agents/GeminiAdapter";
 import { CursorAdapter } from "../agents/CursorAdapter";
 import { defaultConfig } from "../config/defaultConfig";
 import { validateConfig } from "../config/ConfigSchema";
@@ -84,5 +89,33 @@ describe("CursorAdapter", () => {
   it("returns false from detectAvailable when binary is missing", async () => {
     const a = new CursorAdapter({ command: "definitely-not-cursor-xyz", args: ["-p"] });
     expect(await a.detectAvailable()).toBe(false);
+  });
+
+  it("splices the model flag after the subcommand and before value-taking flags", () => {
+    expect(withModelArgs("codex", ["exec", "--sandbox", "workspace-write"], "gpt-6.1-sol"))
+      .toEqual(["exec", "-m", "gpt-6.1-sol", "--sandbox", "workspace-write"]);
+    expect(withModelArgs("gemini", ["-p"], "gemini-3.8-flash")).toEqual(["-m", "gemini-3.8-flash", "-p"]);
+    expect(withModelArgs("claude", ["-p"], "  ")).toEqual(["-p"]);
+  });
+
+  it("adapters honor input.model over config model", () => {
+    const base = { task: "t", repoRoot: "/r", sessionDir: "/r/.ai-session" };
+    expect(new ClaudeCodeAdapter({ command: "claude", args: ["--permission-mode", "acceptEdits", "-p"], model: "claude-sonnet-5" })
+      .buildCommand({ ...base, model: "claude-opus-5-5" }).args)
+      .toEqual(["--model", "claude-opus-5-5", "--permission-mode", "acceptEdits", "-p", "t"]);
+    expect(new CodexAdapter({ command: "codex", args: ["exec"], model: "gpt-6-luna" }).buildCommand(base).args)
+      .toEqual(["exec", "-m", "gpt-6-luna", "t"]);
+    expect(new GeminiAdapter().buildCommand(base).args).toEqual(["-p", "t"]);
+  });
+
+  it("parses agent:model chain entries", () => {
+    expect(parseChainEntry("claude:claude-opus-5-5")).toEqual({ agent: "claude", model: "claude-opus-5-5" });
+    expect(parseChainEntry("codex")).toEqual({ agent: "codex", model: undefined });
+    expect(parseChainEntry("nope:x")).toBeNull();
+  });
+
+  it("rejects an empty agents.<id>.model", () => {
+    const bad = { ...defaultConfig, agents: { ...defaultConfig.agents, codex: { ...defaultConfig.agents.codex, model: "" } } };
+    expect(validateConfig(bad).ok).toBe(false);
   });
 });

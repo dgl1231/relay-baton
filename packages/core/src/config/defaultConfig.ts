@@ -24,6 +24,10 @@ export const defaultConfig: RelayBatonConfig = {
     "insufficient quota",
     "maximum context length",
     "too many requests",
+    "context window exceeded",
+    "overloaded_error",
+    "resource_exhausted",
+    "credit balance is too low",
   ],
   commands: { test: "", build: "" },
   authPolicy: {

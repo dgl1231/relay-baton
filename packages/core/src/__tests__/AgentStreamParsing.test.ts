@@ -27,7 +27,7 @@ describe("ClaudeCodeAdapter structured stream", () => {
 
   it("parses system init into a system event", () => {
     const evs = a.parseEvent(JSON.stringify({ type: "system", subtype: "init", model: "claude-x", session_id: "s1" }));
-    expect(evs).toEqual([{ type: "system", text: "model claude-x · session s1" }]);
+    expect(evs).toEqual([{ type: "system", text: "model claude-x · session s1", model: "claude-x" }]);
   });
 
   it("parses assistant content blocks into text / reasoning / tool_use events", () => {

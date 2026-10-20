@@ -151,12 +151,16 @@ hands off to the next agent. Repeats down the chain until an agent finishes
 without a fallback or the chain is exhausted.
 
 The chain (deterministic "who's next" policy, v2.3):
-- `--chain <a,b,c>` — explicit N-way chain (overrides the pair below).
+- `--chain <a,b,c>` — explicit N-way chain (overrides the pair below). Entries
+  may be `agent:model` (v1.7) to relay between models of one agent, e.g.
+  `--chain claude:claude-opus-5-5,claude:claude-sonnet-5,codex`.
 - else `--primary <agent>` / `--fallback <agent>`, falling back to project
   overrides, then config `primaryAgent`/`fallbackAgent`.
 
 Supports reverse relay (e.g. `--primary claude --fallback codex`) and longer
-chains, not just codex→claude. Other options: `--diet`, `--force`,
+chains, not just codex→claude. `--model <id>` (v1.7, also on `plan`/`execute`/
+`handoff`) sets the first hop's model, forwarded to the CLI's own model flag;
+the default is config `agents.<id>.model`, else the CLI default. Other options: `--diet`, `--force`,
 `--allow-api-key-env`, `--pretty`, `--project`, `--path`.
 
 **Friendly agent stream (`--pretty`):** asks the agent CLI for its

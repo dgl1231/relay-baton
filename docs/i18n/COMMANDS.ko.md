@@ -98,7 +98,10 @@ Codex / Claude Code 대화형 login 실행. `agent`는 `codex` | `claude` | `all
 **relay chain**을 실행: 첫 agent가 작업을 수행하고, usage/rate/token/context/quota
 fallback 신호가 오면 handoff를 만들어 다음 agent로 넘긴다. 체인 결정(v2.3):
 `--chain a,b,c` > `--primary`/`--fallback` > 프로젝트 override > config. 역방향
-(claude→codex)과 N-way 체인 지원. 옵션: `--diet`, `--force`,
+(claude→codex)과 N-way 체인 지원. v1.7: 체인 항목은 `agent:model` 가능(예:
+`--chain claude:claude-opus-5-5,claude:claude-sonnet-5,codex`로 같은 agent의 모델 간
+fallback), `--model <id>`(plan/execute/handoff에도 있음)는 첫 hop의 모델을 CLI의 모델
+플래그로 전달하며 기본값은 config `agents.<id>.model`, 없으면 CLI 기본값. 옵션: `--diet`, `--force`,
 `--allow-api-key-env`, `--pretty`, `--project`, `--path`, `--until <n>`(+`--yes`,
 v2.5 bounded auto-orchestration — 확인 우선, guardrail로 게이트).
 

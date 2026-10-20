@@ -1,6 +1,7 @@
 import { safeSpawnSync } from "./safeSpawn";
 import type { AgentCommand, AgentRunInput, AgentConfig } from "@relay-baton/shared";
 import type { AgentAdapter } from "./AgentAdapter";
+import { withModelArgs } from "./AgentRegistry";
 
 /**
  * Scaffold adapter for the Aider CLI (https://aider.chat).
@@ -20,7 +21,7 @@ export class AiderAdapter implements AgentAdapter {
 
   buildCommand(input: AgentRunInput): AgentCommand {
     const message = input.task ?? input.prompt ?? "";
-    const args = [...this.cfg.args, message];
+    const args = [...withModelArgs(this.id, this.cfg.args, input.model ?? this.cfg.model), message];
     return { command: this.cfg.command, args, cwd: input.repoRoot };
   }
 }

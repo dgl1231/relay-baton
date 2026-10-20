@@ -1,6 +1,7 @@
 import { safeSpawnSync } from "./safeSpawn";
 import type { AgentCommand, AgentRunInput, AgentConfig } from "@relay-baton/shared";
 import type { AgentAdapter } from "./AgentAdapter";
+import { withModelArgs } from "./AgentRegistry";
 
 /**
  * Scaffold adapter for the OpenCode CLI (https://opencode.ai).
@@ -19,7 +20,7 @@ export class OpenCodeAdapter implements AgentAdapter {
 
   buildCommand(input: AgentRunInput): AgentCommand {
     const prompt = input.prompt ?? input.task;
-    const args = [...this.cfg.args, prompt];
+    const args = [...withModelArgs(this.id, this.cfg.args, input.model ?? this.cfg.model), prompt];
     return { command: this.cfg.command, args, cwd: input.repoRoot };
   }
 }

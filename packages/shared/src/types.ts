@@ -40,6 +40,8 @@ export interface AuthPolicy {
 export interface AgentConfig {
   command: string;
   args: string[];
+  /** Default model passed via the agent's model flag. Absent = the CLI's own default. */
+  model?: string;
 }
 
 export interface RelayBatonConfig {
@@ -146,6 +148,11 @@ export interface SessionMeta {
   durationMs?: number;
   /** Total number of handoff documents successfully written in this session. */
   handoffCount?: number;
+  // v1.7 model selection — optional, backward compatible.
+  /** Model requested for the active hop (null = CLI default). */
+  activeModel?: string | null;
+  /** Model the agent CLI reported it actually ran (e.g. claude stream-json init). */
+  reportedModel?: string | null;
   // v0.5 plan-execute mode — all optional, backward compatible.
   /** Which workflow produced this session. Absent = legacy fallback flow. */
   workflowMode?: WorkflowMode;
@@ -173,6 +180,8 @@ export interface AgentRunInput {
    * older CLI versions may not support the flags.
    */
   structuredStream?: boolean;
+  /** Per-run model override (beats AgentConfig.model). */
+  model?: string;
 }
 
 export interface AgentCommand {
@@ -204,6 +213,8 @@ export interface AgentEvent {
   detail?: string;
   /** usage: figures reported by the agent CLI. */
   usage?: AgentUsage;
+  /** system: model id the agent CLI reported for this session. */
+  model?: string;
 }
 
 export interface BudgetSnapshot {
