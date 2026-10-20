@@ -56,14 +56,17 @@ never fails just because a channel isn't configured:
 
 | Job | Secret | What it does |
 | --- | --- | --- |
-| `publish-npm` | `NPM_TOKEN` | `pnpm -r publish` the four `@relay-baton/*` packages (skips versions already on npm) |
+| `publish-npm` | — (OIDC trusted publishing) | `pnpm pack` + `npm publish` the four `@relay-baton/*` packages (skips versions already on npm; provenance attached) |
 | `update-brew-scoop` | `HOMEBREW_TAP_TOKEN` | renders the formula/manifest with the real hashes and pushes to `homebrew-relay-baton` + `scoop-relay-baton` |
 | `update-winget` | `WINGET_TOKEN` | `wingetcreate update … --submit` opens the PR to `microsoft/winget-pkgs` |
 
 **One-time secret setup** (repo → Settings → Secrets and variables → Actions):
 
-- `NPM_TOKEN` — npm **automation** token (bypasses 2FA), access to the
-  `@relay-baton` org. Create at npmjs.com → Access Tokens.
+- npm — **no secret.** Since v1.7.0 `publish-npm` uses npm trusted publishing
+  (OIDC, `id-token: write`). One-time per package:
+  `npm trust github @relay-baton/<pkg> --file release.yml --repo dgl1231/relay-baton --allow-publish`
+  (or npmjs.com → package → Settings → Trusted Publisher). Bypass-2FA tokens
+  are being restricted by npm, so don't reintroduce `NPM_TOKEN`.
 - `HOMEBREW_TAP_TOKEN` — a GitHub PAT with **write** to both
   `dgl1231/homebrew-relay-baton` and `dgl1231/scoop-relay-baton` (fine-grained,
   Contents: Read/Write on those two repos).
